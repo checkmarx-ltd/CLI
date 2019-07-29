@@ -6,6 +6,7 @@ package com.cx.plugin.cli.constants;
 public final class Parameters {
 
     public static final String VERBOSE = "v";
+    public static final String VERBOSE_LONG = "verbose";
     public static final String SERVER_URL = "cxserver";
     public static final String USER_NAME = "cxuser";
     public static final String USER_PASSWORD = "cxpassword";
@@ -50,7 +51,6 @@ public final class Parameters {
 
     public static final String PRESET = "preset";
     public static final String SCAN_COMMENT = "comment";
-    public static final String MODE = "mode";
     public static final String IS_SSO = "usesso";
 
     public static final String SAST_HIGH = "sasthigh";

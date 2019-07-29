@@ -1,6 +1,7 @@
 package com.cx.plugin.cli;
 
 import com.cx.plugin.cli.constants.Command;
+import com.cx.plugin.cli.constants.Parameters;
 import com.cx.plugin.cli.exceptions.CLIParsingException;
 import com.cx.plugin.cli.utils.CxConfigHelper;
 import com.cx.restclient.CxShragaClient;
@@ -44,7 +45,7 @@ public class CxConsoleLauncher {
                 throw new CLIParsingException(String.format("command [%s] is invalid", commandLine.getArgs()[0]));
             }
             initLogging(commandLine);
-            exitCode = execute(commandLine);
+            exitCode = execute(command, commandLine);
         } catch (CLIParsingException | ParseException e) {
             CxConfigHelper.printHelp(command);
             log.error(String.format("\n\n[CxConsole] Error parsing command: \n%s\n\n", e));
@@ -57,11 +58,11 @@ public class CxConsoleLauncher {
         System.exit(exitCode);
     }
 
-    private static int execute(CommandLine cmd) throws CLIParsingException, IOException, CxClientException, URISyntaxException, InterruptedException {
+    private static int execute(Command command, CommandLine commandLine) throws CLIParsingException, IOException, CxClientException, URISyntaxException, InterruptedException {
         int exitCode = 0;
         ScanResults results = new ScanResults();
-        CxScanConfig cxScanConfig = CxConfigHelper.resolveConfigurations(cmd);
-        printConfig(cmd);
+        CxScanConfig cxScanConfig = CxConfigHelper.resolveConfigurations(command, commandLine);
+        printConfig(commandLine);
 
         org.slf4j.Logger logger = new Log4jLoggerFactory().getLogger(log.getName());
         CxShragaClient client = new CxShragaClient(cxScanConfig, logger);
@@ -98,7 +99,7 @@ public class CxConsoleLauncher {
             }
             Writer writer = new FileWriter(logPath);
             Appender faAppender = org.apache.log4j.Logger.getRootLogger().getAppender("FA");
-            if (commandLine.getOptionValue("v") != null) {
+            if (commandLine.hasOption(Parameters.VERBOSE)) {
                 //TODO: it seems that common client overrides threshold? prints only info level
                 ((RollingFileAppender) faAppender).setThreshold(Level.TRACE);
             }
@@ -120,13 +121,19 @@ public class CxConsoleLauncher {
         log.info("CxConsole Configuration: ");
         log.info("--------------------");
         for (Option param : commanLine.getOptions()) {
-            if (param.getArgName().equalsIgnoreCase("cxpassword")) {
-                log.info("Password: " + "********");
-                continue;
+            String name = param.getLongOpt() != null ? param.getLongOpt() : param.getOpt();
+            String value;
+            if (param.getOpt().equalsIgnoreCase(Parameters.USER_PASSWORD)){
+                value = "********";
             }
-            log.info(param.getArgName() + ": " + param.getValue());
+            else if (param.hasArg()){
+                value = param.getValue();
+            }
+            else {
+                value = "true";
+            }
+            log.info(String.format("%s: %s", name, value));
         }
         log.info("--------------------\n\n");
     }
-
 }

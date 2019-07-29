@@ -43,13 +43,15 @@ public final class CxConfigHelper {
     /**
      * Resolves configuration from the config file and the console parameters
      *
+     *
+     * @param command
      * @param cmd - The parameters passed by the user mapped by key/value
      * @return CxScanConfig an object containing all the relevant data for the scan
      */
     //TODO: use props where user param missing
-    public static CxScanConfig resolveConfigurations(CommandLine cmd) throws CLIParsingException, URISyntaxException {
+    public static CxScanConfig resolveConfigurations(Command command, CommandLine cmd) throws CLIParsingException, URISyntaxException {
         CxScanConfig scanConfig = new CxScanConfig();
-        setScanMode(Command.getCommandByValue(cmd.getOptionValue(MODE)), scanConfig);
+        setScanMode(command, scanConfig);
         scanConfig.setCxOrigin(CX_ORIGIN);
 
         if (Strings.isNullOrEmpty(cmd.getOptionValue(SERVER_URL))) {
@@ -413,6 +415,7 @@ public final class CxConfigHelper {
         switch (mode) {
             case SCAN:
                 scanConfig.setSastEnabled(true);
+                scanConfig.setSynchronous(true);
                 break;
             case ASYNC_SCAN:
                 scanConfig.setSastEnabled(true);
@@ -420,6 +423,7 @@ public final class CxConfigHelper {
                 break;
             case OSA_SCAN:
                 scanConfig.setOsaEnabled(true);
+                scanConfig.setSynchronous(true);
                 break;
             case ASYNC_OSA_SCAN:
                 scanConfig.setOsaEnabled(true);

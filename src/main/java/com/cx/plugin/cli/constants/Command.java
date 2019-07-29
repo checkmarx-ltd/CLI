@@ -117,6 +117,8 @@ public enum Command {
         options.addOption(OSA_MEDIUM, true, Constants.OSA_MEDIUM_DESC);
         options.addOption(OSA_LOW, true, Constants.OSA_LOW_DESC);
 
+        options.addOption(VERBOSE, VERBOSE_LONG, false, Constants.VERBOSE_DESC);
+
         return options;
     }
 
@@ -193,5 +195,6 @@ public enum Command {
         static final String OSA_MEDIUM_DESC = "CxOSA medium severity vulnerability threshold. If the number of medium vulnerabilities exceeds the threshold, scan will end with an error (see Error/Exit Codes). Optional. Not supported in AsyncScan mode";
         static final String OSA_LOW_DESC = "CxOSA low severity vulnerability threshold. If the number of low vulnerabilities exceeds the threshold, scan will end with an error (see Error/Exit Codes). Optional. Not supported in AsyncScan mode";
         static final String IS_CHECKED_POLICY_DESC = "This parameter will break the build if the CxOSA policy is violated. Optional.";
+        static final String VERBOSE_DESC = "Turns on verbose mode. All messages and events will be sent to the console or log file.";
     }
 }
