@@ -30,12 +30,13 @@ steps:
     regionName: 'eu-west-1'
     bucketName: 'cxsdlc'
     globExpressions: '*9.20*.jar'
-    targetFolder: '~/.m2/repository/com/cx/plugin/cli/9.20.0-SNAPSHOT'
+    targetFolder: ''
 - task: Bash@3
   inputs:
     targetType: 'inline'
     script: |
       pwd
+      ls
       cd ~/.m2/repository/com/cx/plugin/cli/9.20.0-SNAPSHOT
       pwd
       ls
