@@ -10,6 +10,14 @@ pool:
   vmImage: 'ubuntu-latest'
 
 steps:
+
+- task: Bash@3
+  inputs:
+    targetType: 'inline'
+    script: |
+      mkdir ~/.m2/repository/com/cx/plugin/cli/9.20.0-SNAPSHOT
+      cd ~/.m2/repository/com/cx/plugin/cli/9.20.0-SNAPSHOT
+      ls
 - task: S3Download@1
   inputs:
     awsCredentials: 'CxSLDC bucket'
