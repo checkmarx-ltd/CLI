@@ -21,7 +21,10 @@ steps:
   inputs:
     targetType: 'inline'
     script: |
+      pwd
+      ls
       cd ~/
+      pwd
       ls
 
 - task: Maven@3
