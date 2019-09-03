@@ -21,8 +21,13 @@ steps:
   inputs:
     targetType: 'inline'
     script: |
-      mvn install:install-file -Dfile=cx-client-common-9.20.0.jar -DgroupId=com.checkmarx -DartifactId=cx-client-common -Dversion=9.20.0 -Dpackaging=jar
       mvn install
+    failOnStderr: false
+- task: Bash@3
+  inputs:
+    targetType: 'inline'
+    script: |
+      mvn install:install-file -Dfile=cx-client-common-9.20.0.jar -DgroupId=com.checkmarx -DartifactId=cx-client-common -Dversion=9.20.0 -Dpackaging=jar
     failOnStderr: false
 
 - task: Maven@3
