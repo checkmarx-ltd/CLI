@@ -16,13 +16,13 @@ steps:
     targetType: 'inline'
     script: |
       cd ~
-      mkdir -v 777 .m2
-      mkdir -v 777 .m2/repository
-      mkdir -v 777 .m2/repository/com
-      mkdir -v 777 .m2/repository/com/cx
-      mkdir -v 777 .m2/repository/com/cx/plugin
-      mkdir -v 777 .m2/repository/com/cx/plugin/cli
-      mkdir -v 777 .m2/repository/com/cx/plugin/cli/9.20.0-SNAPSHOT 777
+      mkdir -v -m 777 .m2
+      mkdir -v -m 777 .m2/repository
+      mkdir -v -m 777 .m2/repository/com
+      mkdir -v -m 777 .m2/repository/com/cx
+      mkdir -v -m 777 .m2/repository/com/cx/plugin
+      mkdir -v -m 777 .m2/repository/com/cx/plugin/cli
+      mkdir -v -m 777 .m2/repository/com/cx/plugin/cli/9.20.0-SNAPSHOT 777
 
 - task: S3Download@1
   inputs:
