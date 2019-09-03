@@ -35,7 +35,7 @@ steps:
   inputs:
     targetType: 'inline'
     script: |
-      pwd
+      cp *.jar ~/.m2/repository/com/cx/plugin/cli/9.20.0-SNAPSHOT
       ls
       cd ~/.m2/repository/com/cx/plugin/cli/9.20.0-SNAPSHOT
       pwd
