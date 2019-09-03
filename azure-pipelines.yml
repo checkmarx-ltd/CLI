@@ -21,9 +21,13 @@ steps:
   inputs:
     targetType: 'inline'
     script: |
+      cd ~/work/1/a
       pwd
       ls
-      cd ~/work/1/
+      cd ~/work/1/b
+      pwd
+      ls
+      cd ~/work/1/s
       pwd
       ls
 
