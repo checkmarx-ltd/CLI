@@ -10,6 +10,37 @@ pool:
   vmImage: 'ubuntu-latest'
 
 steps:
+
+- task: Bash@3
+  inputs:
+    targetType: 'inline'
+    script: |
+      cd ~
+      mkdir -v .m2
+      mkdir -v .m2/repository
+      mkdir -v .m2/repository/com
+      mkdir -v .m2/repository/com/cx
+      mkdir -v .m2/repository/com/cx/plugin
+      mkdir -v .m2/repository/com/cx/plugin/cli
+      mkdir -v .m2/repository/com/cx/plugin/cli/9.20.0-SNAPSHOT
+
+- task: S3Download@1
+  inputs:
+    awsCredentials: 'CxSLDC bucket'
+    regionName: 'eu-west-1'
+    bucketName: 'cxsdlc'
+    globExpressions: '*9.20*.jar'
+    targetFolder: ''
+- task: Bash@3
+  inputs:
+    targetType: 'inline'
+    script: |
+      cp *.jar ~/.m2/repository/com/cx/plugin/cli/9.20.0-SNAPSHOT
+      ls
+      cd ~/.m2/repository/com/cx/plugin/cli/9.20.0-SNAPSHOT
+      pwd
+      ls
+
 - task: Maven@3
   inputs:
     mavenPomFile: 'pom.xml'
