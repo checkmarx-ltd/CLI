@@ -37,6 +37,7 @@ steps:
     script: |
       pwd
       cd ~/.m2/repository/com/cx/plugin/cli/9.20.0-SNAPSHOT
+      pwd
       ls
 
 - task: Maven@3
