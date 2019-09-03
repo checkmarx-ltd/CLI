@@ -23,7 +23,7 @@ steps:
     script: |
       pwd
       ls
-      cd ~/
+      cd ~/work/1/s
       pwd
       ls
 
