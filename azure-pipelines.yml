@@ -35,6 +35,7 @@ steps:
   inputs:
     targetType: 'inline'
     script: |
+      pwd
       cd ~/.m2/repository/com/cx/plugin/cli/9.20.0-SNAPSHOT
       ls
 
