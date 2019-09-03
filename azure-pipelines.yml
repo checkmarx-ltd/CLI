@@ -21,7 +21,7 @@ steps:
   inputs:
     targetType: 'inline'
     script: |
-      cd ~/.m2/repository/com/
+      cd ~/
       ls
 
 - task: Maven@3
