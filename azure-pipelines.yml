@@ -21,7 +21,7 @@ steps:
   inputs:
     targetType: 'inline'
     script: |
-      mvn install:install-file -Dfile=*.jar
+      mvn install:install-file -Dfile=cx-client-common-9.20.0.jar
 
 - task: Maven@3
   inputs:
