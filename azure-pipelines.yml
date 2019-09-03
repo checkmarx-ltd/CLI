@@ -19,3 +19,10 @@ steps:
     mavenAuthenticateFeed: false
     effectivePomSkip: false
     sonarQubeRunAnalysis: false
+- task: S3Download@1
+  inputs:
+    awsCredentials: 'CxSLDC bucket'
+    regionName: 'eu-west-1'
+    bucketName: 'cxsdlc'
+    globExpressions: '*9.20*.jar'
+    targetFolder: '~/.m2/repository/com/cx/plugin/cli/'
