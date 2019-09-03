@@ -15,9 +15,7 @@ steps:
   inputs:
     targetType: 'inline'
     script: |
-      mkdir ~/.m2/repository/com/cx/plugin/cli/9.20.0-SNAPSHOT
-      cd ~/.m2/repository/com/cx/plugin/cli/9.20.0-SNAPSHOT
-      ls
+      mkdir –p -v ~/.m2/repository/com/cx/plugin/cli/9.20.0-SNAPSHOT
 - task: S3Download@1
   inputs:
     awsCredentials: 'CxSLDC bucket'
@@ -29,14 +27,7 @@ steps:
   inputs:
     targetType: 'inline'
     script: |
-      cd ~/work/1/a
-      pwd
-      ls
-      cd ~/work/1/b
-      pwd
-      ls
-      cd ~/work/1/s
-      pwd
+      cd ~/.m2/repository/com/cx/plugin/cli/9.20.0-SNAPSHOT
       ls
 
 - task: Maven@3
