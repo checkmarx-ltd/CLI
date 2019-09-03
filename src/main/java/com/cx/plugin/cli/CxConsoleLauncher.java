@@ -23,8 +23,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.net.URISyntaxException;
+import java.util.Arrays;
 
 import static com.cx.plugin.cli.constants.Parameters.LOG_PATH;
+import static com.cx.plugin.cli.errorsconstants.ErrorMessages.*;
 
 /**
  * Created by idanA on 11/4/2018.
@@ -37,13 +39,20 @@ public class CxConsoleLauncher {
     public static void main(String[] args) {
         int exitCode;
         Command command = null;
+
         try {
+            if (args.length == 0) {
+                throw new CLIParsingException("No arguments were given");
+            }
+
+            args = convertParamToLowerCase(args);
             CommandLineParser parser = new DefaultParser();
             CommandLine commandLine = parser.parse(Command.getOptions(), args);
             command = Command.getCommandByValue(commandLine.getArgs()[0]);
             if (command == null) {
-                throw new CLIParsingException(String.format("command [%s] is invalid", commandLine.getArgs()[0]));
+                throw new CLIParsingException(String.format(INVALID_COMMAND_ERROR, commandLine.getArgs()[0], Command.getAllValues()));
             }
+
             initLogging(commandLine);
             exitCode = execute(command, commandLine);
         } catch (CLIParsingException | ParseException e) {
@@ -123,17 +132,22 @@ public class CxConsoleLauncher {
         for (Option param : commanLine.getOptions()) {
             String name = param.getLongOpt() != null ? param.getLongOpt() : param.getOpt();
             String value;
-            if (param.getOpt().equalsIgnoreCase(Parameters.USER_PASSWORD)){
+            if (param.getOpt().equalsIgnoreCase(Parameters.USER_PASSWORD)) {
                 value = "********";
-            }
-            else if (param.hasArg()){
+            } else if (param.hasArg()) {
                 value = param.getValue();
-            }
-            else {
+            } else {
                 value = "true";
             }
             log.info(String.format("%s: %s", name, value));
         }
         log.info("--------------------\n\n");
+    }
+
+    private static String[] convertParamToLowerCase(String[] args) {
+        return Arrays
+                .stream(args)
+                .map(arg -> arg.contains("-") ? arg.toLowerCase() : arg)
+                .toArray(String[]::new);
     }
 }

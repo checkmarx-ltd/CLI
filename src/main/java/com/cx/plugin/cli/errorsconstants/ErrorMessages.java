@@ -5,7 +5,8 @@ package com.cx.plugin.cli.errorsconstants;
  */
 public final class ErrorMessages {
 
-    private ErrorMessages(){}
+    private ErrorMessages() {
+    }
 
     public static final String GENERAL_ERROR_MSG = "General error occurred";
     public static final String SDLC_ERROR_MSG = "This feature is available only on SDLC edition";
@@ -30,4 +31,6 @@ public final class ErrorMessages {
 
     public static final String INVALID_COMMAND = "[CxConsole] Malformed console command: Expected command to start with one of: %s but was: %s";
     public static final String MISSING_DASH = "[CxConsole] Malformed console command: parameter must start with '-' but was %s";
+    public static final String INVALID_COMMAND_ERROR = "command [%s] is invalid, valid command must start with one of %s";
+
 }

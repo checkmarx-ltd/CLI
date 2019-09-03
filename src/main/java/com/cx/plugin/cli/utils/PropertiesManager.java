@@ -41,7 +41,7 @@ public class PropertiesManager {
     private String separator = FileSystems.getDefault().getSeparator();
     private String userDir = System.getProperty("user.dir");
 
-    private String configDirRelativePath = "config";
+    private String configDirRelativePath = "src/main/config";
     private String configFile = "cx_console.properties";
 
     private String defaultPath = userDir + separator + configDirRelativePath + separator + configFile;

@@ -10,13 +10,13 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.compress.utils.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.whitesource.fs.FSAConfigProperties;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Map;
+import java.util.Properties;
 
 import static com.cx.plugin.cli.constants.Parameters.*;
 import static com.cx.plugin.cli.utils.PropertiesManager.KEY_OSA_SCAN_DEPTH;
@@ -43,9 +43,8 @@ public final class CxConfigHelper {
     /**
      * Resolves configuration from the config file and the console parameters
      *
-     *
      * @param command
-     * @param cmd - The parameters passed by the user mapped by key/value
+     * @param cmd     - The parameters passed by the user mapped by key/value
      * @return CxScanConfig an object containing all the relevant data for the scan
      */
     //TODO: use props where user param missing
@@ -458,8 +457,8 @@ public final class CxConfigHelper {
         return fullPath.substring(0, lastIdx);
     }
 
-    private static FSAConfigProperties generateFSAConfig(Map<String, String> consoleParams, PropertiesManager propertiesManager) {
-        FSAConfigProperties fsaConfig = new FSAConfigProperties();
+    private static Properties generateFSAConfig(Map<String, String> consoleParams, PropertiesManager propertiesManager) {
+        Properties fsaConfig = new Properties();
 
         String osaDirectoriesToAnalyze = consoleParams.get(OSA_LOCATION_PATH) != null ? consoleParams.get(OSA_LOCATION_PATH) : consoleParams.get(LOCATION_PATH);
         String osaFolderExcludeString = consoleParams.get(OSA_FOLDER_EXCLUDE) != null ? consoleParams.get(OSA_FOLDER_EXCLUDE) : "";
@@ -499,13 +498,12 @@ public final class CxConfigHelper {
 
 //        fsaConfig.put("acceptExtensionsList", ACCEPT_FSA_EXTENSIONS_LISTS);
         fsaConfig.put("d", osaDirectoriesToAnalyze);
-        //TODO: make sure shraga has followSymbolicLinks set to false if bug still exists on linux for the current fsa version
-        if (consoleParams.get(DOCKER_IMAGE_PATTERN) != null) {
-            fsaConfig.put("followSymbolicLinks", "false");
-            fsaConfig.put("docker.scanImages", "true");
-            fsaConfig.put("docker.includes", consoleParams.get(DOCKER_IMAGE_PATTERN));
-            fsaConfig.put("docker.excludes", consoleParams.get(DOCKER_EXCLUDE));
-        }
+//        if (consoleParams.get(DOCKER_IMAGE_PATTERN) != null) {
+//            fsaConfig.put("followSymbolicLinks", "false");
+//            fsaConfig.put("docker.scanImages", "true");
+//            fsaConfig.put("docker.includes", consoleParams.get(DOCKER_IMAGE_PATTERN));
+//            fsaConfig.put("docker.excludes", consoleParams.get(DOCKER_EXCLUDE));
+//        }
 
         return fsaConfig;
     }
