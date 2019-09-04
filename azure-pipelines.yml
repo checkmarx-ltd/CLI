@@ -21,6 +21,7 @@ steps:
   inputs:
     targetType: 'inline'
     script: |
+      mvn -v
       mvn install -e
 
 - task: Maven@3
