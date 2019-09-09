@@ -65,22 +65,19 @@ public final class CxConfigHelper {
         boolean isSSO = cmd.getOptionValue(IS_SSO) != null;
         String token = cmd.getOptionValue(TOKEN);
         if (!Strings.isNullOrEmpty(token)) {
-            //scanConfig.setToken(token);
+            scanConfig.setRefreshToken(token);
         } else if ((Strings.isNullOrEmpty(cmd.getOptionValue(USER_NAME)) || Strings.isNullOrEmpty(cmd.getOptionValue(USER_PASSWORD))) && !isSSO) {
             throw new CLIParsingException("[CxConsole] User name and password are mandatory unless SSO or token is used");
+        } else {
+            scanConfig.setUsername(cmd.getOptionValue(USER_NAME));
+            scanConfig.setPassword(cmd.getOptionValue(USER_PASSWORD));
         }
-        scanConfig.setUsername(cmd.getOptionValue(USER_NAME));
-        scanConfig.setPassword(cmd.getOptionValue(USER_PASSWORD));
-        scanConfig.setUseSSOLogin(isSSO);
 
-        if (cmd.getOptionValue(GENERATE_TOKEN) != null) {
-            //scanConfig.setGenerateToken(true);
+        if (command.equals(Command.GENERATE_TOKEN) || command.equals(Command.REVOKE_TOKEN)) {
             return scanConfig;
         }
-        if (cmd.getOptionValue(REVOKE_TOKEN) != null) {
-            //scanConfig.setRevokeToken(true);
-            return scanConfig;
-        }
+
+        scanConfig.setUseSSOLogin(isSSO);
 
         scanConfig.setOsaEnabled(cmd.getOptionValue(OSA_ENABLED) != null || cmd.getOptionValue(OSA_LOCATION_PATH) != null);
         scanConfig.setPublic(cmd.getOptionValue(IS_PRIVATE) == null);
@@ -94,7 +91,7 @@ public final class CxConfigHelper {
         scanConfig.setScanComment(cmd.getOptionValue(SCAN_COMMENT));
         setScanReports(cmd, scanConfig);
         scanConfig.setIncremental(cmd.getOptionValue(IS_INCREMENTAL) != null);
-        scanConfig.setForceScan(cmd.getOptionValue(IS_FORCE_SCAN) != null);
+        scanConfig.setForceScan(cmd.hasOption(IS_FORCE_SCAN));
         setSASTThreshold(cmd, scanConfig);
 
         setSourceLocation(cmd, scanConfig);
@@ -299,10 +296,10 @@ public final class CxConfigHelper {
         }
 
         scanConfig.setRemoteSrcUser(locationUser);
-        scanConfig.setRemoteSrcPass(String.valueOf(locationPass));
-        scanConfig.setRemoteType(RemoteSourceTypes.PERFORCE);
+        scanConfig.setRemoteSrcPass(locationPass);
         scanConfig.setSourceDir(locationPath);
         scanConfig.setRemoteSrcUrl(locationURL);
+        scanConfig.setRemoteType(RemoteSourceTypes.PERFORCE);
         if (Strings.isNullOrEmpty(locationPort)) {
             log.info(String.format("[CxConsole] No port was specified for perforce, using port %s as default", PERFORCE_DEFAULT_PORT));
             locationPort = PERFORCE_DEFAULT_PORT;
@@ -428,13 +425,11 @@ public final class CxConfigHelper {
                 scanConfig.setOsaEnabled(true);
                 scanConfig.setSynchronous(false);
                 break;
-            //TODO: verify flow exists in common
-//            case GENERATE_TOKEN:
-//                scanConfig.setGenerateLoginToken(true);
-//                break;
-//            case REVOKE_TOKEN:
-//                scanConfig.setRevokeLoginToken(true);
-//                break;
+//            TODO: verify flow exists in common
+            case GENERATE_TOKEN:
+                break;
+            case REVOKE_TOKEN:
+                break;
         }
 
         return scanConfig;

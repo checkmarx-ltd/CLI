@@ -7,6 +7,7 @@ import com.cx.plugin.cli.utils.CxConfigHelper;
 import com.cx.restclient.CxShragaClient;
 import com.cx.restclient.configuration.CxScanConfig;
 import com.cx.restclient.dto.ScanResults;
+import com.cx.restclient.dto.TokenLoginResponse;
 import com.cx.restclient.exception.CxClientException;
 import com.cx.restclient.sast.dto.SASTResults;
 import com.google.common.io.Files;
@@ -16,12 +17,12 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.RollingFileAppender;
 import org.apache.log4j.xml.DOMConfigurator;
+import org.apache.maven.model.Model;
+import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.slf4j.impl.Log4jLoggerFactory;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Writer;
+import java.io.*;
 import java.net.URISyntaxException;
 import java.util.Arrays;
 
@@ -69,12 +70,24 @@ public class CxConsoleLauncher {
 
     private static int execute(Command command, CommandLine commandLine) throws CLIParsingException, IOException, CxClientException, URISyntaxException, InterruptedException {
         int exitCode = 0;
+        printConfig(commandLine);
+
         ScanResults results = new ScanResults();
         CxScanConfig cxScanConfig = CxConfigHelper.resolveConfigurations(command, commandLine);
-        printConfig(commandLine);
 
         org.slf4j.Logger logger = new Log4jLoggerFactory().getLogger(log.getName());
         CxShragaClient client = new CxShragaClient(cxScanConfig, logger);
+
+        if (command.equals(Command.REVOKE_TOKEN)) {
+            log.info(String.format("Revoking access token: [%s]", cxScanConfig.getRefreshToken()));
+            client.revokeToken(cxScanConfig.getRefreshToken());
+            return exitCode;
+        }
+        if (command.equals(Command.GENERATE_TOKEN)) {
+            String token = client.getToken();
+            log.info(String.format("Access token: [%s]", token));
+            return exitCode;
+        }
 
         client.init();
         if (cxScanConfig.getOsaEnabled()) {
@@ -125,11 +138,12 @@ public class CxConsoleLauncher {
         return 1;
     }
 
-    private static void printConfig(CommandLine commanLine) {
+    private static void printConfig(CommandLine commandLine) {
         log.info("-----------------------------------------------------------------------------------------");
         log.info("CxConsole Configuration: ");
         log.info("--------------------");
-        for (Option param : commanLine.getOptions()) {
+        log.info(String.format("CxConsole Version: %s", getVersion()));
+        for (Option param : commandLine.getOptions()) {
             String name = param.getLongOpt() != null ? param.getLongOpt() : param.getOpt();
             String value;
             if (param.getOpt().equalsIgnoreCase(Parameters.USER_PASSWORD)) {
@@ -142,6 +156,18 @@ public class CxConsoleLauncher {
             log.info(String.format("%s: %s", name, value));
         }
         log.info("--------------------\n\n");
+    }
+
+    private static String getVersion() {
+        MavenXpp3Reader reader = new MavenXpp3Reader();
+        Model model = null;
+        try {
+            model = reader.read(new FileReader("pom.xml"));
+        } catch (IOException | XmlPullParserException e) {
+            e.printStackTrace();
+            log.error("Error reading version from pom file", e);
+        }
+        return model != null ? model.getVersion() : "";
     }
 
     private static String[] convertParamToLowerCase(String[] args) {
