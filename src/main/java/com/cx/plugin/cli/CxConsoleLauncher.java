@@ -102,6 +102,7 @@ public class CxConsoleLauncher {
         if (cxScanConfig.getSastEnabled()) {
             client.createSASTScan();
             if (cxScanConfig.getSynchronous()) {
+                //TODO: results are probably not necessary? already printed by common
                 SASTResults sastResults = client.waitForSASTResults();
                 results.setSastResults(sastResults);
             }
@@ -138,11 +139,12 @@ public class CxConsoleLauncher {
         return 1;
     }
 
+    //TODO: print CLI version
     private static void printConfig(CommandLine commandLine) {
         log.info("-----------------------------------------------------------------------------------------");
         log.info("CxConsole Configuration: ");
         log.info("--------------------");
-        log.info(String.format("CxConsole Version: %s", getVersion()));
+        //log.info(String.format("CxConsole Version: %s", getVersion()));
         for (Option param : commandLine.getOptions()) {
             String name = param.getLongOpt() != null ? param.getLongOpt() : param.getOpt();
             String value;
@@ -156,18 +158,6 @@ public class CxConsoleLauncher {
             log.info(String.format("%s: %s", name, value));
         }
         log.info("--------------------\n\n");
-    }
-
-    private static String getVersion() {
-        MavenXpp3Reader reader = new MavenXpp3Reader();
-        Model model = null;
-        try {
-            model = reader.read(new FileReader("pom.xml"));
-        } catch (IOException | XmlPullParserException e) {
-            e.printStackTrace();
-            log.error("Error reading version from pom file", e);
-        }
-        return model != null ? model.getVersion() : "";
     }
 
     private static String[] convertParamToLowerCase(String[] args) {

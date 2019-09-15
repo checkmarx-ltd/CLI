@@ -82,6 +82,8 @@ public enum Command {
         options.addOption(IS_CHECKED_POLICY, false, Constants.IS_CHECKED_POLICY_DESC);
         options.addOption(LOCATION_TYPE, true, Constants.LOCATION_TYPE_DESC);
         options.addOption(LOCATION_PATH, true, Constants.LOCATION_PATH_DESC);
+        options.addOption(LOCATION_BRANCH, true, Constants.LOCATION_BRANCH_DESC);
+        options.addOption(PRIVATE_KEY, true, Constants.LOCATION_PRIVATE_KEY_DESC);
         options.addOption(LOCATION_URL, true, Constants.LOCATION_URL_DESC);
         options.addOption(LOCATION_PORT, true, Constants.LOCATION_PORT_DESC);
         options.addOption(LOCATION_USER, true, Constants.LOCATION_USER_DESC);
@@ -159,11 +161,14 @@ public enum Command {
                 + "runCxConsole.cmd  OsaScan -v -Projectname CxServer\\SP\\Company\\my project -CxServer http://localhost -cxuser admin -cxpassword admin -locationtype folder -locationpath C:\\Users\\some_project -OsaFilesExclude *.bat ";
         static final String LOCATION_PATH_DESC = "Local or network path to sources or source repository branch. Mandatory if location type is folder, SVN, TFS, Perforce or shared.";
         static final String LOCATION_URL_DESC = "Source control URL. Madnatory if locationtype is any source control system.";
+        static final String LOCATION_BRANCH_DESC = "Source GIT branch, Mandatory if location type is GIT";
         static final String LOCATION_PORT_DESC = "Source control system port. Default: 8080 (TFS), 80 (SVN), or 1666 (Perforce). Optional.";
         static final String LOCATION_USER_DESC = "Source control/network credentials. Mandatory if locationtype is TFS/Perforce/shared";
         static final String LOCATION_PASSWORD_DESC = "Source control/network credentials. Mandatory if locationtype is TFS/Perforce/shared";
         static final String LOCATION_PATH_EXCLUDE_DESC = "Comma separated list of folder name patterns to exclude from scan. For example, exclude all test and log folders: -locationPathExclude test* log_* Optional";
         static final String LOCATION_FILES_EXCLUDE_DESC = "Comma separated list of file name patterns to exclude from scan. For example, exclude all files with '.class' extension: -LocationFilesExclude *.class Optional";
+        static final String LOCATION_PRIVATE_KEY_DESC = "GIT SSH key locations, Mandatory if location type is GIT using SSH";
+
         static final String OSA_LOCATION_PATH_DESC = "Local or network path to sources or source repository branch. May include multiple list of folders (local or shared) separated by comma. Optional";
         static final String OSA_FILES_INCLUDE_DESC = "Comma separated list of file name patterns to exclude from the OSA scan. \n" +
                 "For example: *.dll will include only dll files. Optional";

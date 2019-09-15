@@ -79,9 +79,10 @@ public final class CxConfigHelper {
 
         scanConfig.setUseSSOLogin(isSSO);
 
-        scanConfig.setOsaEnabled(cmd.getOptionValue(OSA_ENABLED) != null || cmd.getOptionValue(OSA_LOCATION_PATH) != null);
-        scanConfig.setPublic(cmd.getOptionValue(IS_PRIVATE) == null);
-        scanConfig.setEnablePolicyViolations(cmd.getOptionValue(IS_CHECKED_POLICY) != null);
+        scanConfig.setOsaEnabled(cmd.hasOption(OSA_ENABLED) || cmd.getOptionValue(OSA_LOCATION_PATH) != null);
+        scanConfig.setOsaRunInstall(cmd.hasOption(INSTALL_PACKAGE_MANAGER));
+        scanConfig.setPublic(cmd.hasOption(IS_PRIVATE));
+        scanConfig.setEnablePolicyViolations(cmd.hasOption(IS_CHECKED_POLICY));
         scanConfig.setProjectName(extractProjectName(cmd.getOptionValue(FULL_PROJECT_PATH)));
         scanConfig.setTeamPath(extractTeamPath(cmd.getOptionValue(FULL_PROJECT_PATH)));
         scanConfig.setPresetName(cmd.getOptionValue(PRESET) == null ? DEFAULT_PRESET_NAME : cmd.getOptionValue(PRESET));
@@ -90,7 +91,7 @@ public final class CxConfigHelper {
         scanConfig.setSastFilterPattern(cmd.getOptionValue(LOCATION_FILES_EXCLUDE));
         scanConfig.setScanComment(cmd.getOptionValue(SCAN_COMMENT));
         setScanReports(cmd, scanConfig);
-        scanConfig.setIncremental(cmd.getOptionValue(IS_INCREMENTAL) != null);
+        scanConfig.setIncremental(cmd.hasOption(IS_INCREMENTAL));
         scanConfig.setForceScan(cmd.hasOption(IS_FORCE_SCAN));
         setSASTThreshold(cmd, scanConfig);
 
@@ -134,7 +135,7 @@ public final class CxConfigHelper {
 
         String locationPort = cmd.getOptionValue(LOCATION_PORT);
 
-        switch (locationType) {
+        switch (locationType.toLowerCase()) {
             case "folder": {
                 setLocalSourceLocation(scanConfig, locationPath);
                 break;
@@ -145,7 +146,7 @@ public final class CxConfigHelper {
             }
             case "svn": {
                 if (cmd.getOptionValue(PRIVATE_KEY) != null) {
-                    setPrivateKey(scanConfig, cmd.getOptionValue(cmd.getOptionValue(PRIVATE_KEY)));
+                    setPrivateKey(scanConfig, cmd.getOptionValue(PRIVATE_KEY));
                 }
                 setSVNSourceLocation(scanConfig, locationURL, locationPath, locationUser, locationPass, locationPort);
                 break;
@@ -160,7 +161,7 @@ public final class CxConfigHelper {
             }
             case "git": {
                 if (cmd.getOptionValue(PRIVATE_KEY) != null) {
-                    setPrivateKey(scanConfig, cmd.getOptionValue(cmd.getOptionValue(PRIVATE_KEY)));
+                    setPrivateKey(scanConfig, cmd.getOptionValue(PRIVATE_KEY));
                 }
                 setGITSourceLocation(scanConfig, locationURL, locationBranch, locationUser, locationPass, locationPort);
                 break;
@@ -452,6 +453,7 @@ public final class CxConfigHelper {
         return fullPath.substring(0, lastIdx);
     }
 
+    //TODO: can remove this
     private static Properties generateFSAConfig(Map<String, String> consoleParams, PropertiesManager propertiesManager) {
         Properties fsaConfig = new Properties();
 
