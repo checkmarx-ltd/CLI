@@ -8,10 +8,11 @@ public final class ErrorMessages {
     private ErrorMessages() {
     }
 
-    public static final String GENERAL_ERROR_MSG = "General error occurred";
+    public static final String NO_ERROR_MSG = "Completed successfully";
+    public static final String GENERAL_ERROR_MSG = "Failed to start scan (missing or invalid parameters)";
     public static final String SDLC_ERROR_MSG = "This feature is available only on SDLC edition";
     public static final String NO_OSA_LICENSE_ERROR_MSG = "Open Source Analysis License is not enabled for this project.Please contact your CxSAST Administrator";
-    public static final String LOGIN_ERROR_MSG = "Login Failed";
+    public static final String LOGIN_FAILED_MSG = "Login Failed";
     public static final String UNSUCCESSFUL_LOGIN_ERROR_MSG = "Unsuccessful login";
     public static final String UNSUCCESSFUL_REST_LOGIN = "Fail to login with credentials: Fail to authenticate: status code: HTTP/1.1 403 Forbidden.";
     public static final String INVALID_CREDENTIALS_FOR_TOKEN_GENERATION = "User authentication failed";
@@ -28,7 +29,7 @@ public final class ErrorMessages {
     public static final String OSA_LOW_THRESHOLD_ERROR_MSG = "OSA low vulnerability threshold exceeded";
     public static final String GENERIC_THRESHOLD_FAILURE_ERROR_MSG = "SAST and OSA vulnerabilities threshold exceeded";
     public static final String POLICY_VIOLATED_ERROR_MSG = "Policy violated";
-
+    public static final String CANCELED_BY_USER_ERROR= "Scan canceled by user";
     public static final String INVALID_COMMAND = "[CxConsole] Malformed console command: Expected command to start with one of: %s but was: %s";
     public static final String MISSING_DASH = "[CxConsole] Malformed console command: parameter must start with '-' but was %s";
     public static final String INVALID_COMMAND_ERROR = "command [%s] is invalid, valid command must start with one of %s";

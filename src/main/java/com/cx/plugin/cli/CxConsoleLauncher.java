@@ -2,13 +2,15 @@ package com.cx.plugin.cli;
 
 import com.cx.plugin.cli.constants.Command;
 import com.cx.plugin.cli.constants.Parameters;
+import com.cx.plugin.cli.errorsconstants.Errors;
 import com.cx.plugin.cli.exceptions.CLIParsingException;
 import com.cx.plugin.cli.utils.CxConfigHelper;
 import com.cx.restclient.CxShragaClient;
 import com.cx.restclient.configuration.CxScanConfig;
 import com.cx.restclient.dto.ScanResults;
-import com.cx.restclient.dto.TokenLoginResponse;
+import com.cx.restclient.common.ShragaUtils;
 import com.cx.restclient.exception.CxClientException;
+import com.cx.restclient.osa.dto.OSAResults;
 import com.cx.restclient.sast.dto.SASTResults;
 import com.google.common.io.Files;
 import org.apache.commons.cli.*;
@@ -17,9 +19,6 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.RollingFileAppender;
 import org.apache.log4j.xml.DOMConfigurator;
-import org.apache.maven.model.Model;
-import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.slf4j.impl.Log4jLoggerFactory;
 
 import java.io.*;
@@ -102,36 +101,66 @@ public class CxConsoleLauncher {
         if (cxScanConfig.getSastEnabled()) {
             client.createSASTScan();
             if (cxScanConfig.getSynchronous()) {
-                //TODO: results are probably not necessary? already printed by common
                 SASTResults sastResults = client.waitForSASTResults();
+                OSAResults osaResults = new OSAResults();
+                if (cxScanConfig.getOsaEnabled()) {
+                    osaResults = client.waitForOSAResults();
+                }
                 results.setSastResults(sastResults);
+                results.setOsaResults(osaResults);
+
+                final String failureResult = ShragaUtils.getBuildFailureResult(cxScanConfig, sastResults, osaResults);
+                if (!failureResult.isEmpty()) {
+                    log.info(failureResult);
+                    exitCode = resolveThresholdFailures(failureResult);
+                }
             }
         }
 
         return exitCode;
     }
 
-    private static void initLogging(CommandLine commandLine) throws CLIParsingException {
-        String logPath = commandLine.getOptionValue(LOG_PATH, "./logs/cx_console");
-        File logFile = new File(logPath);
-        DOMConfigurator.configure("./log4j.xml");
-        try {
-            if (!logFile.exists()) {
-                Files.createParentDirs(logFile);
-                Files.touch(logFile);
+    private static int resolveThresholdFailures(String failureResult) {
+        int errorCode = 0;
+
+        if (failureResult.contains("CxSAST high")) {
+            errorCode = Errors.SAST_HIGH_THRESHOLD_ERROR.getCode();
+        }
+        if (failureResult.contains("CxSAST medium")) {
+            if (errorCode != 0) {
+                return Errors.GENERIC_THRESHOLD_FAILURE_ERROR.getCode();
             }
-            Writer writer = new FileWriter(logPath);
-            Appender faAppender = org.apache.log4j.Logger.getRootLogger().getAppender("FA");
-            if (commandLine.hasOption(Parameters.VERBOSE)) {
-                //TODO: it seems that common client overrides threshold? prints only info level
-                ((RollingFileAppender) faAppender).setThreshold(Level.TRACE);
+            errorCode = Errors.SAST_MEDIUM_THRESHOLD_ERROR.getCode();
+        }
+        if (failureResult.contains("CxSAST low")) {
+            if (errorCode != 0) {
+                return Errors.GENERIC_THRESHOLD_FAILURE_ERROR.getCode();
             }
-            ((RollingFileAppender) faAppender).setWriter(writer);
-            log.info("[CxConsole]  Log file location: " + logPath);
-        } catch (IOException e) {
-            throw new CLIParsingException("[CxConsole] error creating log file", e);
+            errorCode = Errors.SAST_LOW_THRESHOLD_ERROR.getCode();
         }
 
+        if (failureResult.contains("CxOSA high")) {
+            if (errorCode != 0) {
+                return Errors.GENERIC_THRESHOLD_FAILURE_ERROR.getCode();
+            }
+            errorCode = Errors.OSA_HIGH_THRESHOLD_ERROR.getCode();
+        }
+
+        if (failureResult.contains("CxOSA medium")) {
+            if (errorCode != 0) {
+                return Errors.GENERIC_THRESHOLD_FAILURE_ERROR.getCode();
+            }
+            errorCode = Errors.OSA_MEDIUM_THRESHOLD_ERROR.getCode();
+        }
+
+        if (failureResult.contains("CxOSA low")) {
+            if (errorCode != 0) {
+                return Errors.GENERIC_THRESHOLD_FAILURE_ERROR.getCode();
+            }
+            errorCode = Errors.OSA_LOW_THRESHOLD_ERROR_EXIT_CODE.getCode();
+        }
+
+        return errorCode;
     }
 
     //TODO: return the corresponding error code according to the error message
@@ -165,5 +194,28 @@ public class CxConsoleLauncher {
                 .stream(args)
                 .map(arg -> arg.contains("-") ? arg.toLowerCase() : arg)
                 .toArray(String[]::new);
+    }
+
+    private static void initLogging(CommandLine commandLine) throws CLIParsingException {
+        String logPath = commandLine.getOptionValue(LOG_PATH, "./logs/cx_console");
+        File logFile = new File(logPath);
+        DOMConfigurator.configure("./log4j.xml");
+        try {
+            if (!logFile.exists()) {
+                Files.createParentDirs(logFile);
+                Files.touch(logFile);
+            }
+            Writer writer = new FileWriter(logPath);
+            Appender faAppender = org.apache.log4j.Logger.getRootLogger().getAppender("FA");
+            if (commandLine.hasOption(Parameters.VERBOSE)) {
+                //TODO: it seems that common client overrides threshold? prints only info level
+                ((RollingFileAppender) faAppender).setThreshold(Level.TRACE);
+            }
+            ((RollingFileAppender) faAppender).setWriter(writer);
+            log.info("[CxConsole]  Log file location: " + logPath);
+        } catch (IOException e) {
+            throw new CLIParsingException("[CxConsole] error creating log file", e);
+        }
+
     }
 }
