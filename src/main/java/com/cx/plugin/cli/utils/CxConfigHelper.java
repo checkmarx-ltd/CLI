@@ -81,7 +81,7 @@ public final class CxConfigHelper {
 
         scanConfig.setUseSSOLogin(isSSO);
 
-        scanConfig.setOsaEnabled(cmd.hasOption(OSA_ENABLED) || cmd.getOptionValue(OSA_LOCATION_PATH) != null);
+        scanConfig.setOsaEnabled(cmd.hasOption(OSA_ENABLED) || cmd.getOptionValue(OSA_LOCATION_PATH) != null || command.equals(Command.OSA_SCAN) || command.equals(Command.ASYNC_OSA_SCAN));
         scanConfig.setOsaRunInstall(cmd.hasOption(INSTALL_PACKAGE_MANAGER));
         scanConfig.setPublic(cmd.hasOption(IS_PRIVATE));
         scanConfig.setEnablePolicyViolations(cmd.hasOption(IS_CHECKED_POLICY));
