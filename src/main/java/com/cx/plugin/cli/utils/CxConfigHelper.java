@@ -1,12 +1,14 @@
 package com.cx.plugin.cli.utils;
 
 import com.cx.plugin.cli.constants.Command;
+import com.cx.plugin.cli.constants.Parameters;
 import com.cx.plugin.cli.exceptions.CLIParsingException;
 import com.cx.restclient.configuration.CxScanConfig;
 import com.cx.restclient.dto.RemoteSourceTypes;
 import com.google.common.base.Strings;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
 import org.apache.commons.compress.utils.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -102,19 +104,6 @@ public final class CxConfigHelper {
             scanConfig.setOsaGenerateJsonReport(cmd.getOptionValue(OSA_JSON_REPORT) != null);
         }
         return scanConfig;
-    }
-
-    public static void printHelp(Command mode) {
-        if (mode == null) {
-            return;
-        }
-
-        String footerFormat = "\nUsage example: %s\n\n(c) 2019 CheckMarx.com LTD, All Rights Reserved\n";
-        String helpHeader = mode.getDescription();
-        String helpFooter = String.format(footerFormat, mode.getUsageExamples());
-
-        HelpFormatter helpFormatter = new HelpFormatter();
-        helpFormatter.printHelp(120, mode.value(), helpHeader, mode.getOptions(), helpFooter, true);
     }
 
     private static CxScanConfig setSourceLocation(CommandLine cmd, CxScanConfig scanConfig) throws CLIParsingException {
@@ -453,56 +442,38 @@ public final class CxConfigHelper {
         return fullPath.substring(0, lastIdx);
     }
 
-    //TODO: can remove this
-    private static Properties generateFSAConfig(Map<String, String> consoleParams, PropertiesManager propertiesManager) {
-        Properties fsaConfig = new Properties();
-
-        String osaDirectoriesToAnalyze = consoleParams.get(OSA_LOCATION_PATH) != null ? consoleParams.get(OSA_LOCATION_PATH) : consoleParams.get(LOCATION_PATH);
-        String osaFolderExcludeString = consoleParams.get(OSA_FOLDER_EXCLUDE) != null ? consoleParams.get(OSA_FOLDER_EXCLUDE) : "";
-        String osaFilesExcludesString = consoleParams.get(OSA_FILES_EXCLUDE) != null ? consoleParams.get(OSA_FILES_EXCLUDE) : propertiesManager.getProperty("scan.osa.exclude.files");
-        String osaFilesIncludesString = consoleParams.get(OSA_FILES_INCLUDE) != null ? consoleParams.get(OSA_FILES_INCLUDE) : propertiesManager.getProperty("scan.osa.include.files");
-        String osaExtractableIncludesString = consoleParams.get(OSA_FOLDER_EXCLUDE) != null ? consoleParams.get(OSA_ARCHIVE_TO_EXTRACT) : "";
-        String archiveExtractDepth = consoleParams.get(OSA_SCAN_DEPTH) != null ? consoleParams.get(OSA_SCAN_DEPTH) : propertiesManager.getProperty(KEY_OSA_SCAN_DEPTH);
-
-        StringBuilder osaExcludes = new StringBuilder();
-        if (!osaFolderExcludeString.isEmpty()) {
-            osaExcludes.append(osaFolderExcludeString).append(" ");
+    public static void printConfig(CommandLine commandLine) {
+        log.info("-----------------------------------------------------------------------------------------");
+        log.info("CxConsole Configuration: ");
+        log.info("--------------------");
+        //log.info(String.format("CxConsole Version: %s", getVersion()));
+        for (Option param : commandLine.getOptions()) {
+            String name = param.getLongOpt() != null ? param.getLongOpt() : param.getOpt();
+            String value;
+            if (param.getOpt().equalsIgnoreCase(Parameters.USER_PASSWORD)) {
+                value = "********";
+            } else if (param.hasArg()) {
+                value = param.getValue();
+            } else {
+                value = "true";
+            }
+            log.info(String.format("%s: %s", name, value));
         }
-        if (!Strings.isNullOrEmpty(osaFilesExcludesString)) {
-            osaExcludes.append(osaFilesExcludesString);
-        }
-
-        if (!osaExcludes.toString().isEmpty()) {
-            fsaConfig.put("excludes", osaExcludes.toString().trim());
-        }
-
-        fsaConfig.put("includes", osaFilesIncludesString);
-        fsaConfig.put("archiveIncludes", osaExtractableIncludesString);
-        fsaConfig.put("archiveExtractionDepth", archiveExtractDepth);
-
-        String shouldPackageManagerInstall = "false";
-        if (consoleParams.get(INSTALL_PACKAGE_MANAGER) != null) {
-            fsaConfig.put("npm.runPreStep", "true");
-            fsaConfig.put("npm.ignoreScripts", "true");
-            fsaConfig.put("bower.runPreStep", "false");
-            shouldPackageManagerInstall = "true";
-        }
-
-        fsaConfig.put("nuget.resolveDependencies", shouldPackageManagerInstall);
-        fsaConfig.put("nuget.restoreDependencies", shouldPackageManagerInstall);
-        fsaConfig.put("python.resolveDependencies", shouldPackageManagerInstall);
-        fsaConfig.put("python.ignorePipInstallErrors", shouldPackageManagerInstall);
-
-//        fsaConfig.put("acceptExtensionsList", ACCEPT_FSA_EXTENSIONS_LISTS);
-        fsaConfig.put("d", osaDirectoriesToAnalyze);
-//        if (consoleParams.get(DOCKER_IMAGE_PATTERN) != null) {
-//            fsaConfig.put("followSymbolicLinks", "false");
-//            fsaConfig.put("docker.scanImages", "true");
-//            fsaConfig.put("docker.includes", consoleParams.get(DOCKER_IMAGE_PATTERN));
-//            fsaConfig.put("docker.excludes", consoleParams.get(DOCKER_EXCLUDE));
-//        }
-
-        return fsaConfig;
+        log.info("--------------------\n\n");
     }
+
+    public static void printHelp(Command mode) {
+        if (mode == null) {
+            return;
+        }
+
+        String footerFormat = "\nUsage example: %s\n\n(c) 2019 CheckMarx.com LTD, All Rights Reserved\n";
+        String helpHeader = mode.getDescription();
+        String helpFooter = String.format(footerFormat, mode.getUsageExamples());
+
+        HelpFormatter helpFormatter = new HelpFormatter();
+        helpFormatter.printHelp(120, mode.value(), helpHeader, mode.getOptions(), helpFooter, true);
+    }
+
 
 }

@@ -5,10 +5,11 @@ import com.cx.plugin.cli.constants.Parameters;
 import com.cx.plugin.cli.errorsconstants.Errors;
 import com.cx.plugin.cli.exceptions.CLIParsingException;
 import com.cx.plugin.cli.utils.CxConfigHelper;
+import com.cx.plugin.cli.utils.ErrorParsingHelper;
 import com.cx.restclient.CxShragaClient;
+import com.cx.restclient.common.ShragaUtils;
 import com.cx.restclient.configuration.CxScanConfig;
 import com.cx.restclient.dto.ScanResults;
-import com.cx.restclient.common.ShragaUtils;
 import com.cx.restclient.exception.CxClientException;
 import com.cx.restclient.osa.dto.OSAResults;
 import com.cx.restclient.sast.dto.SASTResults;
@@ -21,12 +22,15 @@ import org.apache.log4j.RollingFileAppender;
 import org.apache.log4j.xml.DOMConfigurator;
 import org.slf4j.impl.Log4jLoggerFactory;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Writer;
 import java.net.URISyntaxException;
 import java.util.Arrays;
 
 import static com.cx.plugin.cli.constants.Parameters.LOG_PATH;
-import static com.cx.plugin.cli.errorsconstants.ErrorMessages.*;
+import static com.cx.plugin.cli.errorsconstants.ErrorMessages.INVALID_COMMAND_ERROR;
 
 /**
  * Created by idanA on 11/4/2018.
@@ -58,10 +62,10 @@ public class CxConsoleLauncher {
         } catch (CLIParsingException | ParseException e) {
             CxConfigHelper.printHelp(command);
             log.error(String.format("\n\n[CxConsole] Error parsing command: \n%s\n\n", e));
-            exitCode = parseError(e);
+            exitCode = ErrorParsingHelper.parseError(e);
         } catch (CxClientException | IOException | URISyntaxException | InterruptedException e) {
             log.error(String.format("%s", e.getMessage()));
-            exitCode = parseError(e);
+            exitCode = ErrorParsingHelper.parseError(e);
         }
 
         System.exit(exitCode);
@@ -69,9 +73,8 @@ public class CxConsoleLauncher {
 
     private static int execute(Command command, CommandLine commandLine) throws CLIParsingException, IOException, CxClientException, URISyntaxException, InterruptedException {
         int exitCode = 0;
-        printConfig(commandLine);
+        CxConfigHelper.printConfig(commandLine);
 
-        ScanResults results = new ScanResults();
         CxScanConfig cxScanConfig = CxConfigHelper.resolveConfigurations(command, commandLine);
 
         org.slf4j.Logger logger = new Log4jLoggerFactory().getLogger(log.getName());
@@ -90,103 +93,42 @@ public class CxConsoleLauncher {
 
         client.init();
         if (cxScanConfig.getOsaEnabled()) {
-            try {
-                client.createOSAScan();
-            } catch (CxClientException | IOException e) {
-                results.setOsaCreateException(e);
-                logger.error(e.getMessage());
-            }
+            client.createOSAScan();
         }
 
         if (cxScanConfig.getSastEnabled()) {
             client.createSASTScan();
-            if (cxScanConfig.getSynchronous()) {
-                SASTResults sastResults = client.waitForSASTResults();
-                OSAResults osaResults = new OSAResults();
-                if (cxScanConfig.getOsaEnabled()) {
-                    osaResults = client.waitForOSAResults();
-                }
-                results.setSastResults(sastResults);
-                results.setOsaResults(osaResults);
+        }
 
-                final String failureResult = ShragaUtils.getBuildFailureResult(cxScanConfig, sastResults, osaResults);
-                if (!failureResult.isEmpty()) {
-                    log.info(failureResult);
-                    exitCode = resolveThresholdFailures(failureResult);
-                }
+
+        if (cxScanConfig.getSynchronous()) {
+            final ScanResults scanResults = waitForResults(client, cxScanConfig.getSastEnabled(), cxScanConfig.getOsaEnabled());
+            final String failureResult = ShragaUtils.getBuildFailureResult(cxScanConfig, scanResults.getSastResults(),
+                    scanResults.getOsaResults());
+            if (!failureResult.isEmpty()) {
+                log.info(failureResult);
+                exitCode = ErrorParsingHelper.resolveThresholdFailures(failureResult);
             }
         }
 
         return exitCode;
     }
 
-    private static int resolveThresholdFailures(String failureResult) {
-        int errorCode = 0;
+    private static ScanResults waitForResults(CxShragaClient client, boolean sastWait, boolean osaWait) throws InterruptedException, CxClientException, IOException {
+        ScanResults results = new ScanResults();
+        SASTResults sastResults;
+        OSAResults osaResults;
 
-        if (failureResult.contains("CxSAST high")) {
-            errorCode = Errors.SAST_HIGH_THRESHOLD_ERROR.getCode();
+        if (sastWait) {
+            sastResults = client.waitForSASTResults();
+            results.setSastResults(sastResults);
         }
-        if (failureResult.contains("CxSAST medium")) {
-            if (errorCode != 0) {
-                return Errors.GENERIC_THRESHOLD_FAILURE_ERROR.getCode();
-            }
-            errorCode = Errors.SAST_MEDIUM_THRESHOLD_ERROR.getCode();
-        }
-        if (failureResult.contains("CxSAST low")) {
-            if (errorCode != 0) {
-                return Errors.GENERIC_THRESHOLD_FAILURE_ERROR.getCode();
-            }
-            errorCode = Errors.SAST_LOW_THRESHOLD_ERROR.getCode();
+        if (osaWait) {
+            osaResults = client.waitForOSAResults();
+            results.setOsaResults(osaResults);
         }
 
-        if (failureResult.contains("CxOSA high")) {
-            if (errorCode != 0) {
-                return Errors.GENERIC_THRESHOLD_FAILURE_ERROR.getCode();
-            }
-            errorCode = Errors.OSA_HIGH_THRESHOLD_ERROR.getCode();
-        }
-
-        if (failureResult.contains("CxOSA medium")) {
-            if (errorCode != 0) {
-                return Errors.GENERIC_THRESHOLD_FAILURE_ERROR.getCode();
-            }
-            errorCode = Errors.OSA_MEDIUM_THRESHOLD_ERROR.getCode();
-        }
-
-        if (failureResult.contains("CxOSA low")) {
-            if (errorCode != 0) {
-                return Errors.GENERIC_THRESHOLD_FAILURE_ERROR.getCode();
-            }
-            errorCode = Errors.OSA_LOW_THRESHOLD_ERROR_EXIT_CODE.getCode();
-        }
-
-        return errorCode;
-    }
-
-    //TODO: return the corresponding error code according to the error message
-    private static int parseError(Exception e) {
-        return 1;
-    }
-
-    //TODO: print CLI version
-    private static void printConfig(CommandLine commandLine) {
-        log.info("-----------------------------------------------------------------------------------------");
-        log.info("CxConsole Configuration: ");
-        log.info("--------------------");
-        //log.info(String.format("CxConsole Version: %s", getVersion()));
-        for (Option param : commandLine.getOptions()) {
-            String name = param.getLongOpt() != null ? param.getLongOpt() : param.getOpt();
-            String value;
-            if (param.getOpt().equalsIgnoreCase(Parameters.USER_PASSWORD)) {
-                value = "********";
-            } else if (param.hasArg()) {
-                value = param.getValue();
-            } else {
-                value = "true";
-            }
-            log.info(String.format("%s: %s", name, value));
-        }
-        log.info("--------------------\n\n");
+        return results;
     }
 
     private static String[] convertParamToLowerCase(String[] args) {
