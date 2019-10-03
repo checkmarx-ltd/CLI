@@ -80,7 +80,7 @@ public class CxConsoleLauncher {
         CxScanConfig cxScanConfig = CxConfigHelper.resolveConfigurations(command, commandLine);
 
         org.slf4j.Logger logger = new Log4jLoggerFactory().getLogger(log.getName());
-         CxShragaClient client = new CxShragaClient(cxScanConfig, logger);
+        CxShragaClient client = new CxShragaClient(cxScanConfig, logger);
 
         if (command.equals(Command.REVOKE_TOKEN)) {
             log.info(String.format("Revoking access token: [%s]", cxScanConfig.getRefreshToken()));

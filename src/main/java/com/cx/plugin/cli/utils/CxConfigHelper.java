@@ -59,11 +59,8 @@ public final class CxConfigHelper {
             throw new CLIParsingException(String.format("[CxConsole] %s parameter must be specified", SERVER_URL));
         }
         String serverURL = cmd.getOptionValue(SERVER_URL);
-        if (!serverURL.substring(0, 4).contains("http")) {
-            cmd.getOptionValue(SERVER_URL, "http://" + serverURL);
-        }
+        scanConfig.setUrl(!serverURL.substring(0, 4).contains("http") ? "http://" + serverURL : cmd.getOptionValue(SERVER_URL));
 
-        scanConfig.setUrl(cmd.getOptionValue(SERVER_URL));
         boolean isSSO = cmd.getOptionValue(IS_SSO) != null;
         String token = cmd.getOptionValue(TOKEN);
         if (!Strings.isNullOrEmpty(token)) {
@@ -101,6 +98,7 @@ public final class CxConfigHelper {
         if (scanConfig.getOsaEnabled()) {
             setOSAThreshold(cmd, scanConfig);
             //TODO: should be able to choose the location of the report
+            scanConfig.setOsaLocationPath(cmd.getOptionValue(OSA_LOCATION_PATH));
             scanConfig.setOsaGenerateJsonReport(cmd.getOptionValue(OSA_JSON_REPORT) != null);
         }
         return scanConfig;
