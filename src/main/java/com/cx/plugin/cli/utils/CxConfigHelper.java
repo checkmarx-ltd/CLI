@@ -61,7 +61,7 @@ public final class CxConfigHelper {
         String serverURL = cmd.getOptionValue(SERVER_URL);
         scanConfig.setUrl(!serverURL.substring(0, 4).contains("http") ? "http://" + serverURL : cmd.getOptionValue(SERVER_URL));
 
-        boolean isSSO = cmd.getOptionValue(IS_SSO) != null;
+        boolean isSSO = cmd.hasOption(IS_SSO);
         String token = cmd.getOptionValue(TOKEN);
         if (!Strings.isNullOrEmpty(token)) {
             scanConfig.setRefreshToken(token);
@@ -76,7 +76,7 @@ public final class CxConfigHelper {
             return scanConfig;
         }
 
-        scanConfig.setUseSSOLogin(isSSO);
+        scanConfig.setUseSSOLogin(cmd.hasOption(IS_SSO));
 
         scanConfig.setOsaEnabled(cmd.hasOption(OSA_ENABLED) || cmd.getOptionValue(OSA_LOCATION_PATH) != null || command.equals(Command.OSA_SCAN) || command.equals(Command.ASYNC_OSA_SCAN));
         scanConfig.setOsaRunInstall(cmd.hasOption(INSTALL_PACKAGE_MANAGER));
