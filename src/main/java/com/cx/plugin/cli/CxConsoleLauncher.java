@@ -7,6 +7,7 @@ import com.cx.plugin.cli.exceptions.CLIParsingException;
 import com.cx.plugin.cli.utils.CxConfigHelper;
 import com.cx.plugin.cli.utils.ErrorParsingHelper;
 import com.cx.restclient.CxShragaClient;
+import com.cx.restclient.common.ErrorMessage;
 import com.cx.restclient.common.ShragaUtils;
 import com.cx.restclient.configuration.CxScanConfig;
 import com.cx.restclient.dto.ScanResults;
@@ -26,6 +27,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.Arrays;
 
@@ -78,7 +80,7 @@ public class CxConsoleLauncher {
         CxScanConfig cxScanConfig = CxConfigHelper.resolveConfigurations(command, commandLine);
 
         org.slf4j.Logger logger = new Log4jLoggerFactory().getLogger(log.getName());
-        CxShragaClient client = new CxShragaClient(cxScanConfig, logger);
+         CxShragaClient client = new CxShragaClient(cxScanConfig, logger);
 
         if (command.equals(Command.REVOKE_TOKEN)) {
             log.info(String.format("Revoking access token: [%s]", cxScanConfig.getRefreshToken()));

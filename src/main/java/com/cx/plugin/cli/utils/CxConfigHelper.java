@@ -59,7 +59,7 @@ public final class CxConfigHelper {
             throw new CLIParsingException(String.format("[CxConsole] %s parameter must be specified", SERVER_URL));
         }
         String serverURL = cmd.getOptionValue(SERVER_URL);
-        if (!serverURL.contains("http")) {
+        if (!serverURL.substring(0, 4).contains("http")) {
             cmd.getOptionValue(SERVER_URL, "http://" + serverURL);
         }
 

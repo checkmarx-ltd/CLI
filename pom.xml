@@ -27,6 +27,8 @@
         </repository>
     </repositories>
     <properties>
+        <timestamp>${maven.build.timestamp}</timestamp>
+        <maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
         <jdk.version>1.8</jdk.version>
         <jersey.version>1.0.3</jersey.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
