@@ -29,7 +29,7 @@ public final class ErrorMessages {
     public static final String OSA_LOW_THRESHOLD_ERROR_MSG = "OSA low vulnerability threshold exceeded";
     public static final String GENERIC_THRESHOLD_FAILURE_ERROR_MSG = "SAST and OSA vulnerabilities threshold exceeded";
     public static final String POLICY_VIOLATED_ERROR_MSG = "Policy violated";
-    public static final String CANCELED_BY_USER_ERROR= "Scan canceled by user";
+    public static final String CANCELED_BY_USER_ERROR_MSG = "Scan canceled by user";
     public static final String INVALID_COMMAND = "[CxConsole] Malformed console command: Expected command to start with one of: %s but was: %s";
     public static final String MISSING_DASH = "[CxConsole] Malformed console command: parameter must start with '-' but was %s";
     public static final String INVALID_COMMAND_ERROR = "command [%s] is invalid, valid command must start with one of %s";

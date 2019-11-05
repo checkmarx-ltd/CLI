@@ -7,7 +7,6 @@ import com.cx.plugin.cli.exceptions.CLIParsingException;
 import com.cx.plugin.cli.utils.CxConfigHelper;
 import com.cx.plugin.cli.utils.ErrorParsingHelper;
 import com.cx.restclient.CxShragaClient;
-import com.cx.restclient.common.ErrorMessage;
 import com.cx.restclient.common.ShragaUtils;
 import com.cx.restclient.configuration.CxScanConfig;
 import com.cx.restclient.dto.ScanResults;
@@ -27,7 +26,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
-import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.Arrays;
 
@@ -64,17 +62,17 @@ public class CxConsoleLauncher {
         } catch (CLIParsingException | ParseException e) {
             CxConfigHelper.printHelp(command);
             log.error(String.format("\n\n[CxConsole] Error parsing command: \n%s\n\n", e));
-            exitCode = ErrorParsingHelper.parseError(e);
+            exitCode = ErrorParsingHelper.parseError(e.getMessage());
         } catch (CxClientException | IOException | URISyntaxException | InterruptedException e) {
             log.error(String.format("%s", e.getMessage()));
-            exitCode = ErrorParsingHelper.parseError(e);
+            exitCode = ErrorParsingHelper.parseError(e.getMessage());
         }
 
         System.exit(exitCode);
     }
 
     private static int execute(Command command, CommandLine commandLine) throws CLIParsingException, IOException, CxClientException, URISyntaxException, InterruptedException {
-        int exitCode = 0;
+        int exitCode = Errors.SCAN_SUCCEEDED.getCode();
         CxConfigHelper.printConfig(commandLine);
 
         CxScanConfig cxScanConfig = CxConfigHelper.resolveConfigurations(command, commandLine);
@@ -94,14 +92,14 @@ public class CxConsoleLauncher {
         }
 
         client.init();
-        if (cxScanConfig.getOsaEnabled()) {
-            client.createOSAScan();
-        }
 
         if (cxScanConfig.getSastEnabled()) {
             client.createSASTScan();
         }
 
+        if (cxScanConfig.getOsaEnabled()) {
+            client.createOSAScan();
+        }
 
         if (cxScanConfig.getSynchronous()) {
             final ScanResults scanResults = waitForResults(client, cxScanConfig.getSastEnabled(), cxScanConfig.getOsaEnabled());
@@ -141,9 +139,9 @@ public class CxConsoleLauncher {
     }
 
     private static void initLogging(CommandLine commandLine) throws CLIParsingException {
-        String logPath = commandLine.getOptionValue(LOG_PATH, "./logs/cx_console");
+        String logPath = commandLine.getOptionValue(LOG_PATH, "." + File.separator + "logs" + File.separator + "cx_console");
         File logFile = new File(logPath);
-        DOMConfigurator.configure("./log4j.xml");
+        DOMConfigurator.configure("." + File.separator + "log4j.xml");
         try {
             if (!logFile.exists()) {
                 Files.createParentDirs(logFile);

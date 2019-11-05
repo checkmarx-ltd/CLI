@@ -17,11 +17,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.Map;
-import java.util.Properties;
 
 import static com.cx.plugin.cli.constants.Parameters.*;
-import static com.cx.plugin.cli.utils.PropertiesManager.KEY_OSA_SCAN_DEPTH;
+import static com.cx.plugin.cli.utils.PropertiesManager.*;
 
 /**
  * Created by idanA on 11/5/2018.
@@ -36,10 +34,9 @@ public final class CxConfigHelper {
 
     private static final String DEFAULT_PRESET_NAME = "Checkmarx Default";
 
-    private static PropertiesManager props;
+    private static PropertiesManager props = PropertiesManager.getProps();
 
     private CxConfigHelper() {
-        props = PropertiesManager.getProps();
     }
 
     /**
@@ -49,7 +46,6 @@ public final class CxConfigHelper {
      * @param cmd     - The parameters passed by the user mapped by key/value
      * @return CxScanConfig an object containing all the relevant data for the scan
      */
-    //TODO: use props where user param missing
     public static CxScanConfig resolveConfigurations(Command command, CommandLine cmd) throws CLIParsingException, URISyntaxException {
         CxScanConfig scanConfig = new CxScanConfig();
         setScanMode(command, scanConfig);
@@ -86,8 +82,8 @@ public final class CxConfigHelper {
         scanConfig.setTeamPath(extractTeamPath(cmd.getOptionValue(FULL_PROJECT_PATH)));
         scanConfig.setPresetName(cmd.getOptionValue(PRESET) == null ? DEFAULT_PRESET_NAME : cmd.getOptionValue(PRESET));
 
-//        scanConfig.setSastFolderExclusions(params.get(LOCATION_PATH_EXCLUDE) == null ? props.getProperty(LOCATION_PATH_EXCLUDE));
-        scanConfig.setSastFilterPattern(cmd.getOptionValue(LOCATION_FILES_EXCLUDE));
+        scanConfig.setSastFolderExclusions(cmd.getOptionValue(LOCATION_PATH_EXCLUDE) == null ? props.getProperty(KEY_EXCLUDED_FOLDERS) : cmd.getOptionValue(LOCATION_PATH_EXCLUDE));
+        scanConfig.setSastFilterPattern(cmd.getOptionValue(LOCATION_FILES_EXCLUDE) == null ? props.getProperty(KEY_EXCLUDED_FILES) : cmd.getOptionValue(LOCATION_FILES_EXCLUDE));
         scanConfig.setScanComment(cmd.getOptionValue(SCAN_COMMENT));
         setScanReports(cmd, scanConfig);
         scanConfig.setIncremental(cmd.hasOption(IS_INCREMENTAL));
@@ -97,10 +93,41 @@ public final class CxConfigHelper {
         setSourceLocation(cmd, scanConfig);
         if (scanConfig.getOsaEnabled()) {
             setOSAThreshold(cmd, scanConfig);
-            //TODO: should be able to choose the location of the report
+            scanConfig.setReportsDir(cmd.getOptionValue(OSA_JSON_REPORT) != null ? new File(cmd.getOptionValue(OSA_JSON_REPORT)) : null);
             scanConfig.setOsaLocationPath(cmd.getOptionValue(OSA_LOCATION_PATH));
             scanConfig.setOsaGenerateJsonReport(cmd.getOptionValue(OSA_JSON_REPORT) != null);
+            scanConfig.setOsaProgressInterval(props.getIntProperty(KEY_OSA_PROGRESS_INTERVAL));
+
+            scanConfig.setOsaFolderExclusions(cmd.getOptionValue(OSA_FOLDER_EXCLUDE));
+
+            String osaIncludedFiles = Strings.isNullOrEmpty(cmd.getOptionValue(OSA_FILES_INCLUDE)) ? props.getProperty(KEY_OSA_INCLUDED_FILES) : cmd.getOptionValue(OSA_FILES_INCLUDE);
+            String osaExcludedFiles = Strings.isNullOrEmpty(cmd.getOptionValue(OSA_FILES_EXCLUDE)) ? props.getProperty(KEY_OSA_EXCLUDED_FILES) : cmd.getOptionValue(OSA_FILES_EXCLUDE);
+
+            String osaFilterPattern = null;
+            if (osaIncludedFiles != null) {
+                if (osaExcludedFiles != null) {
+                    osaFilterPattern = osaIncludedFiles + ", " + osaExcludedFiles;
+                }
+                else
+                    osaFilterPattern = osaIncludedFiles;
+            }
+            else if (osaExcludedFiles != null) {
+                osaFilterPattern = osaExcludedFiles;
+            }
+
+            scanConfig.setOsaFilterPattern(osaFilterPattern);
+
+            String osaExtractableIncludeFiles = Strings.isNullOrEmpty(cmd.getOptionValue(OSA_ARCHIVE_TO_EXTRACT)) ? props.getProperty(KEY_OSA_EXTRACTABLE_INCLUDE_FILES) : cmd.getOptionValue(OSA_ARCHIVE_TO_EXTRACT);
+            scanConfig.setOsaArchiveIncludePatterns(osaExtractableIncludeFiles);
+
+            String osaScanDepth = Strings.isNullOrEmpty(cmd.getOptionValue(OSA_SCAN_DEPTH)) ? props.getProperty(KEY_OSA_SCAN_DEPTH) : cmd.getOptionValue(OSA_SCAN_DEPTH);
+            scanConfig.setOsaScanDepth(osaScanDepth);
         }
+
+        scanConfig.setProgressInterval(props.getIntProperty(KEY_PROGRESS_INTERVAL));
+        scanConfig.setConnectionRetries(props.getIntProperty(KEY_RETIRES));
+        scanConfig.setDefaultProjectName(props.getProperty(KEY_DEF_PROJECT_NAME));
+
         return scanConfig;
     }
 
@@ -119,6 +146,7 @@ public final class CxConfigHelper {
         final String locationBranch = cmd.getOptionValue(LOCATION_BRANCH);
         final String locationUser = cmd.getOptionValue(LOCATION_USER);
         final String locationPass = cmd.getOptionValue(LOCATION_PASSWORD);
+        final String workspaceMode = cmd.getOptionValue(WORKSPACE_MODE);
 
         String locationPort = cmd.getOptionValue(LOCATION_PORT);
 
@@ -143,7 +171,7 @@ public final class CxConfigHelper {
                 break;
             }
             case "perforce": {
-                setPerforceSourceLocation(scanConfig, locationURL, locationPath, locationUser, locationPass, locationPort);
+                setPerforceSourceLocation(scanConfig, locationURL, locationPath, locationUser, locationPass, locationPort, workspaceMode);
                 break;
             }
             case "git": {
@@ -155,7 +183,7 @@ public final class CxConfigHelper {
             }
             default: {
                 throw new CLIParsingException(String.format("[CxConsole] location type must be one of " +
-                        "[folder, shared, (network location), SVN, TFS, Perfore, GIT] but was %s", locationType));
+                        "[folder, shared (network location), SVN, TFS, Perforce, GIT] but was %s", locationType));
             }
         }
 
@@ -187,7 +215,7 @@ public final class CxConfigHelper {
             throw new CLIParsingException(String.format("[CxConsole] locationPath parameter needs to be specified when using [%s] as locationType", "folder"));
         }
         scanConfig.setSourceDir(locationPath);
-        //scanConfig.setZipMaxFile(maxSize);
+        scanConfig.setMaxZipSize(props.getIntProperty(KEY_MAX_ZIP_SIZE));
         return scanConfig;
     }
 
@@ -205,6 +233,7 @@ public final class CxConfigHelper {
         scanConfig.setRemoteSrcUser(locationUser);
         scanConfig.setRemoteSrcPass(locationPass);
         scanConfig.setSourceDir(locationPath);
+        scanConfig.setPaths(locationPath.split(";"));
         scanConfig.setRemoteType(RemoteSourceTypes.SHARED);
 
         return scanConfig;
@@ -222,6 +251,7 @@ public final class CxConfigHelper {
         scanConfig.setRemoteSrcPass(String.valueOf(locationPass));
         scanConfig.setRemoteType(RemoteSourceTypes.SVN);
         scanConfig.setSourceDir(locationPath);
+        scanConfig.setPaths(locationPath.split(";"));
         scanConfig.setRemoteSrcUrl(locationURL);
         if (Strings.isNullOrEmpty(locationPort)) {
             log.info(String.format("[CxConsole] No port was specified for SVN, using port %s as default", SVN_DEFAULT_PORT));
@@ -254,6 +284,7 @@ public final class CxConfigHelper {
         scanConfig.setRemoteSrcPass(String.valueOf(locationPass));
         scanConfig.setRemoteType(RemoteSourceTypes.TFS);
         scanConfig.setSourceDir(locationPath);
+        scanConfig.setPaths(locationPath.split(";"));
         scanConfig.setRemoteSrcUrl(locationURL);
         if (Strings.isNullOrEmpty(locationPort)) {
             log.info(String.format("[CxConsole] No port was specified for TFS, using port %s as default", TFS_DEFAULT_PORT));
@@ -268,8 +299,7 @@ public final class CxConfigHelper {
         return scanConfig;
     }
 
-    //TODO: perforce workspaceMode should it be in the common or CLI?
-    private static CxScanConfig setPerforceSourceLocation(CxScanConfig scanConfig, String locationURL, String locationPath, String locationUser, String locationPass, String locationPort) throws CLIParsingException {
+    private static CxScanConfig setPerforceSourceLocation(CxScanConfig scanConfig, String locationURL, String locationPath, String locationUser, String locationPass, String locationPort, String workspaceMode) throws CLIParsingException {
         if (Strings.isNullOrEmpty(locationPath)) {
             throw new CLIParsingException(String.format("[CxConsole] locationPath parameter needs to be specified when using [%s] as locationType", RemoteSourceTypes.PERFORCE.value()));
         }
@@ -286,8 +316,10 @@ public final class CxConfigHelper {
         scanConfig.setRemoteSrcUser(locationUser);
         scanConfig.setRemoteSrcPass(locationPass);
         scanConfig.setSourceDir(locationPath);
+        scanConfig.setPaths(locationPath.split(";"));
         scanConfig.setRemoteSrcUrl(locationURL);
         scanConfig.setRemoteType(RemoteSourceTypes.PERFORCE);
+        scanConfig.setPerforceMode(workspaceMode);
         if (Strings.isNullOrEmpty(locationPort)) {
             log.info(String.format("[CxConsole] No port was specified for perforce, using port %s as default", PERFORCE_DEFAULT_PORT));
             locationPort = PERFORCE_DEFAULT_PORT;
@@ -325,27 +357,22 @@ public final class CxConfigHelper {
         return scanConfig;
     }
 
-    //TODO: generating multiple reports for multiple types?
     private static CxScanConfig setScanReports(CommandLine consoleParams, CxScanConfig scanConfig) throws URISyntaxException {
         if (consoleParams.getOptionValue(PDF_REPORT) != null) {
-            String reportPath = consoleParams.getOptionValue(PDF_REPORT).replace("..\\", "").replace("..//", "");
-            scanConfig.setReportsDir(new File(reportPath));
-            scanConfig.setGeneratePDFReport(true);
+            String pdfReportPath = consoleParams.getOptionValue(PDF_REPORT).replace("..\\", "").replace("..//", "");
+            scanConfig.addPDFReport(pdfReportPath);
         }
         if (consoleParams.getOptionValue(XML_REPORT) != null) {
-            String reportPath = consoleParams.getOptionValue(XML_REPORT).replace("..\\", "").replace("..//", "");
-            scanConfig.setReportsDir(new File(reportPath));
-            scanConfig.setGeneratePDFReport(true);
+            String xmlReportPath = consoleParams.getOptionValue(XML_REPORT).replace("..\\", "").replace("..//", "");
+            scanConfig.addXMLReport(xmlReportPath);
         }
         if (consoleParams.getOptionValue(CSV_REPORT) != null) {
-            String reportPath = consoleParams.getOptionValue(CSV_REPORT).replace("..\\", "").replace("..//", "");
-            scanConfig.setReportsDir(new File(reportPath));
-            scanConfig.setGeneratePDFReport(true);
+            String csvReportPath = consoleParams.getOptionValue(CSV_REPORT).replace("..\\", "").replace("..//", "");
+            scanConfig.addCSVReport(csvReportPath);
         }
         if (consoleParams.getOptionValue(RTF_REPORT) != null) {
-            String reportPath = consoleParams.getOptionValue(RTF_REPORT).replace("..\\", "").replace("..//", "");
-            scanConfig.setReportsDir(new File(reportPath));
-            scanConfig.setGeneratePDFReport(true);
+            String rtfReportPath = consoleParams.getOptionValue(RTF_REPORT).replace("..\\", "").replace("..//", "");
+            scanConfig.addRTFReport(rtfReportPath);
         }
 
         return scanConfig;

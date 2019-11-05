@@ -19,7 +19,7 @@
             <fileMode>0777</fileMode>
         </file>
         <file>
-            <source>src/main/config/cx_console.properties</source>
+            <source>config/cx_console.properties</source>
             <outputDirectory>config</outputDirectory>
         </file>
         <file>
@@ -42,7 +42,7 @@
                 <include>${groupId}:${artifactId}*</include>
             </includes>
             <useProjectArtifact>true</useProjectArtifact>
-            <outputFileNameMapping>cx_console.jar</outputFileNameMapping>
+            <outputFileNameMapping>CxConsolePlugin-CLI-${myVersion}.jar</outputFileNameMapping>
         </dependencySet>
     </dependencySets>
 

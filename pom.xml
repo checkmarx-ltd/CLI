@@ -33,6 +33,7 @@
         <jersey.version>1.0.3</jersey.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <myVersion>9.20.0</myVersion>
     </properties>
 
     <organization>
@@ -107,7 +108,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <finalName>${project.artifactId}-${project.version}</finalName>
+                    <finalName>CxConsolePlugin-${myVersion}</finalName>
                     <appendAssemblyId>false</appendAssemblyId>
                     <descriptors>
                         <descriptor>src/main/assembly/cli-assembly.xml</descriptor>
@@ -115,6 +116,8 @@
                 </configuration>
             </plugin>
         </plugins>
+
+        <finalName>CxConsolePlugin-CLI-${myVersion}</finalName>
     </build>
 
     <dependencies>

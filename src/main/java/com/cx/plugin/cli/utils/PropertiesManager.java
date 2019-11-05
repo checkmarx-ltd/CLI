@@ -38,22 +38,34 @@ public class PropertiesManager {
     public static final String KEY_USE_KERBEROS_AUTH = "use_kerberos_authentication";
     public static final String KEY_KERBEROS_USERNAME = "kerberos.username";
 
-    private String separator = FileSystems.getDefault().getSeparator();
+    private final String SEPARATOR = FileSystems.getDefault().getSeparator();
     private String userDir = System.getProperty("user.dir");
 
-    private String configDirRelativePath = "src/main/config";
+    private String configDirRelativePath = "config";
     private String configFile = "cx_console.properties";
 
-    private String defaultPath = userDir + separator + configDirRelativePath + separator + configFile;
+    private String defaultPath = userDir + SEPARATOR + configDirRelativePath + SEPARATOR + configFile;
     private Properties applicationProperties;
 
     private static PropertiesManager props;
 
     private PropertiesManager() {
-
     }
 
-    protected void loadProperties(String confPath) {
+    private PropertiesManager(String defConfig) {
+        applicationProperties = new Properties();
+        loadProperties(defConfig);
+    }
+
+    public static PropertiesManager getProps() {
+        return props == null ? new PropertiesManager(null) : props;
+    }
+
+    public static PropertiesManager getProps(String configFilePath) {
+        return props == null ? new PropertiesManager(configFilePath) : props;
+    }
+
+    private void loadProperties(String confPath) {
         try {
             if (confPath != null && loadFromConfigParam(confPath)) {
                 log.info("Config file location: " + confPath);
@@ -109,7 +121,7 @@ public class PropertiesManager {
 
         File propsFile = new File(defaultPath);
         if (!propsFile.exists()) {
-            File configDir = new File(userDir + separator + configDirRelativePath);
+            File configDir = new File(userDir + SEPARATOR + configDirRelativePath);
             if (!configDir.exists()) {
                 configDir.mkdir();
             }
@@ -150,47 +162,6 @@ public class PropertiesManager {
             }
         }
         return longValue;
-    }
-
-    public static PropertiesManager getProps() {
-        return props == null ? new PropertiesManager(null) : props;
-    }
-
-    public static PropertiesManager getProps(String configFilePath) {
-        return props == null ? new PropertiesManager(configFilePath) : props;
-    }
-
-    private PropertiesManager(String defConfig) {
-        applicationProperties = new Properties();
-        loadProperties(defConfig);
-    }
-
-    public String getReportTimeout() {
-        return applicationProperties.getProperty(REPORT_TIMEOUT);
-    }
-
-    public String getOsaProgressInterval() {
-        return applicationProperties.getProperty(KEY_PROGRESS_INTERVAL);
-    }
-
-    public String getRetires(){
-        return applicationProperties.getProperty(KEY_RETIRES);
-    }
-
-    public String getExcludedFolders(){
-        return applicationProperties.getProperty(KEY_EXCLUDED_FOLDERS);
-    }
-
-    public String getExcludedFiles(){
-        return applicationProperties.getProperty(KEY_EXCLUDED_FILES);
-    }
-
-    public String getMaxZipFile(){
-        return applicationProperties.getProperty(KEY_MAX_ZIP_SIZE);
-    }
-
-    public String getDefaultProjectName(){
-        return applicationProperties.getProperty(KEY_DEF_PROJECT_NAME);
     }
 
 }

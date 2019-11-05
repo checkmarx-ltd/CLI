@@ -80,6 +80,7 @@ public enum Command {
 
         options.addOption(FULL_PROJECT_PATH, true, Constants.PROJECT_NAME_DESC);
         options.addOption(IS_CHECKED_POLICY, false, Constants.IS_CHECKED_POLICY_DESC);
+        options.addOption(WORKSPACE_MODE, true, Constants.WORKSPACE_MODE_DESC);
         options.addOption(LOCATION_TYPE, true, Constants.LOCATION_TYPE_DESC);
         options.addOption(LOCATION_PATH, true, Constants.LOCATION_PATH_DESC);
         options.addOption(LOCATION_BRANCH, true, Constants.LOCATION_BRANCH_DESC);
@@ -122,6 +123,7 @@ public enum Command {
         options.addOption(OSA_LOW, true, Constants.OSA_LOW_DESC);
 
         options.addOption(VERBOSE, VERBOSE_LONG, false, Constants.VERBOSE_DESC);
+        options.addOption(LOG_PATH, true, Constants.LOG_PATH_DESC);
 
         return options;
     }
@@ -143,11 +145,12 @@ public enum Command {
         static final String OSA_DESC = "\nThe \"OsaScan\" command enables you to run an open source analysis (CxOSA) scan for an existing project as a CLI command. The CxOSA scan is, by default, run in synchronous mode (OsaScan)." +
                 " This means that the CLI initiates the scan task and the scan results can be viewed in the CLI and in the log file created.";
 
-        static final String CX_TOKEN_DESC = "Login token. Mandatory, Unless use name and password are provided or SSO login is used on Windows ('-useSSO' flag)";
+        static final String CX_TOKEN_DESC = "Login token. Mandatory, Unless username and password are provided or SSO login is used on Windows ('-useSSO' flag)";
         static final String CX_PASS_DESC = "Login password. Mandatory, Unless token is used or SSO login is used on Windows ('-useSSO' flag)";
         static final String CX_USER_DESC = "Login username. Mandatory, Unless token is used or SSO login is used on Windows ('-useSSO' flag)";
         static final String CX_SERVER_DESC = "IP address or resolvable name of CxSuite web server";
 
+        static final String WORKSPACE_MODE_DESC = "When -LocationType parameter is set to Perforce, add this parameter and add the workspace name into -locationPath. Optional";
         static final String LOCATION_TYPE_DESC = "Source location type, one of: folder,shared (network location), SVN, TFS, Perforce, GIT. Mandatory";
 
         static final String TOKEN_GEN_DESC = "\nThe \"GenerateToken\" command allows to generate login token, to be used instead of username and password.";
@@ -203,5 +206,6 @@ public enum Command {
         static final String OSA_LOW_DESC = "CxOSA low severity vulnerability threshold. If the number of low vulnerabilities exceeds the threshold, scan will end with an error (see Error/Exit Codes). Optional. Not supported in AsyncScan mode";
         static final String IS_CHECKED_POLICY_DESC = "This parameter will break the build if the CxOSA policy is violated. Optional.";
         static final String VERBOSE_DESC = "Turns on verbose mode. All messages and events will be sent to the console or log file.";
+        static final String LOG_PATH_DESC = "Log file to be created.";
     }
 }

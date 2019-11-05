@@ -18,6 +18,7 @@ public final class Parameters {
     public static final String LOG_PATH = "log";
     public static final String IS_CHECKED_POLICY = "checkpolicy";
 
+    public static final String WORKSPACE_MODE = "workspacemode";
     public static final String LOCATION_TYPE = "locationtype";
     public static final String LOCATION_PATH = "locationpath";
     public static final String LOCATION_URL = "locationurl";
