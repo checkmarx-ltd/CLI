@@ -9,12 +9,16 @@ import com.cx.plugin.cli.utils.ErrorParsingHelper;
 import com.cx.restclient.CxShragaClient;
 import com.cx.restclient.common.ShragaUtils;
 import com.cx.restclient.configuration.CxScanConfig;
+import com.cx.restclient.dto.DependencyScanResults;
+import com.cx.restclient.dto.DependencyScannerType;
 import com.cx.restclient.dto.ScanResults;
 import com.cx.restclient.exception.CxClientException;
-import com.cx.restclient.osa.dto.OSAResults;
 import com.cx.restclient.sast.dto.SASTResults;
 import com.google.common.io.Files;
-import org.apache.commons.cli.*;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.ParseException;
 import org.apache.log4j.Appender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -97,14 +101,14 @@ public class CxConsoleLauncher {
             client.createSASTScan();
         }
 
-        if (cxScanConfig.getOsaEnabled()) {
-            client.createOSAScan();
+        if (cxScanConfig.getDependencyScannerType() != DependencyScannerType.NONE) {
+            client.createDependencyScan();
         }
 
         if (cxScanConfig.getSynchronous()) {
-            final ScanResults scanResults = waitForResults(client, cxScanConfig.getSastEnabled(), cxScanConfig.getOsaEnabled());
+            final ScanResults scanResults = waitForResults(client, cxScanConfig);
             final String failureResult = ShragaUtils.getBuildFailureResult(cxScanConfig, scanResults.getSastResults(),
-                    scanResults.getOsaResults());
+                    scanResults.getDependencyScanResults());
             if (!failureResult.isEmpty()) {
                 log.info(failureResult);
                 exitCode = ErrorParsingHelper.resolveThresholdFailures(failureResult);
@@ -114,18 +118,16 @@ public class CxConsoleLauncher {
         return exitCode;
     }
 
-    private static ScanResults waitForResults(CxShragaClient client, boolean sastWait, boolean osaWait) throws InterruptedException, CxClientException, IOException {
+    private static ScanResults waitForResults(CxShragaClient client, CxScanConfig config) throws InterruptedException, CxClientException, IOException {
         ScanResults results = new ScanResults();
-        SASTResults sastResults;
-        OSAResults osaResults;
 
-        if (sastWait) {
-            sastResults = client.waitForSASTResults();
+        if (config.getSastEnabled()) {
+            SASTResults sastResults = client.waitForSASTResults();
             results.setSastResults(sastResults);
         }
-        if (osaWait) {
-            osaResults = client.waitForOSAResults();
-            results.setOsaResults(osaResults);
+        if (config.getDependencyScannerType() != DependencyScannerType.NONE) {
+            DependencyScanResults dependencyScanResults = client.waitForDependencyScanResults();
+            results.setDependencyScanResults(dependencyScanResults);
         }
 
         return results;

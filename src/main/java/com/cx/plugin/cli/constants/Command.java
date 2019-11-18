@@ -99,6 +99,7 @@ public enum Command {
         options.addOption(OSA_ARCHIVE_TO_EXTRACT, true, Constants.OSA_ARCHIVE_TO_EXTRACT_DESC);
         options.addOption(OSA_SCAN_DEPTH, true, Constants.OSA_SCAN_DEPTH_DESC);
         options.addOption(OSA_ENABLED, false, Constants.OSA_ENABLED_DESC);
+        options.addOption(SCA_ENABLED, false, Constants.SCA_ENABLED_DESC);
         options.addOption(OSA_JSON_REPORT, true, Constants.OSA_JSON_REPORT_DESC);
         options.addOption(INSTALL_PACKAGE_MANAGER, false, Constants.INSTALL_PACKAGE_MANAGER_DESC);
 //        options.addOption(DOCKER_IMAGE_PATTERN, true, Constants.DOCKER_IMAGE_PATTERN_DESC);
@@ -184,6 +185,7 @@ public enum Command {
                 "For example: -OsaArchiveToExtract *.zip extracts only files with .zip extension. Optional.";
         static final String OSA_SCAN_DEPTH_DESC = "Extraction depth of files to include in the OSA scan. Optional.";
         static final String OSA_ENABLED_DESC = "Enable open source analysis (CxOSA). -osaLocationPath should be specified or the -LocationType parameter needs to be defined as 'folder' or 'shared' (if -osaLocationPath doesn't exist, use -locationPath). Optional.";
+        static final String SCA_ENABLED_DESC = String.format("Enable software composition analysis (SCA). SCA is the successor of CxOSA. Normally either -%1$s or -%2$s should be specified. If both are specified, -%2$s will be used. -osaLocationPath should be specified or the -LocationType parameter needs to be defined as 'folder' or 'shared' (if -osaLocationPath doesn't exist, use -locationPath). Optional.", OSA_ENABLED, SCA_ENABLED);
         static final String OSA_JSON_REPORT_DESC = "Generate CxOSA JSON report. Optional, not supported in AsyncScan mode";
         static final String INSTALL_PACKAGE_MANAGER_DESC = "Retrieve all supported package dependencies before performing OSA scan (see Remarks section). Optional.";
         static final String DOCKER_IMAGE_PATTERN_DESC = "The docker images to be selected for scan"; //TODO: add the description

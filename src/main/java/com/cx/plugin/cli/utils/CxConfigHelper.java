@@ -4,6 +4,7 @@ import com.cx.plugin.cli.constants.Command;
 import com.cx.plugin.cli.constants.Parameters;
 import com.cx.plugin.cli.exceptions.CLIParsingException;
 import com.cx.restclient.configuration.CxScanConfig;
+import com.cx.restclient.dto.DependencyScannerType;
 import com.cx.restclient.dto.RemoteSourceTypes;
 import com.google.common.base.Strings;
 import org.apache.commons.cli.CommandLine;
@@ -48,7 +49,7 @@ public final class CxConfigHelper {
      */
     public static CxScanConfig resolveConfigurations(Command command, CommandLine cmd) throws CLIParsingException, URISyntaxException {
         CxScanConfig scanConfig = new CxScanConfig();
-        setScanMode(command, scanConfig);
+        setScanMode(command, cmd, scanConfig);
         scanConfig.setCxOrigin(CX_ORIGIN);
 
         if (Strings.isNullOrEmpty(cmd.getOptionValue(SERVER_URL))) {
@@ -74,7 +75,6 @@ public final class CxConfigHelper {
 
         scanConfig.setUseSSOLogin(cmd.hasOption(IS_SSO));
 
-        scanConfig.setOsaEnabled(cmd.hasOption(OSA_ENABLED) || cmd.getOptionValue(OSA_LOCATION_PATH) != null || command.equals(Command.OSA_SCAN) || command.equals(Command.ASYNC_OSA_SCAN));
         scanConfig.setOsaRunInstall(cmd.hasOption(INSTALL_PACKAGE_MANAGER));
         scanConfig.setPublic(cmd.hasOption(IS_PRIVATE));
         scanConfig.setEnablePolicyViolations(cmd.hasOption(IS_CHECKED_POLICY));
@@ -91,7 +91,7 @@ public final class CxConfigHelper {
         setSASTThreshold(cmd, scanConfig);
 
         setSourceLocation(cmd, scanConfig);
-        if (scanConfig.getOsaEnabled()) {
+        if (scanConfig.getDependencyScannerType() != DependencyScannerType.NONE) {
             setOSAThreshold(cmd, scanConfig);
             scanConfig.setReportsDir(cmd.getOptionValue(OSA_JSON_REPORT) != null ? new File(cmd.getOptionValue(OSA_JSON_REPORT)) : null);
             scanConfig.setOsaLocationPath(cmd.getOptionValue(OSA_LOCATION_PATH));
@@ -422,32 +422,25 @@ public final class CxConfigHelper {
         return scanConfig;
     }
 
-    private static CxScanConfig setScanMode(Command mode, CxScanConfig scanConfig) {
-        switch (mode) {
-            case SCAN:
-                scanConfig.setSastEnabled(true);
-                scanConfig.setSynchronous(true);
-                break;
-            case ASYNC_SCAN:
-                scanConfig.setSastEnabled(true);
-                scanConfig.setSynchronous(false);
-                break;
-            case OSA_SCAN:
-                scanConfig.setOsaEnabled(true);
-                scanConfig.setSynchronous(true);
-                break;
-            case ASYNC_OSA_SCAN:
-                scanConfig.setOsaEnabled(true);
-                scanConfig.setSynchronous(false);
-                break;
-//            TODO: verify flow exists in common
-            case GENERATE_TOKEN:
-                break;
-            case REVOKE_TOKEN:
-                break;
+    private static void setScanMode(Command mode, CommandLine cmd, CxScanConfig scanConfig) {
+        scanConfig.setSastEnabled(mode.equals(Command.SCAN) || mode.equals(Command.ASYNC_SCAN));
+        scanConfig.setSynchronous(mode.equals(Command.SCAN) || mode.equals(Command.OSA_SCAN));
+
+        boolean dependencyScanEnabled = cmd.hasOption(OSA_ENABLED) ||
+                cmd.hasOption(SCA_ENABLED) ||
+                cmd.getOptionValue(OSA_LOCATION_PATH) != null ||
+                mode.equals(Command.OSA_SCAN) ||
+                mode.equals(Command.ASYNC_OSA_SCAN);
+
+        if (dependencyScanEnabled){
+            // If for some reason both SCA_ENABLED and OSA_ENABLED options are provided, SCA will take precedence.
+            scanConfig.setDependencyScannerType(cmd.hasOption(SCA_ENABLED) ? DependencyScannerType.SCA : DependencyScannerType.OSA);
+        }
+        else {
+            scanConfig.setDependencyScannerType(DependencyScannerType.NONE);
         }
 
-        return scanConfig;
+        // TODO: GENERATE_TOKEN and REVOKE_TOKEN commands.
     }
 
     private static String extractProjectName(String fullPath) throws CLIParsingException {
