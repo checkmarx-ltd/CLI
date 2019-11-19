@@ -6,6 +6,7 @@ import com.cx.plugin.cli.exceptions.CLIParsingException;
 import com.cx.restclient.configuration.CxScanConfig;
 import com.cx.restclient.dto.DependencyScannerType;
 import com.cx.restclient.dto.RemoteSourceTypes;
+import com.cx.restclient.sca.dto.SCAConfig;
 import com.google.common.base.Strings;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
@@ -49,14 +50,12 @@ public final class CxConfigHelper {
      */
     public static CxScanConfig resolveConfigurations(Command command, CommandLine cmd) throws CLIParsingException, URISyntaxException {
         CxScanConfig scanConfig = new CxScanConfig();
-        setScanMode(command, cmd, scanConfig);
-        scanConfig.setCxOrigin(CX_ORIGIN);
 
-        if (Strings.isNullOrEmpty(cmd.getOptionValue(SERVER_URL))) {
-            throw new CLIParsingException(String.format("[CxConsole] %s parameter must be specified", SERVER_URL));
-        }
-        String serverURL = cmd.getOptionValue(SERVER_URL);
-        scanConfig.setUrl(!serverURL.substring(0, 4).contains("http") ? "http://" + serverURL : cmd.getOptionValue(SERVER_URL));
+        scanConfig.setSastEnabled(command.equals(Command.SCAN) || command.equals(Command.ASYNC_SCAN));
+        scanConfig.setSynchronous(command.equals(Command.SCAN) || command.equals(Command.OSA_SCAN));
+        scanConfig.setDependencyScannerType(getDependencyScannerType(command, cmd));
+        scanConfig.setCxOrigin(CX_ORIGIN);
+        scanConfig.setUrl(getRequiredUrlOption(cmd, SERVER_URL));
 
         boolean isSSO = cmd.hasOption(IS_SSO);
         String token = cmd.getOptionValue(TOKEN);
@@ -107,11 +106,9 @@ public final class CxConfigHelper {
             if (osaIncludedFiles != null) {
                 if (osaExcludedFiles != null) {
                     osaFilterPattern = osaIncludedFiles + ", " + osaExcludedFiles;
-                }
-                else
+                } else
                     osaFilterPattern = osaIncludedFiles;
-            }
-            else if (osaExcludedFiles != null) {
+            } else if (osaExcludedFiles != null) {
                 osaFilterPattern = osaExcludedFiles;
             }
 
@@ -122,6 +119,10 @@ public final class CxConfigHelper {
 
             String osaScanDepth = Strings.isNullOrEmpty(cmd.getOptionValue(OSA_SCAN_DEPTH)) ? props.getProperty(KEY_OSA_SCAN_DEPTH) : cmd.getOptionValue(OSA_SCAN_DEPTH);
             scanConfig.setOsaScanDepth(osaScanDepth);
+
+            if (scanConfig.getDependencyScannerType() == DependencyScannerType.SCA) {
+                scanConfig.setScaConfig(getSCAConfig(cmd));
+            }
         }
 
         scanConfig.setProgressInterval(props.getIntProperty(KEY_PROGRESS_INTERVAL));
@@ -129,6 +130,19 @@ public final class CxConfigHelper {
         scanConfig.setDefaultProjectName(props.getProperty(KEY_DEF_PROJECT_NAME));
 
         return scanConfig;
+    }
+
+    private static SCAConfig getSCAConfig(CommandLine cmdLine) throws CLIParsingException {
+        SCAConfig sca = new SCAConfig();
+
+        sca.setApiUrl(getRequiredUrlOption(cmdLine, SCA_API_URL));
+        sca.setAccessControlUrl(getRequiredUrlOption(cmdLine, SCA_ACCESS_CONTROL_URL));
+
+        sca.setUsername(getRequiredOption(cmdLine, SCA_USERNAME));
+        sca.setPassword(getRequiredOption(cmdLine, SCA_PASSWORD));
+        sca.setTenant(getRequiredOption(cmdLine, SCA_TENANT));
+        sca.setProjectName(getRequiredOption(cmdLine, SCA_PROJECT_NAME));
+        return sca;
     }
 
     private static CxScanConfig setSourceLocation(CommandLine cmd, CxScanConfig scanConfig) throws CLIParsingException {
@@ -422,25 +436,21 @@ public final class CxConfigHelper {
         return scanConfig;
     }
 
-    private static void setScanMode(Command mode, CommandLine cmd, CxScanConfig scanConfig) {
-        scanConfig.setSastEnabled(mode.equals(Command.SCAN) || mode.equals(Command.ASYNC_SCAN));
-        scanConfig.setSynchronous(mode.equals(Command.SCAN) || mode.equals(Command.OSA_SCAN));
-
+    private static DependencyScannerType getDependencyScannerType(Command mode, CommandLine cmd) {
         boolean dependencyScanEnabled = cmd.hasOption(OSA_ENABLED) ||
                 cmd.hasOption(SCA_ENABLED) ||
                 cmd.getOptionValue(OSA_LOCATION_PATH) != null ||
                 mode.equals(Command.OSA_SCAN) ||
                 mode.equals(Command.ASYNC_OSA_SCAN);
 
-        if (dependencyScanEnabled){
+        DependencyScannerType result;
+        if (dependencyScanEnabled) {
             // If for some reason both SCA_ENABLED and OSA_ENABLED options are provided, SCA will take precedence.
-            scanConfig.setDependencyScannerType(cmd.hasOption(SCA_ENABLED) ? DependencyScannerType.SCA : DependencyScannerType.OSA);
+            result = cmd.hasOption(SCA_ENABLED) ? DependencyScannerType.SCA : DependencyScannerType.OSA;
+        } else {
+            result = DependencyScannerType.NONE;
         }
-        else {
-            scanConfig.setDependencyScannerType(DependencyScannerType.NONE);
-        }
-
-        // TODO: GENERATE_TOKEN and REVOKE_TOKEN commands.
+        return result;
     }
 
     private static String extractProjectName(String fullPath) throws CLIParsingException {
@@ -493,5 +503,21 @@ public final class CxConfigHelper {
         helpFormatter.printHelp(120, mode.value(), helpHeader, mode.getOptions(), helpFooter, true);
     }
 
+    private static String getRequiredUrlOption(CommandLine cmdLine, String optionName) throws CLIParsingException {
+        String result = getRequiredOption(cmdLine, optionName);
 
+        if (!result.startsWith("http")) {
+            result = "http://" + result;
+        }
+
+        return result;
+    }
+
+    private static String getRequiredOption(CommandLine cmdLine, String optionName) throws CLIParsingException {
+        String result = cmdLine.getOptionValue(optionName);
+        if (Strings.isNullOrEmpty(result)) {
+            throw new CLIParsingException(String.format("[CxConsole] %s parameter must be specified", optionName));
+        }
+        return result;
+    }
 }

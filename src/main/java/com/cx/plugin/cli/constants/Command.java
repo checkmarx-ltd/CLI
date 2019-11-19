@@ -123,6 +123,13 @@ public enum Command {
         options.addOption(OSA_MEDIUM, true, Constants.OSA_MEDIUM_DESC);
         options.addOption(OSA_LOW, true, Constants.OSA_LOW_DESC);
 
+        options.addOption(SCA_API_URL, true, Constants.SCA_API_URL_DESC);
+        options.addOption(SCA_ACCESS_CONTROL_URL, true, Constants.SCA_ACCESS_CONTROL_URL_DESC);
+        options.addOption(SCA_USERNAME, true, Constants.SCA_USERNAME_DESC);
+        options.addOption(SCA_PASSWORD, true, Constants.SCA_PASSWORD_DESC);
+        options.addOption(SCA_TENANT, true, Constants.SCA_TENANT_DESC);
+        options.addOption(SCA_PROJECT_NAME, true, Constants.SCA_PROJECT_NAME_DESC);
+
         options.addOption(VERBOSE, VERBOSE_LONG, false, Constants.VERBOSE_DESC);
         options.addOption(LOG_PATH, true, Constants.LOG_PATH_DESC);
 
@@ -209,5 +216,12 @@ public enum Command {
         static final String IS_CHECKED_POLICY_DESC = "This parameter will break the build if the CxOSA policy is violated. Optional.";
         static final String VERBOSE_DESC = "Turns on verbose mode. All messages and events will be sent to the console or log file.";
         static final String LOG_PATH_DESC = "Log file to be created.";
+
+        static final String SCA_API_URL_DESC = "IP address or resolvable name of a SCA instance.";
+        static final String SCA_ACCESS_CONTROL_URL_DESC = "IP address or resolvable name of an access control server that is used to access SCA.";
+        static final String SCA_USERNAME_DESC = "SCA username.";
+        static final String SCA_PASSWORD_DESC = "SCA password.";
+        static final String SCA_TENANT_DESC = "Tenant name to be used during authentication.";
+        static final String SCA_PROJECT_NAME_DESC = "SCA project name.";
     }
 }

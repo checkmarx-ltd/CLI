@@ -63,4 +63,10 @@ public final class Parameters {
     public static final String OSA_MEDIUM = "osamedium";
     public static final String OSA_LOW = "osalow";
 
+    public static final String SCA_API_URL = "scaapiurl";
+    public static final String SCA_ACCESS_CONTROL_URL = "scaaccesscontrolurl";
+    public static final String SCA_USERNAME = "scausername";
+    public static final String SCA_PASSWORD = "scapassword";
+    public static final String SCA_TENANT = "scatenant";
+    public static final String SCA_PROJECT_NAME = "scaprojectname";
 }
