@@ -7,11 +7,11 @@ import com.cx.plugin.cli.exceptions.CLIParsingException;
 import com.cx.plugin.cli.utils.CxConfigHelper;
 import com.cx.plugin.cli.utils.ErrorParsingHelper;
 import com.cx.restclient.CxShragaClient;
-import com.cx.restclient.common.ShragaUtils;
 import com.cx.restclient.configuration.CxScanConfig;
 import com.cx.restclient.dto.DependencyScanResults;
 import com.cx.restclient.dto.DependencyScannerType;
 import com.cx.restclient.dto.ScanResults;
+import com.cx.restclient.dto.scansummary.ScanSummary;
 import com.cx.restclient.exception.CxClientException;
 import com.cx.restclient.sast.dto.SASTResults;
 import com.google.common.io.Files;
@@ -107,11 +107,10 @@ public class CxConsoleLauncher {
 
         if (cxScanConfig.getSynchronous()) {
             final ScanResults scanResults = waitForResults(client, cxScanConfig);
-            final String failureResult = ShragaUtils.getBuildFailureResult(cxScanConfig, scanResults.getSastResults(),
-                    scanResults.getDependencyScanResults());
-            if (!failureResult.isEmpty()) {
-                log.info(failureResult);
-                exitCode = ErrorParsingHelper.resolveThresholdFailures(failureResult);
+            ScanSummary scanSummary = new ScanSummary(cxScanConfig, scanResults);
+            if (scanSummary.hasErrors()) {
+                log.info(scanSummary.toString());
+                exitCode = ErrorParsingHelper.getErrorType(scanSummary).getCode();
             }
         }
 
