@@ -55,7 +55,9 @@ public final class CxConfigHelper {
         scanConfig.setSynchronous(command.equals(Command.SCAN) || command.equals(Command.OSA_SCAN));
         scanConfig.setDependencyScannerType(getDependencyScannerType(command, cmd));
         scanConfig.setCxOrigin(CX_ORIGIN);
-        scanConfig.setUrl(getRequiredUrlOption(cmd, SERVER_URL));
+
+        String serverUrl = normalizeUrl(getRequiredOption(cmd, SERVER_URL, null));
+        scanConfig.setUrl(serverUrl);
 
         boolean isSSO = cmd.hasOption(IS_SSO);
         String token = cmd.getOptionValue(TOKEN);
@@ -135,12 +137,15 @@ public final class CxConfigHelper {
     private static SCAConfig getSCAConfig(CommandLine cmdLine) throws CLIParsingException {
         SCAConfig sca = new SCAConfig();
 
-        sca.setApiUrl(getRequiredUrlOption(cmdLine, SCA_API_URL));
-        sca.setAccessControlUrl(getRequiredUrlOption(cmdLine, SCA_ACCESS_CONTROL_URL));
+        String apiUrl = normalizeUrl(getRequiredOption(cmdLine, SCA_API_URL, KEY_SCA_API_URL));
+        sca.setApiUrl(apiUrl);
 
-        sca.setUsername(getRequiredOption(cmdLine, SCA_USERNAME));
-        sca.setPassword(getRequiredOption(cmdLine, SCA_PASSWORD));
-        sca.setTenant(getRequiredOption(cmdLine, SCA_TENANT));
+        String acUrl = normalizeUrl(getRequiredOption(cmdLine, SCA_ACCESS_CONTROL_URL, KEY_SCA_ACCESS_CONTROL_URL));
+        sca.setAccessControlUrl(acUrl);
+
+        sca.setUsername(getRequiredOption(cmdLine, SCA_USERNAME, null));
+        sca.setPassword(getRequiredOption(cmdLine, SCA_PASSWORD, null));
+        sca.setTenant(getRequiredOption(cmdLine, SCA_TENANT, null));
         return sca;
     }
 
@@ -503,21 +508,19 @@ public final class CxConfigHelper {
         helpFormatter.printHelp(120, mode.value(), helpHeader, mode.getOptions(), helpFooter, true);
     }
 
-    private static String getRequiredUrlOption(CommandLine cmdLine, String optionName) throws CLIParsingException {
-        String result = getRequiredOption(cmdLine, optionName);
-
-        if (!result.startsWith("http")) {
-            result = "http://" + result;
+    private static String getRequiredOption(CommandLine cmdLine, String cmdLineOptionName, String fallbackProperty) throws CLIParsingException {
+        String result = cmdLine.getOptionValue(cmdLineOptionName);
+        if (Strings.isNullOrEmpty(result) && fallbackProperty != null) {
+            result = props.getProperty(fallbackProperty);
         }
 
+        if (Strings.isNullOrEmpty(result)) {
+            throw new CLIParsingException(String.format("[CxConsole] %s parameter must be specified", cmdLineOptionName));
+        }
         return result;
     }
 
-    private static String getRequiredOption(CommandLine cmdLine, String optionName) throws CLIParsingException {
-        String result = cmdLine.getOptionValue(optionName);
-        if (Strings.isNullOrEmpty(result)) {
-            throw new CLIParsingException(String.format("[CxConsole] %s parameter must be specified", optionName));
-        }
-        return result;
+    private static String normalizeUrl(String rawValue) {
+        return rawValue.startsWith("http") ? rawValue : "http://" + rawValue;
     }
 }
