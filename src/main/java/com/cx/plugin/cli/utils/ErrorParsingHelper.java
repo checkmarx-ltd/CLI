@@ -1,15 +1,12 @@
 package com.cx.plugin.cli.utils;
 
 import com.cx.plugin.cli.errorsconstants.Errors;
-import com.cx.restclient.dto.scansummary.ErrorSource;
-import com.cx.restclient.dto.scansummary.ScanSummary;
 import com.cx.restclient.dto.scansummary.ThresholdError;
+import static com.cx.plugin.cli.errorsconstants.ErrorMessages.*;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static com.cx.plugin.cli.errorsconstants.ErrorMessages.*;
 
 public class ErrorParsingHelper {
 
@@ -26,6 +23,8 @@ public class ErrorParsingHelper {
         messageToCodeMap.put(UNSUCCESSFUL_LOGIN_ERROR_MSG, Errors.LOGIN_FAILED_ERROR.getCode());
         messageToCodeMap.put(UNSUCCESSFUL_REST_LOGIN, Errors.LOGIN_FAILED_ERROR.getCode());
         messageToCodeMap.put(INVALID_CREDENTIALS_FOR_TOKEN_GENERATION, Errors.LOGIN_FAILED_ERROR.getCode());
+        messageToCodeMap.put(INVALID_ACCESS_TOKEN, Errors.LOGIN_FAILED_ERROR.getCode());
+        messageToCodeMap.put(INVALID_CREDENTIALS, Errors.LOGIN_FAILED_ERROR.getCode());
         messageToCodeMap.put(SDLC_ERROR_MSG, Errors.SDLC_ERROR.getCode());
         messageToCodeMap.put(NO_OSA_LICENSE_ERROR_MSG, Errors.NO_OSA_LICENSE_ERROR.getCode());
         messageToCodeMap.put(NO_PROJECT_PRIOR_TO_OSA_SCAN_ERROR_MSG, Errors.NO_PROJECT_PRIOR_TO_OSA_SCAN_ERROR.getCode());

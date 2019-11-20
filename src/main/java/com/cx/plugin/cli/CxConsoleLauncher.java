@@ -85,13 +85,13 @@ public class CxConsoleLauncher {
         CxShragaClient client = new CxShragaClient(cxScanConfig, logger);
 
         if (command.equals(Command.REVOKE_TOKEN)) {
-            log.info(String.format("Revoking access token: [%s]", cxScanConfig.getRefreshToken()));
+            log.info(String.format("Revoking access token: %s", cxScanConfig.getRefreshToken()));
             client.revokeToken(cxScanConfig.getRefreshToken());
             return exitCode;
         }
         if (command.equals(Command.GENERATE_TOKEN)) {
             String token = client.getToken();
-            log.info(String.format("Access token: [%s]", token));
+            log.info(String.format("The login token is: %s", token));
             return exitCode;
         }
 
