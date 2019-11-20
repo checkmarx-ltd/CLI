@@ -478,7 +478,8 @@ public final class CxConfigHelper {
         for (Option param : commandLine.getOptions()) {
             String name = param.getLongOpt() != null ? param.getLongOpt() : param.getOpt();
             String value;
-            if (param.getOpt().equalsIgnoreCase(Parameters.USER_PASSWORD)) {
+            if (param.getOpt().equalsIgnoreCase(Parameters.USER_PASSWORD) ||
+                    param.getOpt().equalsIgnoreCase(SCA_PASSWORD)) {
                 value = "********";
             } else if (param.hasArg()) {
                 value = param.getValue();
