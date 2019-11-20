@@ -141,7 +141,6 @@ public final class CxConfigHelper {
         sca.setUsername(getRequiredOption(cmdLine, SCA_USERNAME));
         sca.setPassword(getRequiredOption(cmdLine, SCA_PASSWORD));
         sca.setTenant(getRequiredOption(cmdLine, SCA_TENANT));
-        sca.setProjectName(getRequiredOption(cmdLine, SCA_PROJECT_NAME));
         return sca;
     }
 

@@ -68,5 +68,4 @@ public final class Parameters {
     public static final String SCA_USERNAME = "scausername";
     public static final String SCA_PASSWORD = "scapassword";
     public static final String SCA_TENANT = "scatenant";
-    public static final String SCA_PROJECT_NAME = "scaprojectname";
 }

@@ -128,7 +128,6 @@ public enum Command {
         options.addOption(SCA_USERNAME, true, Constants.SCA_USERNAME_DESC);
         options.addOption(SCA_PASSWORD, true, Constants.SCA_PASSWORD_DESC);
         options.addOption(SCA_TENANT, true, Constants.SCA_TENANT_DESC);
-        options.addOption(SCA_PROJECT_NAME, true, Constants.SCA_PROJECT_NAME_DESC);
 
         options.addOption(VERBOSE, VERBOSE_LONG, false, Constants.VERBOSE_DESC);
         options.addOption(LOG_PATH, true, Constants.LOG_PATH_DESC);
@@ -222,6 +221,5 @@ public enum Command {
         static final String SCA_USERNAME_DESC = "SCA username.";
         static final String SCA_PASSWORD_DESC = "SCA password.";
         static final String SCA_TENANT_DESC = "Tenant name to be used during authentication.";
-        static final String SCA_PROJECT_NAME_DESC = "SCA project name.";
     }
 }
