@@ -1,12 +1,15 @@
 package com.cx.plugin.cli.utils;
 
 import com.cx.plugin.cli.errorsconstants.Errors;
+import com.cx.restclient.dto.scansummary.ErrorSource;
+import com.cx.restclient.dto.scansummary.ScanSummary;
 import com.cx.restclient.dto.scansummary.ThresholdError;
-import static com.cx.plugin.cli.errorsconstants.ErrorMessages.*;
 
+import java.util.Comparator;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+
+import static com.cx.plugin.cli.errorsconstants.ErrorMessages.*;
 
 public class ErrorParsingHelper {
 
@@ -45,16 +48,22 @@ public class ErrorParsingHelper {
     }
 
     public static Errors getErrorType(ScanSummary scanSummary) {
-        List<ThresholdError> errors = scanSummary.getThresholdErrors();
-        if (errors.isEmpty()) {
-            return Errors.SCAN_SUCCEEDED;
-        } else if (errors.size() > 1) {
-            // There are multiple threshold errors => return a generic error type.
-            return Errors.GENERIC_THRESHOLD_FAILURE_ERROR;
+        if (scanSummary.isPolicyViolated()) {
+            return Errors.POLICY_VIOLATION_ERROR;
         }
 
-        // There is a single threshold error => return a specific error type.
-        ThresholdError error = errors.get(0);
+        ThresholdError sastMostSevere = getMostSevereThresholdError(scanSummary, ErrorSource.SAST);
+        ThresholdError dsMostSevere = getMostSevereThresholdError(scanSummary, ErrorSource.DEPENDENCY_SCANNER);
+        if (sastMostSevere != null && dsMostSevere != null) {
+            return Errors.GENERIC_THRESHOLD_FAILURE_ERROR;
+        } else if (sastMostSevere == null && dsMostSevere == null) {
+            return Errors.SCAN_SUCCEEDED;
+        } else {
+            return toThresholdErrorCode(sastMostSevere != null ? sastMostSevere : dsMostSevere);
+        }
+    }
+
+    private static Errors toThresholdErrorCode(ThresholdError error) {
         if (error.getSource() == ErrorSource.SAST) {
             switch (error.getSeverity()) {
                 case HIGH:
@@ -74,6 +83,14 @@ public class ErrorParsingHelper {
                     return Errors.OSA_LOW_THRESHOLD_ERROR;
             }
         }
+    }
+
+    private static ThresholdError getMostSevereThresholdError(ScanSummary scanSummary, ErrorSource source) {
+        return scanSummary.getThresholdErrors()
+                .stream()
+                .filter(error -> error.getSource() == source)
+                .max(Comparator.comparing(ThresholdError::getSeverity))
+                .orElse(null);
     }
 
     public static int parseError(String errorMsg) {
