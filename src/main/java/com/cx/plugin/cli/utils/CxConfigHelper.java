@@ -56,18 +56,20 @@ public final class CxConfigHelper {
         scanConfig.setDependencyScannerType(getDependencyScannerType(command, cmd));
         scanConfig.setCxOrigin(CX_ORIGIN);
 
-        String serverUrl = normalizeUrl(getRequiredOption(cmd, SERVER_URL, null));
-        scanConfig.setUrl(serverUrl);
+        if (scanConfig.isSastOrOSAEnabled()) {
+            String serverUrl = normalizeUrl(getRequiredOption(cmd, SERVER_URL, null));
+            scanConfig.setUrl(serverUrl);
 
-        boolean isSSO = cmd.hasOption(IS_SSO);
-        String token = cmd.getOptionValue(TOKEN);
-        if (!Strings.isNullOrEmpty(token)) {
-            scanConfig.setRefreshToken(token);
-        } else if ((Strings.isNullOrEmpty(cmd.getOptionValue(USER_NAME)) || Strings.isNullOrEmpty(cmd.getOptionValue(USER_PASSWORD))) && !isSSO) {
-            throw new CLIParsingException("[CxConsole] User name and password are mandatory unless SSO or token is used");
-        } else {
-            scanConfig.setUsername(cmd.getOptionValue(USER_NAME));
-            scanConfig.setPassword(cmd.getOptionValue(USER_PASSWORD));
+            boolean isSSO = cmd.hasOption(IS_SSO);
+            String token = cmd.getOptionValue(TOKEN);
+            if (!Strings.isNullOrEmpty(token)) {
+                scanConfig.setRefreshToken(token);
+            } else if ((Strings.isNullOrEmpty(cmd.getOptionValue(USER_NAME)) || Strings.isNullOrEmpty(cmd.getOptionValue(USER_PASSWORD))) && !isSSO) {
+                throw new CLIParsingException("[CxConsole] User name and password are mandatory unless SSO or token is used");
+            } else {
+                scanConfig.setUsername(cmd.getOptionValue(USER_NAME));
+                scanConfig.setPassword(cmd.getOptionValue(USER_PASSWORD));
+            }
         }
 
         if (command.equals(Command.GENERATE_TOKEN) || command.equals(Command.REVOKE_TOKEN)) {
