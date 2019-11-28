@@ -38,8 +38,9 @@ public class PropertiesManager {
     public static final String KEY_USE_KERBEROS_AUTH = "use_kerberos_authentication";
     public static final String KEY_KERBEROS_USERNAME = "kerberos.username";
 
-    public static final String KEY_SCA_API_URL = "scan.sca.api.url";
-    public static final String KEY_SCA_ACCESS_CONTROL_URL = "scan.sca.accesscontrol.url";
+    static final String KEY_SCA_API_URL = "scan.sca.api.url";
+    static final String KEY_SCA_ACCESS_CONTROL_URL = "scan.sca.accesscontrol.url";
+    static final String KEY_SCA_WEB_APP_URL = "scan.sca.webapp.url";
 
     private final String SEPARATOR = FileSystems.getDefault().getSeparator();
     private String userDir = System.getProperty("user.dir");

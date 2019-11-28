@@ -125,6 +125,7 @@ public enum Command {
 
         options.addOption(SCA_API_URL, true, Constants.SCA_API_URL_DESC);
         options.addOption(SCA_ACCESS_CONTROL_URL, true, Constants.SCA_ACCESS_CONTROL_URL_DESC);
+        options.addOption(SCA_WEB_APP_URL, true, Constants.SCA_WEB_APP_URL_DESC);
         options.addOption(SCA_USERNAME, true, Constants.SCA_USERNAME_DESC);
         options.addOption(SCA_PASSWORD, true, Constants.SCA_PASSWORD_DESC);
         options.addOption(SCA_TENANT, true, Constants.SCA_TENANT_DESC);
@@ -218,6 +219,7 @@ public enum Command {
 
         static final String SCA_API_URL_DESC = "IP address or resolvable name of a SCA instance.";
         static final String SCA_ACCESS_CONTROL_URL_DESC = "IP address or resolvable name of an access control server that is used to access SCA.";
+        static final String SCA_WEB_APP_URL_DESC = "URL of the SCA web application. Used to generate web report URL. If this option is not provided in the command line, a value from the config file is used.";
         static final String SCA_USERNAME_DESC = "SCA username.";
         static final String SCA_PASSWORD_DESC = "SCA password.";
         static final String SCA_TENANT_DESC = "Tenant name to be used during authentication.";

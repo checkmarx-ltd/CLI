@@ -65,6 +65,7 @@ public final class Parameters {
 
     public static final String SCA_API_URL = "scaapiurl";
     public static final String SCA_ACCESS_CONTROL_URL = "scaaccesscontrolurl";
+    public static final String SCA_WEB_APP_URL = "scawebappurl";
     public static final String SCA_USERNAME = "scausername";
     public static final String SCA_PASSWORD = "scapassword";
     public static final String SCA_TENANT = "scatenant";

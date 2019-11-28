@@ -145,6 +145,9 @@ public final class CxConfigHelper {
         String acUrl = normalizeUrl(getRequiredOption(cmdLine, SCA_ACCESS_CONTROL_URL, KEY_SCA_ACCESS_CONTROL_URL));
         sca.setAccessControlUrl(acUrl);
 
+        String webAppUrl = normalizeUrl(getRequiredOption(cmdLine, SCA_WEB_APP_URL, KEY_SCA_WEB_APP_URL));
+        sca.setWebAppUrl(webAppUrl);
+
         sca.setUsername(getRequiredOption(cmdLine, SCA_USERNAME, null));
         sca.setPassword(getRequiredOption(cmdLine, SCA_PASSWORD, null));
         sca.setTenant(getRequiredOption(cmdLine, SCA_TENANT, null));
@@ -517,7 +520,15 @@ public final class CxConfigHelper {
         }
 
         if (Strings.isNullOrEmpty(result)) {
-            throw new CLIParsingException(String.format("[CxConsole] %s parameter must be specified", cmdLineOptionName));
+            String message;
+            if (fallbackProperty != null) {
+                message = String.format("%s command line option or %s configuration setting must be specified.",
+                        cmdLineOptionName, fallbackProperty);
+            }
+            else {
+                message = String.format("%s command line option must be specified.", cmdLineOptionName);
+            }
+            throw new CLIParsingException(message);
         }
         return result;
     }
