@@ -73,6 +73,7 @@ public final class CxConfigHelper {
         }
 
         scanConfig.setUseSSOLogin(cmd.hasOption(IS_SSO));
+        scanConfig.setDisableCertificateValidation(cmd.hasOption(TRUSTED_CERTIFICATES));
 
         scanConfig.setOsaEnabled(cmd.hasOption(OSA_ENABLED) || cmd.getOptionValue(OSA_LOCATION_PATH) != null || command.equals(Command.OSA_SCAN) || command.equals(Command.ASYNC_OSA_SCAN));
         scanConfig.setOsaRunInstall(cmd.hasOption(INSTALL_PACKAGE_MANAGER));
