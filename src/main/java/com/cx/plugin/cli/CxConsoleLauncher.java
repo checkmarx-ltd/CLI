@@ -134,7 +134,7 @@ public class CxConsoleLauncher {
     private static String[] convertParamToLowerCase(String[] args) {
         return Arrays
                 .stream(args)
-                .map(arg -> arg.contains("-") ? arg.toLowerCase() : arg)
+                .map(arg -> arg.startsWith("-") ? arg.toLowerCase() : arg)
                 .toArray(String[]::new);
     }
 
