@@ -10,6 +10,13 @@ pool:
   vmImage: 'ubuntu-latest'
 
 steps:
+- task: JenkinsQueueJob@2
+  inputs:
+    serverEndpoint: 'Locla TFS'
+    jobName: 'Plugin-CLI_ByCommit'
+    captureConsole: true
+    capturePipeline: true
+    isParameterizedJob: false
 - task: S3Download@1
   inputs:
     awsCredentials: 'CxSLDC bucket'
