@@ -7,7 +7,7 @@ trigger:
 - master
 
 pool:
-  vmImage: 'LinuxTest'
+  vmImage: 'jenkins-trigger'
 
 steps:
 - task: JenkinsQueueJob@2
