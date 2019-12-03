@@ -14,11 +14,11 @@ steps:
 - task: JenkinsQueueJob@2
   inputs:
     serverEndpoint: 'Locla TFS'
-    jobName: 'sdfsf'
+    jobName: 'Plugin-CLI_ByCommit'
     captureConsole: true
     capturePipeline: true
     isParameterizedJob: true
-    jobParameters: Commit:$(Build.SourceVersion)
+    jobParameters: Commit=$(Build.SourceVersion)
 - task: S3Download@1
   inputs:
     awsCredentials: 'CxSLDC bucket'
