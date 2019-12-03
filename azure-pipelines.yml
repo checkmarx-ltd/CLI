@@ -6,8 +6,9 @@
 trigger:
 - master
 
-pool:
-  vmImage: 'ubuntu-latest'
+pool: 
+  name: 'JenkinsPool'
+  vmImage: 'jenkins-trigger'
 
 steps:
 - task: JenkinsQueueJob@2
