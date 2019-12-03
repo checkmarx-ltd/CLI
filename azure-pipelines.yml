@@ -18,7 +18,7 @@ steps:
     captureConsole: true
     capturePipeline: true
     isParameterizedJob: true
-    jobParameters: 'Commit=$(Build.SourceVersion)'
+    jobParameters: Commit=$(Build.SourceVersion)
 - task: S3Download@1
   inputs:
     awsCredentials: 'CxSLDC bucket'
