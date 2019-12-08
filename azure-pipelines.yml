@@ -14,7 +14,7 @@ steps:
 - task: JenkinsQueueJob@2
   inputs:
     serverEndpoint: 'Locla TFS'
-    jobName: 'Plugin-CLI_ByCommit'
+    jobName: 'Plugin-CLI-MVN_ByCommit'
     captureConsole: true
     capturePipeline: true
     isParameterizedJob: true
