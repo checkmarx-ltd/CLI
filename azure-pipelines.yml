@@ -19,27 +19,3 @@ steps:
     capturePipeline: true
     isParameterizedJob: true
     jobParameters: Commit=$(Build.SourceVersion)
-- task: S3Download@1
-  inputs:
-    awsCredentials: 'CxSLDC bucket'
-    regionName: 'eu-west-1'
-    bucketName: 'cxsdlc'
-    globExpressions: '*9.20*.jar'
-    targetFolder: ''
-- task: Bash@3
-  inputs:
-    targetType: 'inline'
-    script: |
-      mvn -v
-      mvn install -e
-
-- task: Maven@3
-  inputs:
-    mavenPomFile: 'pom.xml'
-    publishJUnitResults: false
-    javaHomeOption: 'JDKVersion'
-    mavenVersionOption: 'Default'
-    mavenAuthenticateFeed: false
-    effectivePomSkip: false
-    sonarQubeRunAnalysis: false
-  condition: always()
