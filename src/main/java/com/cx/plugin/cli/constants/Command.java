@@ -132,6 +132,7 @@ public enum Command {
 
         options.addOption(VERBOSE, VERBOSE_LONG, false, Constants.VERBOSE_DESC);
         options.addOption(LOG_PATH, true, Constants.LOG_PATH_DESC);
+        options.addOption(TRUSTED_CERTIFICATES, false, Constants.TRUSTED_CERTIFICATES_DESC);
 
         return options;
     }
@@ -216,6 +217,7 @@ public enum Command {
         static final String IS_CHECKED_POLICY_DESC = "This parameter will break the build if the CxOSA policy is violated. Optional.";
         static final String VERBOSE_DESC = "Turns on verbose mode. All messages and events will be sent to the console or log file.";
         static final String LOG_PATH_DESC = "Log file to be created.";
+        static final String TRUSTED_CERTIFICATES_DESC = "The ‘TrustedCertificates’ parameter can be used to add certified security to the connection. By default, all certificates are trusted. When disabled, only certificates signed by a trusted certificate authority can be accepted.";
 
         static final String SCA_API_URL_DESC = "IP address or resolvable name of a SCA instance.";
         static final String SCA_ACCESS_CONTROL_URL_DESC = "IP address or resolvable name of an access control server that is used to access SCA.";

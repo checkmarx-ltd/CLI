@@ -62,6 +62,7 @@ public final class Parameters {
     public static final String OSA_HIGH = "osahigh";
     public static final String OSA_MEDIUM = "osamedium";
     public static final String OSA_LOW = "osalow";
+    public static final String TRUSTED_CERTIFICATES = "trustedcertificates";
 
     public static final String SCA_API_URL = "scaapiurl";
     public static final String SCA_ACCESS_CONTROL_URL = "scaaccesscontrolurl";
