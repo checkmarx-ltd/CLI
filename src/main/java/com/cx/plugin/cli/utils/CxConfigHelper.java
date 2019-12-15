@@ -88,7 +88,7 @@ public final class CxConfigHelper {
         scanConfig.setScanComment(cmd.getOptionValue(SCAN_COMMENT));
         setScanReports(cmd, scanConfig);
         scanConfig.setIncremental(cmd.hasOption(IS_INCREMENTAL));
-        scanConfig.setForceScan(cmd.hasOption(IS_FORCE_SCAN));
+        scanConfig.setForceScan(!cmd.hasOption(IS_FORCE_SCAN));
         setSASTThreshold(cmd, scanConfig);
 
         setSourceLocation(cmd, scanConfig);
