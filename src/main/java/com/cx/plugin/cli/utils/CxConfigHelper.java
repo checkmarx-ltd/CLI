@@ -91,7 +91,7 @@ public final class CxConfigHelper {
         scanConfig.setScanComment(cmd.getOptionValue(SCAN_COMMENT));
         setScanReports(cmd, scanConfig);
         scanConfig.setIncremental(cmd.hasOption(IS_INCREMENTAL));
-        scanConfig.setForceScan(cmd.hasOption(IS_FORCE_SCAN));
+        scanConfig.setForceScan(!cmd.hasOption(IS_FORCE_SCAN));
         setSASTThreshold(cmd, scanConfig);
 
         setSourceLocation(cmd, scanConfig);
@@ -463,20 +463,24 @@ public final class CxConfigHelper {
         return result;
     }
 
+    private static int getLastIndexOfTeam(String fullPath) {
+        int lastIdx = fullPath.lastIndexOf("\\");
+        return lastIdx != -1 ? lastIdx : fullPath.lastIndexOf("/");
+    }
+
     private static String extractProjectName(String fullPath) throws CLIParsingException {
         if (Strings.isNullOrEmpty(fullPath)) {
             throw new CLIParsingException("[CxConsole] No project path was specified");
         }
-        String[] split = fullPath.split("\\\\");
-        return split[split.length - 1];
+        int lastIdx = getLastIndexOfTeam(fullPath);
+        return fullPath.substring(lastIdx + 1);
     }
 
-    //TODO: make sure that it works with the reverse slashes
     private static String extractTeamPath(String fullPath) throws CLIParsingException {
         if (Strings.isNullOrEmpty(fullPath)) {
             throw new CLIParsingException("[CxConsole] No project path was specified");
         }
-        int lastIdx = fullPath.lastIndexOf("\\");
+        int lastIdx = getLastIndexOfTeam(fullPath);
         return fullPath.substring(0, lastIdx);
     }
 
