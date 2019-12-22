@@ -7,7 +7,7 @@
 
     <groupId>com.cx.plugin</groupId>
     <artifactId>cli</artifactId>
-    <version>2019.4.2</version>
+    <version>2019.4.3</version>
     <packaging>jar</packaging>
 
     <repositories>
@@ -33,7 +33,7 @@
         <jersey.version>1.0.3</jersey.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <myVersion>2019.4.2</myVersion>
+        <myVersion>2019.4.3</myVersion>
     </properties>
 
     <organization>
@@ -45,6 +45,10 @@
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+            <resource>
+                <directory>src/main/scripts</directory>
                 <filtering>true</filtering>
             </resource>
         </resources>
