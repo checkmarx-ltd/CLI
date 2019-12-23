@@ -5,21 +5,17 @@ import com.cx.plugin.cli.constants.Parameters;
 import com.cx.plugin.cli.exceptions.CLIParsingException;
 import com.cx.restclient.configuration.CxScanConfig;
 import com.cx.restclient.dto.DependencyScannerType;
-import com.cx.restclient.dto.RemoteSourceTypes;
 import com.cx.restclient.sca.dto.SCAConfig;
 import com.google.common.base.Strings;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
-import org.apache.commons.compress.utils.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.net.URISyntaxException;
 
 import static com.cx.plugin.cli.constants.Parameters.*;
@@ -29,11 +25,6 @@ import static com.cx.plugin.cli.utils.PropertiesManager.*;
  * Created by idanA on 11/5/2018.
  */
 public final class CxConfigHelper {
-
-    private static final String SVN_DEFAULT_PORT = "80";
-    private static final String PERFORCE_DEFAULT_PORT = "1666";
-    private static final String TFS_DEFAULT_PORT = "8080";
-
     private static Logger log = LoggerFactory.getLogger(CxConfigHelper.class);
 
     private static final String DEFAULT_PRESET_NAME = "Checkmarx Default";
@@ -93,7 +84,12 @@ public final class CxConfigHelper {
         scanConfig.setForceScan(!cmd.hasOption(IS_FORCE_SCAN));
         setSASTThresholds(scanConfig);
 
-        setSourceLocation(scanConfig);
+        String dsLocationPath = getSharedDependencyScanOption(scanConfig, OSA_LOCATION_PATH, SCA_LOCATION_PATH);
+        if (dsLocationPath == null) {
+            ScanSourceConfigurator locator = new ScanSourceConfigurator();
+            locator.configureSourceLocation(commandLine, props, scanConfig);
+        }
+
         scanConfig.setProgressInterval(props.getIntProperty(KEY_PROGRESS_INTERVAL));
         scanConfig.setConnectionRetries(props.getIntProperty(KEY_RETRIES));
         scanConfig.setDefaultProjectName(props.getProperty(KEY_DEF_PROJECT_NAME));
@@ -227,232 +223,6 @@ public final class CxConfigHelper {
         }
     }
 
-    private CxScanConfig setSourceLocation(CxScanConfig scanConfig) throws CLIParsingException {
-        String dsLocationPath = getSharedDependencyScanOption(scanConfig, OSA_LOCATION_PATH, SCA_LOCATION_PATH);
-        if (dsLocationPath != null) {
-            return scanConfig;
-        }
-
-        String locationType = commandLine.getOptionValue(LOCATION_TYPE);
-        if (locationType == null) {
-            throw new CLIParsingException("[CxConsole] No location type parameter was specified, needs to be specified using -LocationType <folder/shared/tfs/svn/perforce/git>");
-        }
-
-        final String locationPath = commandLine.getOptionValue(LOCATION_PATH);
-        final String locationURL = commandLine.getOptionValue(LOCATION_URL);
-        final String locationBranch = commandLine.getOptionValue(LOCATION_BRANCH);
-        final String locationUser = commandLine.getOptionValue(LOCATION_USER);
-        final String locationPass = commandLine.getOptionValue(LOCATION_PASSWORD);
-        final String workspaceMode = commandLine.getOptionValue(WORKSPACE_MODE);
-
-        String locationPort = commandLine.getOptionValue(LOCATION_PORT);
-
-        switch (locationType.toLowerCase()) {
-            case "folder": {
-                setLocalSourceLocation(scanConfig, locationPath);
-                break;
-            }
-            case "shared": {
-                setSharedSourceLocation(scanConfig, locationPath, locationUser, locationPass);
-                break;
-            }
-            case "svn": {
-                if (commandLine.getOptionValue(PRIVATE_KEY) != null) {
-                    setPrivateKey(scanConfig, commandLine.getOptionValue(PRIVATE_KEY));
-                }
-                setSVNSourceLocation(scanConfig, locationURL, locationPath, locationUser, locationPass, locationPort);
-                break;
-            }
-            case "tfs": {
-                setTFSSourceLocation(scanConfig, locationURL, locationPath, locationUser, locationPass, locationPort);
-                break;
-            }
-            case "perforce": {
-                setPerforceSourceLocation(scanConfig, locationURL, locationPath, locationUser, locationPass, locationPort, workspaceMode);
-                break;
-            }
-            case "git": {
-                if (commandLine.getOptionValue(PRIVATE_KEY) != null) {
-                    setPrivateKey(scanConfig, commandLine.getOptionValue(PRIVATE_KEY));
-                }
-                setGITSourceLocation(scanConfig, locationURL, locationBranch, locationUser, locationPass, locationPort);
-                break;
-            }
-            default: {
-                throw new CLIParsingException(String.format("[CxConsole] location type must be one of " +
-                        "[folder, shared (network location), SVN, TFS, Perforce, GIT] but was %s", locationType));
-            }
-        }
-
-        return scanConfig;
-    }
-
-    private static CxScanConfig setPrivateKey(CxScanConfig scanConfig, String pathToKey) throws CLIParsingException {
-        File resultFile = new File(pathToKey);
-        if (!resultFile.isAbsolute()) {
-            String path = System.getProperty("user.dir");
-            pathToKey = path + File.separator + pathToKey;
-        }
-
-        byte[] keyFile;
-        try {
-            FileInputStream inputStream = new FileInputStream(new File(pathToKey));
-            keyFile = IOUtils.toByteArray(inputStream);
-        } catch (IOException e) {
-            throw new CLIParsingException("[CxConsole] Failed retrieving key from specified file:\n " + e.getMessage(), e);
-        }
-
-        scanConfig.setRemoteSrcKeyFile(keyFile);
-        return scanConfig;
-    }
-
-    private static CxScanConfig setLocalSourceLocation(CxScanConfig scanConfig, String locationPath) throws CLIParsingException {
-        if (Strings.isNullOrEmpty(locationPath)) {
-            throw new CLIParsingException(String.format("[CxConsole] locationPath parameter needs to be specified when using [%s] as locationType", "folder"));
-        }
-        scanConfig.setSourceDir(locationPath);
-        scanConfig.setMaxZipSize(props.getIntProperty(KEY_MAX_ZIP_SIZE));
-        return scanConfig;
-    }
-
-    private static CxScanConfig setSharedSourceLocation(CxScanConfig scanConfig, String locationPath, String locationUser, String locationPass) throws CLIParsingException {
-        if (Strings.isNullOrEmpty(locationPath)) {
-            throw new CLIParsingException(String.format("[CxConsole] locationPath parameter needs to be specified when using [%s] as locationType", RemoteSourceTypes.SHARED.value()));
-        }
-        if (Strings.isNullOrEmpty(locationUser)) {
-            throw new CLIParsingException(String.format("[CxConsole] locationUser parameter needs to be specified when using [%s] as locationType", RemoteSourceTypes.SHARED.value()));
-        }
-        if (locationPass == null) {
-            throw new CLIParsingException(String.format("[CxConsole] locationPassword parameter needs to be specified when using [%s] as locationType", RemoteSourceTypes.SHARED.value()));
-        }
-
-        scanConfig.setRemoteSrcUser(locationUser);
-        scanConfig.setRemoteSrcPass(locationPass);
-        scanConfig.setSourceDir(locationPath);
-        scanConfig.setPaths(locationPath.split(";"));
-        scanConfig.setRemoteType(RemoteSourceTypes.SHARED);
-
-        return scanConfig;
-    }
-
-    private static CxScanConfig setSVNSourceLocation(CxScanConfig scanConfig, String locationURL, String locationPath, String locationUser, String locationPass, String locationPort) throws CLIParsingException {
-        if (Strings.isNullOrEmpty(locationPath)) {
-            throw new CLIParsingException(String.format("[CxConsole] locationPath parameter needs to be specified when using [%s] as locationType", RemoteSourceTypes.SVN.value()));
-        }
-        if (Strings.isNullOrEmpty(locationURL)) {
-            throw new CLIParsingException(String.format("[CxConsole] locationURL parameter needs to be specified when using [%s] as locationType", RemoteSourceTypes.SVN.value()));
-        }
-
-        scanConfig.setRemoteSrcUser(locationUser);
-        scanConfig.setRemoteSrcPass(String.valueOf(locationPass));
-        scanConfig.setRemoteType(RemoteSourceTypes.SVN);
-        scanConfig.setSourceDir(locationPath);
-        scanConfig.setPaths(locationPath.split(";"));
-        scanConfig.setRemoteSrcUrl(locationURL);
-        if (Strings.isNullOrEmpty(locationPort)) {
-            log.info(String.format("[CxConsole] No port was specified for SVN, using port %s as default", SVN_DEFAULT_PORT));
-            locationPort = SVN_DEFAULT_PORT;
-        }
-        try {
-            scanConfig.setRemoteSrcPort(Integer.parseInt(locationPort));
-        } catch (NumberFormatException e) {
-            throw new CLIParsingException(String.format("[CxConsole] Invalid port specified: [%s]", locationPort), e);
-        }
-
-        return scanConfig;
-    }
-
-    private static CxScanConfig setTFSSourceLocation(CxScanConfig scanConfig, String locationURL, String locationPath, String locationUser, String locationPass, String locationPort) throws CLIParsingException {
-        if (Strings.isNullOrEmpty(locationPath)) {
-            throw new CLIParsingException(String.format("[CxConsole] locationPath parameter needs to be specified when using [%s] as locationType", RemoteSourceTypes.TFS.value()));
-        }
-        if (Strings.isNullOrEmpty(locationURL)) {
-            throw new CLIParsingException(String.format("[CxConsole] locationURL parameter needs to be specified when using [%s] as locationType", RemoteSourceTypes.TFS.value()));
-        }
-        if (Strings.isNullOrEmpty(locationUser)) {
-            throw new CLIParsingException(String.format("[CxConsole] locationUser parameter needs to be specified when using [%s] as locationType", RemoteSourceTypes.TFS.value()));
-        }
-        if (locationPass == null) {
-            throw new CLIParsingException(String.format("[CxConsole] locationPassword parameter needs to be specified when using [%s] as locationType", RemoteSourceTypes.TFS.value()));
-        }
-
-        scanConfig.setRemoteSrcUser(locationUser);
-        scanConfig.setRemoteSrcPass(String.valueOf(locationPass));
-        scanConfig.setRemoteType(RemoteSourceTypes.TFS);
-        scanConfig.setSourceDir(locationPath);
-        scanConfig.setPaths(locationPath.split(";"));
-        scanConfig.setRemoteSrcUrl(locationURL);
-        if (Strings.isNullOrEmpty(locationPort)) {
-            log.info(String.format("[CxConsole] No port was specified for TFS, using port %s as default", TFS_DEFAULT_PORT));
-            locationPort = TFS_DEFAULT_PORT;
-        }
-        try {
-            scanConfig.setRemoteSrcPort(Integer.parseInt(locationPort));
-        } catch (NumberFormatException e) {
-            throw new CLIParsingException(String.format("[CxConsole] Invalid port specified: [%s]", locationPort), e);
-        }
-
-        return scanConfig;
-    }
-
-    private static CxScanConfig setPerforceSourceLocation(CxScanConfig scanConfig, String locationURL, String locationPath, String locationUser, String locationPass, String locationPort, String workspaceMode) throws CLIParsingException {
-        if (Strings.isNullOrEmpty(locationPath)) {
-            throw new CLIParsingException(String.format("[CxConsole] locationPath parameter needs to be specified when using [%s] as locationType", RemoteSourceTypes.PERFORCE.value()));
-        }
-        if (Strings.isNullOrEmpty(locationURL)) {
-            throw new CLIParsingException(String.format("[CxConsole] locationURL parameter needs to be specified when using [%s] as locationType", RemoteSourceTypes.PERFORCE.value()));
-        }
-        if (Strings.isNullOrEmpty(locationUser)) {
-            throw new CLIParsingException(String.format("[CxConsole] locationUser parameter needs to be specified when using [%s] as locationType", RemoteSourceTypes.PERFORCE.value()));
-        }
-        if (locationPass == null) {
-            throw new CLIParsingException(String.format("[CxConsole] locationPassword parameter needs to be specified when using [%s] as locationType", RemoteSourceTypes.PERFORCE.value()));
-        }
-
-        scanConfig.setRemoteSrcUser(locationUser);
-        scanConfig.setRemoteSrcPass(locationPass);
-        scanConfig.setSourceDir(locationPath);
-        scanConfig.setPaths(locationPath.split(";"));
-        scanConfig.setRemoteSrcUrl(locationURL);
-        scanConfig.setRemoteType(RemoteSourceTypes.PERFORCE);
-        scanConfig.setPerforceMode(workspaceMode);
-        if (Strings.isNullOrEmpty(locationPort)) {
-            log.info(String.format("[CxConsole] No port was specified for perforce, using port %s as default", PERFORCE_DEFAULT_PORT));
-            locationPort = PERFORCE_DEFAULT_PORT;
-        }
-        try {
-            scanConfig.setRemoteSrcPort(Integer.parseInt(locationPort));
-        } catch (NumberFormatException e) {
-            throw new CLIParsingException(String.format("[CxConsole] Invalid port specified: [%s]", locationPort), e);
-        }
-
-        return scanConfig;
-    }
-
-    private static CxScanConfig setGITSourceLocation(CxScanConfig scanConfig, String locationURL, String locationBranch, String locationUser, String locationPass, String locationPort) throws CLIParsingException {
-        if (Strings.isNullOrEmpty(locationURL)) {
-            throw new CLIParsingException(String.format("[CxConsole] locationURL parameter needs to be specified when using [%s] as a locationType", RemoteSourceTypes.GIT.value()));
-        }
-        if (Strings.isNullOrEmpty(locationBranch)) {
-            throw new CLIParsingException(String.format("[CxConsole] locationBranch parameter needs to be specified when using [%s] as a locationType", RemoteSourceTypes.GIT.value()));
-        }
-
-        scanConfig.setRemoteSrcUser(locationUser);
-        scanConfig.setRemoteSrcPass(String.valueOf(locationPass));
-        scanConfig.setRemoteType(RemoteSourceTypes.GIT);
-        scanConfig.setRemoteSrcUrl(locationURL);
-        scanConfig.setRemoteSrcBranch(locationBranch);
-        try {
-            if (!Strings.isNullOrEmpty(locationPort)) {
-                scanConfig.setRemoteSrcPort(Integer.parseInt(locationPort));
-            }
-        } catch (NumberFormatException e) {
-            throw new CLIParsingException(String.format("[CxConsole] Invalid port specified: [%s]", locationPort), e);
-        }
-
-        return scanConfig;
-    }
-
     private void setScanReports(CxScanConfig scanConfig) {
         String reportPath = getReportPath(PDF_REPORT);
         if (reportPath != null) {
@@ -527,6 +297,10 @@ public final class CxConfigHelper {
         }
     }
 
+    /**
+     * Get one of the command line options that are shared between OSA and SCA and differ only
+     * in prefix ("osa" or "sca").
+     */
     private String getSharedDependencyScanOption(CxScanConfig scanConfig, String osaOption, String scaOption) {
         String result = null;
         if (scanConfig.getDependencyScannerType() == DependencyScannerType.OSA) {
