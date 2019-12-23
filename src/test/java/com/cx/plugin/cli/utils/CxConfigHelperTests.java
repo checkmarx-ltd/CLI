@@ -9,16 +9,19 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.ParseException;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
 import java.net.URISyntaxException;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class CxConfigHelperTests {
+class CxConfigHelperTests {
     @Test
-    public void ScaArgs_Valid() throws ParseException, CLIParsingException, URISyntaxException {
+    @DisplayName("SCA-only scan: command line should be correctly converted to scan config")
+    void ScaArgs_Valid() throws ParseException, CLIParsingException, URISyntaxException {
         final String LOCATION_PATH = "c:\\cxdev\\projectsToScan\\SastAndOsaSource",
                 API_URL = "https://api.example.com",
                 ACCESS_CONTROL_URL = "https://ac.example.com",
@@ -34,10 +37,8 @@ public class CxConfigHelperTests {
                 MEDIUM = 2,
                 LOW = 3;
 
-        final Command COMMAND = Command.SCA_SCAN;
-
-        String[] args = new String[]{
-                COMMAND.value(),
+        String[] args = {
+                Command.SCA_SCAN.value(),
                 "-projectname", "CxServer\\SP\\myprojectname",
                 "-scalocationpath", LOCATION_PATH,
                 "-scaapiurl", API_URL,
@@ -54,11 +55,10 @@ public class CxConfigHelperTests {
                 "-scapathexclude", PATH_EXCLUDE
         };
 
-        CommandLineParser parser = new DefaultParser();
-        CommandLine commandLine = parser.parse(Command.getOptions(), args);
+        CommandLine commandLine = getCommandLine(args);
 
         CxConfigHelper configHelper = new CxConfigHelper();
-        CxScanConfig config = configHelper.resolveConfiguration(COMMAND, commandLine);
+        CxScanConfig config = configHelper.resolveConfiguration(Command.SCA_SCAN, commandLine);
         assertNotNull(config);
         assertFalse(config.getSastEnabled());
         assertEquals(DependencyScannerType.SCA, config.getDependencyScannerType());
@@ -82,5 +82,27 @@ public class CxConfigHelperTests {
         assertEquals(USERNAME, sca.getUsername());
         assertEquals(PASSWORD, sca.getPassword());
         assertEquals(TENANT, sca.getTenant());
+    }
+
+    @Test
+    @DisplayName("Exception should be thrown if we pass ambiguous arguments")
+    void ScaArgs_Invalid() throws ParseException {
+        assertException(Command.OSA_SCAN, new String[]{"-enableosa"});
+        assertException(Command.SCA_SCAN, new String[]{"-enablesca"});
+        assertException(Command.SCAN, new String[]{"-enablesca", "-enableosa"});
+    }
+
+    private void assertException(Command command, String[] args) throws ParseException {
+        String[] fullArgs = ArrayUtils.add(args, 0, command.value());
+        CommandLine commandLine = getCommandLine(fullArgs);
+        CxConfigHelper configHelper = new CxConfigHelper();
+
+        assertThrows(CLIParsingException.class, () ->
+                configHelper.resolveConfiguration(command, commandLine));
+    }
+
+    private CommandLine getCommandLine(String[] args) throws ParseException {
+        CommandLineParser parser = new DefaultParser();
+        return parser.parse(Command.getOptions(), args);
     }
 }
