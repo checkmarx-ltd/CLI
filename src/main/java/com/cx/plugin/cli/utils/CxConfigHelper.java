@@ -12,9 +12,11 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.compress.utils.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -38,8 +40,8 @@ public final class CxConfigHelper {
 
     private static PropertiesManager props = PropertiesManager.getProps();
 
-    private CxConfigHelper() {
-    }
+    private Command command;
+    private CommandLine commandLine;
 
     /**
      * Resolves configuration from the config file and the console parameters
@@ -48,28 +50,26 @@ public final class CxConfigHelper {
      * @param cmd     - The parameters passed by the user mapped by key/value
      * @return CxScanConfig an object containing all the relevant data for the scan
      */
-    public static CxScanConfig resolveConfigurations(Command command, CommandLine cmd) throws CLIParsingException, URISyntaxException {
+    public CxScanConfig resolveConfiguration(Command command, CommandLine cmd) throws CLIParsingException, URISyntaxException {
+        this.command = command;
+        this.commandLine = cmd;
+
+        checkForAmbiguousArgs();
+
         CxScanConfig scanConfig = new CxScanConfig();
 
         scanConfig.setSastEnabled(command.equals(Command.SCAN) || command.equals(Command.ASYNC_SCAN));
-        scanConfig.setSynchronous(command.equals(Command.SCAN) || command.equals(Command.OSA_SCAN));
-        scanConfig.setDependencyScannerType(getDependencyScannerType(command, cmd));
+
+        scanConfig.setSynchronous(command.equals(Command.SCAN) ||
+                command.equals(Command.OSA_SCAN) ||
+                command.equals(Command.SCA_SCAN));
+
+        scanConfig.setDependencyScannerType(getDependencyScannerType());
         scanConfig.setCxOrigin(CX_ORIGIN);
 
         if (scanConfig.isSastOrOSAEnabled()) {
-            String serverUrl = normalizeUrl(getRequiredOption(cmd, SERVER_URL, null));
-            scanConfig.setUrl(serverUrl);
-
-            boolean isSSO = cmd.hasOption(IS_SSO);
-            String token = cmd.getOptionValue(TOKEN);
-            if (!Strings.isNullOrEmpty(token)) {
-                scanConfig.setRefreshToken(token);
-            } else if ((Strings.isNullOrEmpty(cmd.getOptionValue(USER_NAME)) || Strings.isNullOrEmpty(cmd.getOptionValue(USER_PASSWORD))) && !isSSO) {
-                throw new CLIParsingException("[CxConsole] User name and password are mandatory unless SSO or token is used");
-            } else {
-                scanConfig.setUsername(cmd.getOptionValue(USER_NAME));
-                scanConfig.setPassword(cmd.getOptionValue(USER_PASSWORD));
-            }
+            scanConfig.setUrl(getSastOrOsaServerUrl());
+            setSastOrOsaCredentials(scanConfig);
         }
 
         if (command.equals(Command.GENERATE_TOKEN) || command.equals(Command.REVOKE_TOKEN)) {
@@ -79,100 +79,173 @@ public final class CxConfigHelper {
         scanConfig.setUseSSOLogin(cmd.hasOption(IS_SSO));
         scanConfig.setDisableCertificateValidation(cmd.hasOption(TRUSTED_CERTIFICATES));
 
-        scanConfig.setOsaRunInstall(cmd.hasOption(INSTALL_PACKAGE_MANAGER));
         scanConfig.setPublic(cmd.hasOption(IS_PRIVATE));
         scanConfig.setEnablePolicyViolations(cmd.hasOption(IS_CHECKED_POLICY));
         scanConfig.setProjectName(extractProjectName(cmd.getOptionValue(FULL_PROJECT_PATH)));
         scanConfig.setTeamPath(extractTeamPath(cmd.getOptionValue(FULL_PROJECT_PATH)));
         scanConfig.setPresetName(cmd.getOptionValue(PRESET) == null ? DEFAULT_PRESET_NAME : cmd.getOptionValue(PRESET));
 
-        scanConfig.setSastFolderExclusions(cmd.getOptionValue(LOCATION_PATH_EXCLUDE) == null ? props.getProperty(KEY_EXCLUDED_FOLDERS) : cmd.getOptionValue(LOCATION_PATH_EXCLUDE));
-        scanConfig.setSastFilterPattern(cmd.getOptionValue(LOCATION_FILES_EXCLUDE) == null ? props.getProperty(KEY_EXCLUDED_FILES) : cmd.getOptionValue(LOCATION_FILES_EXCLUDE));
+        scanConfig.setSastFolderExclusions(getOptionalParam(LOCATION_PATH_EXCLUDE, KEY_EXCLUDED_FOLDERS));
+        scanConfig.setSastFilterPattern(getOptionalParam(LOCATION_FILES_EXCLUDE, KEY_EXCLUDED_FILES));
         scanConfig.setScanComment(cmd.getOptionValue(SCAN_COMMENT));
-        setScanReports(cmd, scanConfig);
+        setScanReports(scanConfig);
         scanConfig.setIncremental(cmd.hasOption(IS_INCREMENTAL));
         scanConfig.setForceScan(!cmd.hasOption(IS_FORCE_SCAN));
-        setSASTThreshold(cmd, scanConfig);
+        setSASTThresholds(scanConfig);
 
-        setSourceLocation(cmd, scanConfig);
-        if (scanConfig.getDependencyScannerType() != DependencyScannerType.NONE) {
-            setOSAThreshold(cmd, scanConfig);
-            scanConfig.setReportsDir(cmd.getOptionValue(OSA_JSON_REPORT) != null ? new File(cmd.getOptionValue(OSA_JSON_REPORT)) : null);
-            scanConfig.setOsaLocationPath(cmd.getOptionValue(OSA_LOCATION_PATH));
-            scanConfig.setOsaGenerateJsonReport(cmd.getOptionValue(OSA_JSON_REPORT) != null);
-            scanConfig.setOsaProgressInterval(props.getIntProperty(KEY_OSA_PROGRESS_INTERVAL));
-
-            scanConfig.setOsaFolderExclusions(cmd.getOptionValue(OSA_FOLDER_EXCLUDE));
-
-            String osaIncludedFiles = Strings.isNullOrEmpty(cmd.getOptionValue(OSA_FILES_INCLUDE)) ? props.getProperty(KEY_OSA_INCLUDED_FILES) : cmd.getOptionValue(OSA_FILES_INCLUDE);
-            String osaExcludedFiles = Strings.isNullOrEmpty(cmd.getOptionValue(OSA_FILES_EXCLUDE)) ? props.getProperty(KEY_OSA_EXCLUDED_FILES) : cmd.getOptionValue(OSA_FILES_EXCLUDE);
-
-            String osaFilterPattern = null;
-            if (osaIncludedFiles != null) {
-                if (osaExcludedFiles != null) {
-                    osaFilterPattern = osaIncludedFiles + ", " + osaExcludedFiles;
-                } else
-                    osaFilterPattern = osaIncludedFiles;
-            } else if (osaExcludedFiles != null) {
-                osaFilterPattern = osaExcludedFiles;
-            }
-
-            scanConfig.setOsaFilterPattern(osaFilterPattern);
-
-            String osaExtractableIncludeFiles = Strings.isNullOrEmpty(cmd.getOptionValue(OSA_ARCHIVE_TO_EXTRACT)) ? props.getProperty(KEY_OSA_EXTRACTABLE_INCLUDE_FILES) : cmd.getOptionValue(OSA_ARCHIVE_TO_EXTRACT);
-            scanConfig.setOsaArchiveIncludePatterns(osaExtractableIncludeFiles);
-
-            String osaScanDepth = Strings.isNullOrEmpty(cmd.getOptionValue(OSA_SCAN_DEPTH)) ? props.getProperty(KEY_OSA_SCAN_DEPTH) : cmd.getOptionValue(OSA_SCAN_DEPTH);
-            scanConfig.setOsaScanDepth(osaScanDepth);
-
-            if (scanConfig.getDependencyScannerType() == DependencyScannerType.SCA) {
-                scanConfig.setScaConfig(getSCAConfig(cmd));
-            }
-        }
-
+        setSourceLocation(scanConfig);
         scanConfig.setProgressInterval(props.getIntProperty(KEY_PROGRESS_INTERVAL));
-        scanConfig.setConnectionRetries(props.getIntProperty(KEY_RETIRES));
+        scanConfig.setConnectionRetries(props.getIntProperty(KEY_RETRIES));
         scanConfig.setDefaultProjectName(props.getProperty(KEY_DEF_PROJECT_NAME));
+        
+        configureDependencyScan(scanConfig);
 
         return scanConfig;
     }
 
-    private static SCAConfig getSCAConfig(CommandLine cmdLine) throws CLIParsingException {
-        SCAConfig sca = new SCAConfig();
+    private void configureDependencyScan(CxScanConfig scanConfig) throws CLIParsingException {
+        if (scanConfig.getDependencyScannerType() == DependencyScannerType.NONE) {
+            return;
+        }
 
-        String apiUrl = normalizeUrl(getRequiredOption(cmdLine, SCA_API_URL, KEY_SCA_API_URL));
-        sca.setApiUrl(apiUrl);
+        if (scanConfig.getDependencyScannerType() == DependencyScannerType.OSA) {
+            setOsaSpecificConfig(scanConfig);
+        } else {
+            setScaSpecificConfig(scanConfig);
+        }
 
-        String acUrl = normalizeUrl(getRequiredOption(cmdLine, SCA_ACCESS_CONTROL_URL, KEY_SCA_ACCESS_CONTROL_URL));
-        sca.setAccessControlUrl(acUrl);
-
-        String webAppUrl = normalizeUrl(getRequiredOption(cmdLine, SCA_WEB_APP_URL, KEY_SCA_WEB_APP_URL));
-        sca.setWebAppUrl(webAppUrl);
-
-        sca.setUsername(getRequiredOption(cmdLine, SCA_USERNAME, null));
-        sca.setPassword(getRequiredOption(cmdLine, SCA_PASSWORD, null));
-        sca.setTenant(getRequiredOption(cmdLine, SCA_TENANT, null));
-        return sca;
+        setSharedDependencyScanConfig(scanConfig);
     }
 
-    private static CxScanConfig setSourceLocation(CommandLine cmd, CxScanConfig scanConfig) throws CLIParsingException {
-        if (cmd.getOptionValue(OSA_LOCATION_PATH) != null) {
+    private void setOsaSpecificConfig(CxScanConfig scanConfig) {
+        scanConfig.setOsaRunInstall(commandLine.hasOption(INSTALL_PACKAGE_MANAGER));
+
+        String reportDir = commandLine.getOptionValue(OSA_JSON_REPORT);
+        scanConfig.setReportsDir(reportDir != null ? new File(reportDir) : null);
+        scanConfig.setOsaGenerateJsonReport(reportDir != null);
+
+        String archiveIncludePatterns = getOptionalParam(OSA_ARCHIVE_TO_EXTRACT, KEY_OSA_EXTRACTABLE_INCLUDE_FILES);
+        scanConfig.setOsaArchiveIncludePatterns(archiveIncludePatterns);
+
+        String osaScanDepth = getOptionalParam(OSA_SCAN_DEPTH, KEY_OSA_SCAN_DEPTH);
+        scanConfig.setOsaScanDepth(osaScanDepth);
+    }
+
+    private void setScaSpecificConfig(CxScanConfig scanConfig) throws CLIParsingException {
+        SCAConfig sca = new SCAConfig();
+
+        String apiUrl = normalizeUrl(getRequiredParam(commandLine, SCA_API_URL, KEY_SCA_API_URL));
+        sca.setApiUrl(apiUrl);
+
+        String acUrl = normalizeUrl(getRequiredParam(commandLine, SCA_ACCESS_CONTROL_URL, KEY_SCA_ACCESS_CONTROL_URL));
+        sca.setAccessControlUrl(acUrl);
+
+        String webAppUrl = normalizeUrl(getRequiredParam(commandLine, SCA_WEB_APP_URL, KEY_SCA_WEB_APP_URL));
+        sca.setWebAppUrl(webAppUrl);
+
+        sca.setUsername(getRequiredParam(commandLine, SCA_USERNAME, null));
+        sca.setPassword(getRequiredParam(commandLine, SCA_PASSWORD, null));
+        sca.setTenant(getRequiredParam(commandLine, SCA_TENANT, null));
+
+        scanConfig.setScaConfig(sca);
+    }
+
+    private void setSharedDependencyScanConfig(CxScanConfig scanConfig) {
+        setDependencyScanThresholds(scanConfig);
+
+        String location = getSharedDependencyScanOption(scanConfig, OSA_LOCATION_PATH, SCA_LOCATION_PATH);
+        scanConfig.setOsaLocationPath(location);
+
+        String folderExclusions = getSharedDependencyScanOption(scanConfig, OSA_FOLDER_EXCLUDE, SCA_FOLDER_EXCLUDE);
+        scanConfig.setOsaFolderExclusions(folderExclusions);
+
+        String key = scanConfig.getDependencyScannerType() == DependencyScannerType.OSA ?
+                KEY_OSA_PROGRESS_INTERVAL :
+                KEY_SCA_PROGRESS_INTERVAL;
+        scanConfig.setOsaProgressInterval(props.getIntProperty(key));
+
+        setDependencyScanFilterPattern(scanConfig);
+    }
+
+    private void setDependencyScanFilterPattern(CxScanConfig scanConfig) {
+        String includedFiles, excludedFiles;
+        if (scanConfig.getDependencyScannerType() == DependencyScannerType.OSA) {
+            includedFiles = getOptionalParam(OSA_FILES_INCLUDE, KEY_OSA_INCLUDED_FILES);
+            excludedFiles = getOptionalParam(OSA_FILES_EXCLUDE, KEY_OSA_EXCLUDED_FILES);
+        } else {
+            includedFiles = getOptionalParam(SCA_FILES_INCLUDE, KEY_SCA_INCLUDED_FILES);
+            excludedFiles = getOptionalParam(SCA_FILES_EXCLUDE, KEY_SCA_EXCLUDED_FILES);
+        }
+
+        String filterPattern = null;
+        if (includedFiles != null) {
+            if (excludedFiles != null) {
+                filterPattern = includedFiles + ", " + excludedFiles;
+            } else
+                filterPattern = includedFiles;
+        } else if (excludedFiles != null) {
+            filterPattern = excludedFiles;
+        }
+
+        scanConfig.setOsaFilterPattern(filterPattern);
+    }
+
+    private void setSastOrOsaCredentials(CxScanConfig scanConfig) throws CLIParsingException {
+        boolean isSSO = commandLine.hasOption(IS_SSO);
+        String token = commandLine.getOptionValue(TOKEN);
+        String username = commandLine.getOptionValue(USER_NAME);
+        String password = commandLine.getOptionValue(USER_PASSWORD);
+        if (StringUtils.isNotEmpty(token)) {
+            scanConfig.setRefreshToken(token);
+        } else if ((Strings.isNullOrEmpty(username) || Strings.isNullOrEmpty(password)) && !isSSO) {
+            throw new CLIParsingException("[CxConsole] User name and password are mandatory unless SSO or token is used");
+        } else {
+            scanConfig.setUsername(username);
+            scanConfig.setPassword(password);
+        }
+    }
+
+    private String getSastOrOsaServerUrl() throws CLIParsingException {
+        String rawUrl = getRequiredParam(commandLine, SERVER_URL, null);
+        return normalizeUrl(rawUrl);
+    }
+
+    private void checkForAmbiguousArgs() throws CLIParsingException {
+        String message = null;
+        if (commandLine.hasOption(OSA_ENABLED) && commandLine.hasOption(SCA_ENABLED)) {
+            message = String.format("%s and %s arguments cannot be specified together.", OSA_ENABLED, SCA_ENABLED);
+        }
+        else if (command == Command.SCA_SCAN && commandLine.hasOption(OSA_ENABLED)) {
+            message = String.format("%s argument cannot be used with %s command", OSA_ENABLED, command);
+        }
+        else if (command == Command.OSA_SCAN && commandLine.hasOption(SCA_ENABLED)) {
+            message = String.format("%s argument cannot be used with %s command", OSA_ENABLED, command);
+        }
+
+        if (message != null) {
+            throw new CLIParsingException(message);
+        }
+    }
+
+    private CxScanConfig setSourceLocation(CxScanConfig scanConfig) throws CLIParsingException {
+        String dsLocationPath = getSharedDependencyScanOption(scanConfig, OSA_LOCATION_PATH, SCA_LOCATION_PATH);
+        if (dsLocationPath != null) {
             return scanConfig;
         }
 
-        String locationType = cmd.getOptionValue(LOCATION_TYPE);
+        String locationType = commandLine.getOptionValue(LOCATION_TYPE);
         if (locationType == null) {
             throw new CLIParsingException("[CxConsole] No location type parameter was specified, needs to be specified using -LocationType <folder/shared/tfs/svn/perforce/git>");
         }
 
-        final String locationPath = cmd.getOptionValue(LOCATION_PATH);
-        final String locationURL = cmd.getOptionValue(LOCATION_URL);
-        final String locationBranch = cmd.getOptionValue(LOCATION_BRANCH);
-        final String locationUser = cmd.getOptionValue(LOCATION_USER);
-        final String locationPass = cmd.getOptionValue(LOCATION_PASSWORD);
-        final String workspaceMode = cmd.getOptionValue(WORKSPACE_MODE);
+        final String locationPath = commandLine.getOptionValue(LOCATION_PATH);
+        final String locationURL = commandLine.getOptionValue(LOCATION_URL);
+        final String locationBranch = commandLine.getOptionValue(LOCATION_BRANCH);
+        final String locationUser = commandLine.getOptionValue(LOCATION_USER);
+        final String locationPass = commandLine.getOptionValue(LOCATION_PASSWORD);
+        final String workspaceMode = commandLine.getOptionValue(WORKSPACE_MODE);
 
-        String locationPort = cmd.getOptionValue(LOCATION_PORT);
+        String locationPort = commandLine.getOptionValue(LOCATION_PORT);
 
         switch (locationType.toLowerCase()) {
             case "folder": {
@@ -184,8 +257,8 @@ public final class CxConfigHelper {
                 break;
             }
             case "svn": {
-                if (cmd.getOptionValue(PRIVATE_KEY) != null) {
-                    setPrivateKey(scanConfig, cmd.getOptionValue(PRIVATE_KEY));
+                if (commandLine.getOptionValue(PRIVATE_KEY) != null) {
+                    setPrivateKey(scanConfig, commandLine.getOptionValue(PRIVATE_KEY));
                 }
                 setSVNSourceLocation(scanConfig, locationURL, locationPath, locationUser, locationPass, locationPort);
                 break;
@@ -199,8 +272,8 @@ public final class CxConfigHelper {
                 break;
             }
             case "git": {
-                if (cmd.getOptionValue(PRIVATE_KEY) != null) {
-                    setPrivateKey(scanConfig, cmd.getOptionValue(PRIVATE_KEY));
+                if (commandLine.getOptionValue(PRIVATE_KEY) != null) {
+                    setPrivateKey(scanConfig, commandLine.getOptionValue(PRIVATE_KEY));
                 }
                 setGITSourceLocation(scanConfig, locationURL, locationBranch, locationUser, locationPass, locationPort);
                 break;
@@ -212,7 +285,6 @@ public final class CxConfigHelper {
         }
 
         return scanConfig;
-
     }
 
     private static CxScanConfig setPrivateKey(CxScanConfig scanConfig, String pathToKey) throws CLIParsingException {
@@ -381,31 +453,42 @@ public final class CxConfigHelper {
         return scanConfig;
     }
 
-    private static CxScanConfig setScanReports(CommandLine consoleParams, CxScanConfig scanConfig) throws URISyntaxException {
-        if (consoleParams.getOptionValue(PDF_REPORT) != null) {
-            String pdfReportPath = consoleParams.getOptionValue(PDF_REPORT).replace("..\\", "").replace("..//", "");
-            scanConfig.addPDFReport(pdfReportPath);
-        }
-        if (consoleParams.getOptionValue(XML_REPORT) != null) {
-            String xmlReportPath = consoleParams.getOptionValue(XML_REPORT).replace("..\\", "").replace("..//", "");
-            scanConfig.addXMLReport(xmlReportPath);
-        }
-        if (consoleParams.getOptionValue(CSV_REPORT) != null) {
-            String csvReportPath = consoleParams.getOptionValue(CSV_REPORT).replace("..\\", "").replace("..//", "");
-            scanConfig.addCSVReport(csvReportPath);
-        }
-        if (consoleParams.getOptionValue(RTF_REPORT) != null) {
-            String rtfReportPath = consoleParams.getOptionValue(RTF_REPORT).replace("..\\", "").replace("..//", "");
-            scanConfig.addRTFReport(rtfReportPath);
+    private void setScanReports(CxScanConfig scanConfig) {
+        String reportPath = getReportPath(PDF_REPORT);
+        if (reportPath != null) {
+            scanConfig.addPDFReport(reportPath);
         }
 
-        return scanConfig;
+        reportPath = getReportPath(XML_REPORT);
+        if (reportPath != null) {
+            scanConfig.addXMLReport(reportPath);
+        }
+
+        reportPath = getReportPath(CSV_REPORT);
+        if (reportPath != null) {
+            scanConfig.addCSVReport(reportPath);
+        }
+
+        reportPath = getReportPath(RTF_REPORT);
+        if (reportPath != null) {
+            scanConfig.addRTFReport(reportPath);
+        }
     }
 
-    private static CxScanConfig setSASTThreshold(CommandLine cmd, CxScanConfig scanConfig) {
-        String sastHigh = cmd.getOptionValue(SAST_HIGH);
-        String sastMedium = cmd.getOptionValue(SAST_MEDIUM);
-        String sastLow = cmd.getOptionValue(SAST_LOW);
+    private String getReportPath(String optionName) {
+        String rawValue = commandLine.getOptionValue(optionName);
+        String result = null;
+        if (rawValue != null) {
+            result = rawValue.replace("..\\", "")
+                    .replace("..//", "");
+        }
+        return result;
+    }
+
+    private CxScanConfig setSASTThresholds(CxScanConfig scanConfig) {
+        String sastHigh = commandLine.getOptionValue(SAST_HIGH);
+        String sastMedium = commandLine.getOptionValue(SAST_MEDIUM);
+        String sastLow = commandLine.getOptionValue(SAST_LOW);
 
         scanConfig.setSastThresholdsEnabled(false);
         if (!Strings.isNullOrEmpty(sastHigh)) {
@@ -424,40 +507,44 @@ public final class CxConfigHelper {
         return scanConfig;
     }
 
-    private static CxScanConfig setOSAThreshold(CommandLine cmd, CxScanConfig scanConfig) {
-        String osaHigh = cmd.getOptionValue(OSA_HIGH);
-        String osaMedium = cmd.getOptionValue(OSA_MEDIUM);
-        String osaLow = cmd.getOptionValue(OSA_LOW);
+    private void setDependencyScanThresholds(CxScanConfig scanConfig) {
+        String high = getSharedDependencyScanOption(scanConfig, OSA_HIGH, SCA_HIGH);
+        String medium = getSharedDependencyScanOption(scanConfig, OSA_MEDIUM, SCA_MEDIUM);
+        String low = getSharedDependencyScanOption(scanConfig, OSA_LOW, SCA_LOW);
 
         scanConfig.setOsaThresholdsEnabled(false);
-        if (!Strings.isNullOrEmpty(osaHigh)) {
-            scanConfig.setOsaHighThreshold(Integer.valueOf(osaHigh));
+        if (!Strings.isNullOrEmpty(high)) {
+            scanConfig.setOsaHighThreshold(Integer.valueOf(high));
             scanConfig.setOsaThresholdsEnabled(true);
         }
-        if (!Strings.isNullOrEmpty(osaMedium)) {
-            scanConfig.setOsaMediumThreshold(Integer.valueOf(osaMedium));
+        if (!Strings.isNullOrEmpty(medium)) {
+            scanConfig.setOsaMediumThreshold(Integer.valueOf(medium));
             scanConfig.setOsaThresholdsEnabled(true);
         }
-        if (!Strings.isNullOrEmpty(osaLow)) {
-            scanConfig.setOsaLowThreshold(Integer.valueOf(osaLow));
+        if (!Strings.isNullOrEmpty(low)) {
+            scanConfig.setOsaLowThreshold(Integer.valueOf(low));
             scanConfig.setOsaThresholdsEnabled(true);
         }
-
-        return scanConfig;
     }
 
-    private static DependencyScannerType getDependencyScannerType(Command mode, CommandLine cmd) {
-        boolean dependencyScanEnabled = cmd.hasOption(OSA_ENABLED) ||
-                cmd.hasOption(SCA_ENABLED) ||
-                cmd.getOptionValue(OSA_LOCATION_PATH) != null ||
-                mode.equals(Command.OSA_SCAN) ||
-                mode.equals(Command.ASYNC_OSA_SCAN);
+    private String getSharedDependencyScanOption(CxScanConfig scanConfig, String osaOption, String scaOption) {
+        String result = null;
+        if (scanConfig.getDependencyScannerType() == DependencyScannerType.OSA) {
+            result = commandLine.getOptionValue(osaOption);
+        } else if (scanConfig.getDependencyScannerType() == DependencyScannerType.SCA) {
+            result = commandLine.getOptionValue(scaOption);
+        }
+        return result;
+    }
 
+    private DependencyScannerType getDependencyScannerType() {
         DependencyScannerType result;
-        if (dependencyScanEnabled) {
-            // If for some reason both SCA_ENABLED and OSA_ENABLED options are provided, SCA will take precedence.
-            result = cmd.hasOption(SCA_ENABLED) ? DependencyScannerType.SCA : DependencyScannerType.OSA;
-        } else {
+        if (command == Command.OSA_SCAN || command == Command.ASYNC_OSA_SCAN || commandLine.hasOption(OSA_ENABLED)) {
+            result = DependencyScannerType.OSA;
+        } else if (command == Command.SCA_SCAN || command == Command.ASYNC_SCA_SCAN || commandLine.hasOption(SCA_ENABLED)) {
+            result = DependencyScannerType.SCA;
+        }
+        else {
             result = DependencyScannerType.NONE;
         }
         return result;
@@ -518,7 +605,15 @@ public final class CxConfigHelper {
         helpFormatter.printHelp(120, mode.value(), helpHeader, mode.getOptions(), helpFooter, true);
     }
 
-    private static String getRequiredOption(CommandLine cmdLine, String cmdLineOptionName, String fallbackProperty) throws CLIParsingException {
+    private String getOptionalParam(String commandLineKey, String fallbackProperty) {
+        String commandLineValue = commandLine.getOptionValue(commandLineKey);
+        String propertyValue = props.getProperty(fallbackProperty);
+        return StringUtils.isNotEmpty(commandLineValue) ? commandLineValue : propertyValue;
+    }
+
+    private static String getRequiredParam(
+            CommandLine cmdLine, String cmdLineOptionName, @Nullable String fallbackProperty) 
+            throws CLIParsingException {
         String result = cmdLine.getOptionValue(cmdLineOptionName);
         if (Strings.isNullOrEmpty(result) && fallbackProperty != null) {
             result = props.getProperty(fallbackProperty);

@@ -70,4 +70,12 @@ public final class Parameters {
     public static final String SCA_USERNAME = "scausername";
     public static final String SCA_PASSWORD = "scapassword";
     public static final String SCA_TENANT = "scatenant";
+
+    public static final String SCA_HIGH = "scahigh";
+    public static final String SCA_MEDIUM = "scamedium";
+    public static final String SCA_LOW = "scalow";
+    public static final String SCA_FILES_INCLUDE = "scafilesinclude";
+    public static final String SCA_FILES_EXCLUDE = "scafilesexclude";
+    public static final String SCA_FOLDER_EXCLUDE = "scapathexclude";
+    public static final String SCA_LOCATION_PATH = "scalocationpath";
 }

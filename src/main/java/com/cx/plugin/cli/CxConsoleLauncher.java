@@ -49,18 +49,10 @@ public class CxConsoleLauncher {
         Command command = null;
 
         try {
-            if (args.length == 0) {
-                throw new CLIParsingException("No arguments were given");
-            }
-
+            verifyArgsCount(args);
             args = convertParamToLowerCase(args);
-            CommandLineParser parser = new DefaultParser();
-            CommandLine commandLine = parser.parse(Command.getOptions(), args);
-            command = Command.getCommandByValue(commandLine.getArgs()[0]);
-            if (command == null) {
-                throw new CLIParsingException(String.format(INVALID_COMMAND_ERROR, commandLine.getArgs()[0], Command.getAllValues()));
-            }
-
+            CommandLine commandLine = getCommandLine(args);
+            command = getCommand(commandLine);
             initLogging(commandLine);
             exitCode = execute(command, commandLine);
         } catch (CLIParsingException | ParseException e) {
@@ -68,18 +60,26 @@ public class CxConsoleLauncher {
             log.error(String.format("\n\n[CxConsole] Error parsing command: \n%s\n\n", e));
             exitCode = ErrorParsingHelper.parseError(e.getMessage());
         } catch (CxClientException | IOException | URISyntaxException | InterruptedException e) {
-            log.error(String.format("%s", e.getMessage()));
+            log.error(e.getMessage());
             exitCode = ErrorParsingHelper.parseError(e.getMessage());
         }
 
         System.exit(exitCode);
     }
 
-    private static int execute(Command command, CommandLine commandLine) throws CLIParsingException, IOException, CxClientException, URISyntaxException, InterruptedException {
+    private static void verifyArgsCount(String[] args) throws CLIParsingException {
+        if (args.length == 0) {
+            throw new CLIParsingException("No arguments were given");
+        }
+    }
+
+    private static int execute(Command command, CommandLine commandLine)
+            throws CLIParsingException, IOException, CxClientException, URISyntaxException, InterruptedException {
         int exitCode = Errors.SCAN_SUCCEEDED.getCode();
         CxConfigHelper.printConfig(commandLine);
 
-        CxScanConfig cxScanConfig = CxConfigHelper.resolveConfigurations(command, commandLine);
+        CxConfigHelper configHelper = new CxConfigHelper();
+        CxScanConfig cxScanConfig = configHelper.resolveConfiguration(command, commandLine);
 
         org.slf4j.Logger logger = new Log4jLoggerFactory().getLogger(log.getName());
         CxShragaClient client = new CxShragaClient(cxScanConfig, logger);
@@ -115,6 +115,20 @@ public class CxConsoleLauncher {
         }
 
         return exitCode;
+    }
+
+    private static CommandLine getCommandLine(String[] args) throws ParseException {
+        CommandLineParser parser = new DefaultParser();
+        CommandLine commandLine = parser.parse(Command.getOptions(), args);
+        return commandLine;
+    }
+
+    private static Command getCommand(CommandLine commandLine) throws CLIParsingException {
+        Command command = Command.getCommandByValue(commandLine.getArgs()[0]);
+        if (command == null) {
+            throw new CLIParsingException(String.format(INVALID_COMMAND_ERROR, commandLine.getArgs()[0], Command.getAllValues()));
+        }
+        return command;
     }
 
     private static ScanResults waitForResults(CxShragaClient client, CxScanConfig config) throws InterruptedException, CxClientException, IOException {

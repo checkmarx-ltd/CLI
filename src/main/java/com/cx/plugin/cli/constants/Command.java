@@ -15,8 +15,13 @@ public enum Command {
     //TODO: add usages example for async scan
     SCAN("Scan", Constants.SCAN_USAGE, Constants.SCAN_DESC),
     ASYNC_SCAN("AsyncScan", Constants.SCAN_USAGE, Constants.SCAN_DESC),
+
     OSA_SCAN("OsaScan", Constants.OSA_USAGE, Constants.OSA_DESC),
     ASYNC_OSA_SCAN("AsyncOsaScan", Constants.OSA_USAGE, Constants.OSA_DESC),
+
+    SCA_SCAN("ScaScan", "ScaScan <sca_args>", "SCA Scan"),
+    ASYNC_SCA_SCAN("AsyncScaScan", "AsyncScaScan <sca_args>", "Asynchronous SCA Scan"),
+
     GENERATE_TOKEN("GenerateToken", Constants.TOKEN_GEN_USAGE, Constants.TOKEN_GEN_DESC),
     REVOKE_TOKEN("RevokeToken", Constants.TOKEN_REVOKE_USAGE, Constants.TOKEN_REVOKE_DESC);
 
@@ -130,6 +135,14 @@ public enum Command {
         options.addOption(SCA_PASSWORD, true, Constants.SCA_PASSWORD_DESC);
         options.addOption(SCA_TENANT, true, Constants.SCA_TENANT_DESC);
 
+        options.addOption(SCA_HIGH, true, "");
+        options.addOption(SCA_MEDIUM, true, "");
+        options.addOption(SCA_LOW, true, "");
+        options.addOption(SCA_FILES_INCLUDE, true, "");
+        options.addOption(SCA_FILES_EXCLUDE, true, "");
+        options.addOption(SCA_LOCATION_PATH, true, "");
+        options.addOption(SCA_FOLDER_EXCLUDE, true, "");
+
         options.addOption(VERBOSE, VERBOSE_LONG, false, Constants.VERBOSE_DESC);
         options.addOption(LOG_PATH, true, Constants.LOG_PATH_DESC);
         options.addOption(TRUSTED_CERTIFICATES, false, Constants.TRUSTED_CERTIFICATES_DESC);
@@ -186,7 +199,7 @@ public enum Command {
                 "For example: *.dll will include only dll files. Optional";
         static final String OSA_FILES_EXCLUDE_DESC = "Comma separated list of file name patterns to exclude from the OSA scan. Exclude extensions by using *.<extension>, or exclude files by using */<file>.\n" +
                 "Examples: -OsaFilesExclude *.class excludes all files which start with the .class. \n" +
-                "Examples: -OsaFilesExclude */plexus-utils-1.5.6.jar excludes all files which start with plexus-utils-1.5.6.ja. Optional";
+                "Examples: -OsaFilesExclude */plexus-utils-1.5.6.jar excludes all files which start with plexus-utils-1.5.6.jar. Optional";
         static final String OSA_FOLDER_EXCLUDE_DESC = "Comma separated list of folder path patterns to exclude from the OSA scan. \n" +
                 "For example: -OsaPathExclude test excludes all folders which start with test prefix. Optional.";
         static final String OSA_ARCHIVE_TO_EXTRACT_DESC = "Comma separated list of file extensions to be extracted in the OSA scan. \n" +
