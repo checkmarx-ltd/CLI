@@ -3,6 +3,17 @@ package com.cx.plugin.cli.constants;
 class ArgDescriptions {
     private static final String SYNC_SCAN_NOTE = "The scan is, by default, run in synchronous mode. This means that the CLI initiates the scan task and the scan results can be viewed in the CLI and in the log file created.";
 
+    private static final String THRESHOLD_TEMPLATE = "%1$s %2$s severity vulnerability threshold. If the number of %2$s vulnerabilities exceeds the threshold, scan will end with an error (see Error/Exit Codes). Optional. Not supported in asynchronous mode.";
+
+    private static final String FILE_INCLUDE_TEMPLATE = "Comma separated list of file name patterns to include to the %s scan. For example: *.dll will include only dll files. Optional";
+
+    private static final String FILE_EXCLUDE_TEMPLATE = "Comma separated list of file name patterns to exclude from the %1$s scan. Exclude extensions by using *.<extension>, or exclude files by using */<file>.\n" +
+            "Examples: -%2$s *.class excludes all files which start with the .class. \n" +
+            "Examples: -%2$s */plexus-utils-1.5.6.jar excludes all files which start with plexus-utils-1.5.6.jar. Optional";
+
+    private static final String FOLDER_EXCLUDE_TEMPLATE = "Comma separated list of folder path patterns to exclude from the %s scan. \n" +
+            "For example: -%s test excludes all folders which start with test prefix. Optional.";
+
     static final String PROJECT_NAME = "A full absolute name of a project. " +
             "The full Project name includes the whole path to the project, including Server, service provider, company, and team. " +
             "Example:  -ProjectName \"CxServer\\SP\\Company\\Users\\bs java\" " +
@@ -40,13 +51,11 @@ class ArgDescriptions {
     static final String LOCATION_PRIVATE_KEY = "GIT SSH key locations, Mandatory if location type is GIT using SSH";
 
     static final String OSA_LOCATION_PATH = "Local or network path to sources or source repository branch. May include multiple list of folders (local or shared) separated by comma. Optional";
-    static final String OSA_FILES_INCLUDE = "Comma separated list of file name patterns to exclude from the OSA scan. \n" +
-            "For example: *.dll will include only dll files. Optional";
-    static final String OSA_FILES_EXCLUDE = "Comma separated list of file name patterns to exclude from the OSA scan. Exclude extensions by using *.<extension>, or exclude files by using */<file>.\n" +
-            "Examples: -OsaFilesExclude *.class excludes all files which start with the .class. \n" +
-            "Examples: -OsaFilesExclude */plexus-utils-1.5.6.jar excludes all files which start with plexus-utils-1.5.6.jar. Optional";
-    static final String OSA_FOLDER_EXCLUDE = "Comma separated list of folder path patterns to exclude from the OSA scan. \n" +
-            "For example: -OsaPathExclude test excludes all folders which start with test prefix. Optional.";
+    static final String OSA_FILES_INCLUDE = String.format(FILE_INCLUDE_TEMPLATE, "CxOSA");
+    static final String OSA_FILES_EXCLUDE = String.format(FILE_EXCLUDE_TEMPLATE, "CxOSA", "OsaFilesExclude");
+
+    static final String OSA_FOLDER_EXCLUDE = String.format(FOLDER_EXCLUDE_TEMPLATE, "CxOSA", "OsaPathExclude");
+
     static final String OSA_ARCHIVE_TO_EXTRACT = "Comma separated list of file extensions to be extracted in the OSA scan. \n" +
             "For example: -OsaArchiveToExtract *.zip extracts only files with .zip extension. Optional.";
     static final String OSA_SCAN_DEPTH = "Extraction depth of files to include in the OSA scan. Optional.";
@@ -65,13 +74,13 @@ class ArgDescriptions {
     static final String IS_PRIVATE = "Scan will not be visible to other users. Optional";
     static final String PRESET = "If not provided, will use preset defined in existing project or, for a new project, the default preset. Optional";
     static final String SCAN_COMMENT = "Saves a comment with the scan results. For example: -comment 'important scan1'. Optional. Not supported in AsyncScan mode";
-    static final String IS_SSO = "Single Sign-On: Use Windows credentials of current user to log into CxSAST. Optioanl";
-    static final String SAST_HIGH = "CxSAST high severity vulnerability threshold. If the number of high vulnerabilities exceeds the threshold, scan will end with an error (see Error/Exit Codes). Optional. Not supported in AsyncScan mode";
-    static final String SAST_MEDIUM = "CxSAST medium severity vulnerability threshold. If the number of medium vulnerabilities exceeds the threshold, scan will end with an error (see Error/Exit Codes). Optional. Not supported in AsyncScan mode";
-    static final String SAST_LOW = "CxSAST low severity vulnerability threshold. If the number of low vulnerabilities exceeds the threshold, scan will end with an error (see Error/Exit Codes). Optional. Not supported in AsyncScan mode";
-    static final String OSA_HIGH = "CxOSA high severity vulnerability threshold. If the number of high vulnerabilities exceeds the threshold, scan will end with an error (see Error/Exit Codes). Optional. Not supported in AsyncScan mode";
-    static final String OSA_MEDIUM = "CxOSA medium severity vulnerability threshold. If the number of medium vulnerabilities exceeds the threshold, scan will end with an error (see Error/Exit Codes). Optional. Not supported in AsyncScan mode";
-    static final String OSA_LOW = "CxOSA low severity vulnerability threshold. If the number of low vulnerabilities exceeds the threshold, scan will end with an error (see Error/Exit Codes). Optional. Not supported in AsyncScan mode";
+    static final String IS_SSO = "Single Sign-On: Use Windows credentials of current user to log into CxSAST. Optional.";
+    static final String SAST_HIGH = String.format(THRESHOLD_TEMPLATE, "CxSAST", "high");
+    static final String SAST_MEDIUM = String.format(THRESHOLD_TEMPLATE, "CxSAST", "medium");
+    static final String SAST_LOW = String.format(THRESHOLD_TEMPLATE, "CxSAST", "low");
+    static final String OSA_HIGH = String.format(THRESHOLD_TEMPLATE, "CxOSA", "high");
+    static final String OSA_MEDIUM = String.format(THRESHOLD_TEMPLATE, "CxOSA", "medium");
+    static final String OSA_LOW = String.format(THRESHOLD_TEMPLATE, "CxOSA", "low");
     static final String IS_CHECKED_POLICY = "This parameter will break the build if the CxOSA policy is violated. Optional.";
     static final String VERBOSE = "Turns on verbose mode. All messages and events will be sent to the console or log file.";
     static final String LOG_PATH = "Log file to be created.";
@@ -83,4 +92,12 @@ class ArgDescriptions {
     static final String SCA_USERNAME = "SCA username.";
     static final String SCA_PASSWORD = "SCA password.";
     static final String SCA_TENANT = "Tenant name to be used during authentication.";
+
+    static final String SCA_HIGH = String.format(THRESHOLD_TEMPLATE, "CxSCA", "high");
+    static final String SCA_MEDIUM = String.format(THRESHOLD_TEMPLATE, "CxSCA", "medium");
+    static final String SCA_LOW = String.format(THRESHOLD_TEMPLATE, "CxSCA", "low");
+    static final String SCA_FILES_INCLUDE = String.format(FILE_INCLUDE_TEMPLATE, "CxSCA");
+    static final String SCA_FILES_EXCLUDE = String.format(FILE_EXCLUDE_TEMPLATE, "CxSCA", "ScaFilesExclude");
+    static final String SCA_LOCATION_PATH = "Local or network path to sources that should scanned. Optional.";
+    static final String SCA_FOLDER_EXCLUDE = String.format(FOLDER_EXCLUDE_TEMPLATE, "CxSCA", "ScaPathExclude");
 }

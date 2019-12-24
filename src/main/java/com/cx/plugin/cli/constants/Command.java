@@ -135,13 +135,13 @@ public enum Command {
         options.addOption(SCA_PASSWORD, true, ArgDescriptions.SCA_PASSWORD);
         options.addOption(SCA_TENANT, true, ArgDescriptions.SCA_TENANT);
 
-        options.addOption(SCA_HIGH, true, "");
-        options.addOption(SCA_MEDIUM, true, "");
-        options.addOption(SCA_LOW, true, "");
-        options.addOption(SCA_FILES_INCLUDE, true, "");
-        options.addOption(SCA_FILES_EXCLUDE, true, "");
-        options.addOption(SCA_LOCATION_PATH, true, "");
-        options.addOption(SCA_FOLDER_EXCLUDE, true, "");
+        options.addOption(SCA_HIGH, true, ArgDescriptions.SCA_HIGH);
+        options.addOption(SCA_MEDIUM, true, ArgDescriptions.SCA_MEDIUM);
+        options.addOption(SCA_LOW, true, ArgDescriptions.SCA_LOW);
+        options.addOption(SCA_FILES_INCLUDE, true, ArgDescriptions.SCA_FILES_INCLUDE);
+        options.addOption(SCA_FILES_EXCLUDE, true, ArgDescriptions.SCA_FILES_EXCLUDE);
+        options.addOption(SCA_LOCATION_PATH, true, ArgDescriptions.SCA_LOCATION_PATH);
+        options.addOption(SCA_FOLDER_EXCLUDE, true, ArgDescriptions.SCA_FOLDER_EXCLUDE);
 
         options.addOption(VERBOSE, VERBOSE_LONG, false, ArgDescriptions.VERBOSE);
         options.addOption(LOG_PATH, true, ArgDescriptions.LOG_PATH);
