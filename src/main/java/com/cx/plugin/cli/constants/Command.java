@@ -19,8 +19,8 @@ public enum Command {
     OSA_SCAN("OsaScan", UsageExamples.OSA, ArgDescriptions.OSA),
     ASYNC_OSA_SCAN("AsyncOsaScan", UsageExamples.OSA, ArgDescriptions.OSA),
 
-    SCA_SCAN("ScaScan", "ScaScan <sca_args>", "SCA Scan"),
-    ASYNC_SCA_SCAN("AsyncScaScan", "AsyncScaScan <sca_args>", "Asynchronous SCA Scan"),
+    SCA_SCAN("ScaScan", UsageExamples.SCA_SCAN, ArgDescriptions.SCA_SCAN),
+    ASYNC_SCA_SCAN("AsyncScaScan", UsageExamples.ASYNC_SCA_SCAN, ArgDescriptions.ASYNC_SCA_SCAN),
 
     GENERATE_TOKEN("GenerateToken", UsageExamples.TOKEN_GEN, ArgDescriptions.TOKEN_GEN),
     REVOKE_TOKEN("RevokeToken", UsageExamples.TOKEN_REVOKE, ArgDescriptions.TOKEN_REVOKE);

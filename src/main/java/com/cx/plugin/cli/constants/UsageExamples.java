@@ -1,6 +1,8 @@
 package com.cx.plugin.cli.constants;
 
 class UsageExamples {
+    private static final String SCA_SCAN_TEMPLATE = "runCxConsole.cmd %s -projectname SP\\Cx\\Engine\\AST -scapathexclude .git -scalocationpath \\storage\\dir1\\subdir -scaUsername admin -scaPassword admin -scaTenant tenant -scahigh 1 -scamedium 2 -scalow 3";
+
     static final String SCAN = "\n\nCxConsole Scan -Projectname SP\\Cx\\Engine\\AST -CxServer http://localhost -cxuser admin@cx -cxpassword admin -locationtype folder -locationpath C:\\cx" +
             " -preset All -incremental -reportpdf a.pdf\nCxConsole Scan -projectname SP\\Cx\\Engine\\AST -cxserver http://localhost -cxuser admin@cx -cxpassword admin -locationtype tfs" +
             " -locationurl http://vsts2003:8080 -locationuser dm\\matys -locationpassword XYZ -preset default -reportxml a.xml -reportpdf b.pdf" +
@@ -16,4 +18,7 @@ class UsageExamples {
             + "runCxConsole.cmd  OsaScan -v -projectname SP\\Cx\\Engine\\AST -cxserver http://localhost -cxuser admin -cxpassword admin -locationtype folder -locationurl http://vsts2003:8080 -locationuser dm\\matys -locationpassword XYZ  \n"
             + "runCxConsole.cmd  OsaScan -v -projectname SP\\Cx\\Engine\\AST -cxserver http://localhost -cxuser admin -cxpassword admin -locationtype shared -locationpath '\\storage\\path1;\\storage\\path2' -locationuser dm\\matys -locationpassword XYZ  -log a.log\n \n"
             + "runCxConsole.cmd  OsaScan -v -Projectname CxServer\\SP\\Company\\my project -CxServer http://localhost -cxuser admin -cxpassword admin -locationtype folder -locationpath C:\\Users\\some_project -OsaFilesExclude *.bat ";
+
+    static final String SCA_SCAN = String.format(SCA_SCAN_TEMPLATE, "ScaScan");
+    static final String ASYNC_SCA_SCAN = String.format(SCA_SCAN_TEMPLATE, "AsyncScaScan");
 }

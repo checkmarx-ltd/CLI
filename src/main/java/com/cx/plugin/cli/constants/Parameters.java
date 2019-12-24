@@ -6,12 +6,12 @@ package com.cx.plugin.cli.constants;
 public final class Parameters {
 
     public static final String VERBOSE = "v";
-    public static final String VERBOSE_LONG = "verbose";
+    static final String VERBOSE_LONG = "verbose";
     public static final String SERVER_URL = "cxserver";
     public static final String USER_NAME = "cxuser";
     public static final String USER_PASSWORD = "cxpassword";
-    public static final String GENERATETOKEN = "generatetoken";
-    public static final String REVOKETOKEN = "revoketoken";
+    static final String GENERATETOKEN = "generatetoken";
+    static final String REVOKETOKEN = "revoketoken";
     public static final String TOKEN = "cxtoken";
 
     public static final String FULL_PROJECT_PATH = "projectname";

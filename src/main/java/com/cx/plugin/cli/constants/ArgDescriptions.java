@@ -1,6 +1,8 @@
 package com.cx.plugin.cli.constants;
 
 class ArgDescriptions {
+    private static final String SYNC_SCAN_NOTE = "The scan is, by default, run in synchronous mode. This means that the CLI initiates the scan task and the scan results can be viewed in the CLI and in the log file created.";
+
     static final String PROJECT_NAME = "A full absolute name of a project. " +
             "The full Project name includes the whole path to the project, including Server, service provider, company, and team. " +
             "Example:  -ProjectName \"CxServer\\SP\\Company\\Users\\bs java\" " +
@@ -8,8 +10,13 @@ class ArgDescriptions {
     static final String SCAN = "\nThe \"Scan\" command allows to scan new and existing projects." +
             " It accepts all project settings as an arguments, similar to Web interface.";
 
-    static final String OSA = "\nThe \"OsaScan\" command enables you to run an open source analysis (CxOSA) scan for an existing project as a CLI command. The CxOSA scan is, by default, run in synchronous mode (OsaScan)." +
-            " This means that the CLI initiates the scan task and the scan results can be viewed in the CLI and in the log file created.";
+    static final String OSA = "\nThe \"OsaScan\" command enables you to run a dependency scan for an existing project using the legacy CxOSA engine. " +
+            SYNC_SCAN_NOTE;
+
+    static final String SCA_SCAN = "This command enables you to run a dependency scan for an existing project using the new CxSCA engine. " +
+            SYNC_SCAN_NOTE;
+
+    static final String ASYNC_SCA_SCAN = "This command enables you to run a dependency scan for an existing project using the new CxSCA engine. The scan is run in asynchronous mode. This means that the scan task ends when the scan request reaches the scan queue. As a result the scan results can only be viewed via the CxSCA web application.";
 
     static final String CX_TOKEN = "Login token. Mandatory, Unless username and password are provided or SSO login is used on Windows ('-useSSO' flag)";
     static final String CX_PASS = "Login password. Mandatory, Unless token is used or SSO login is used on Windows ('-useSSO' flag)";
