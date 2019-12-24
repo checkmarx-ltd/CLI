@@ -2,6 +2,7 @@ package com.cx.plugin.cli.utils;
 
 import com.cx.plugin.cli.constants.Command;
 import com.cx.plugin.cli.constants.Parameters;
+import com.cx.plugin.cli.exceptions.BadOptionCombinationException;
 import com.cx.plugin.cli.exceptions.CLIParsingException;
 import com.cx.restclient.configuration.CxScanConfig;
 import com.cx.restclient.dto.DependencyScannerType;
@@ -37,11 +38,11 @@ public final class CxConfigHelper {
     /**
      * Resolves configuration from the config file and the console parameters
      *
-     * @param command
-     * @param cmd     - The parameters passed by the user mapped by key/value
+     * @param command the first command line argument mapped to an enum.
+     * @param cmd     the parameters passed by the user mapped by key/value
      * @return CxScanConfig an object containing all the relevant data for the scan
      */
-    public CxScanConfig resolveConfiguration(Command command, CommandLine cmd) throws CLIParsingException, URISyntaxException {
+    public CxScanConfig resolveConfiguration(Command command, CommandLine cmd) throws CLIParsingException {
         this.command = command;
         this.commandLine = cmd;
 
@@ -215,11 +216,11 @@ public final class CxConfigHelper {
             message = String.format("%s argument cannot be used with %s command", OSA_ENABLED, command);
         }
         else if (command == Command.OSA_SCAN && commandLine.hasOption(SCA_ENABLED)) {
-            message = String.format("%s argument cannot be used with %s command", OSA_ENABLED, command);
+            message = String.format("%s argument cannot be used with %s command", SCA_ENABLED, command);
         }
 
         if (message != null) {
-            throw new CLIParsingException(message);
+            throw new BadOptionCombinationException(message);
         }
     }
 
@@ -376,7 +377,7 @@ public final class CxConfigHelper {
         String helpFooter = String.format(footerFormat, mode.getUsageExamples());
 
         HelpFormatter helpFormatter = new HelpFormatter();
-        helpFormatter.printHelp(120, mode.value(), helpHeader, mode.getOptions(), helpFooter, true);
+        helpFormatter.printHelp(120, mode.value(), helpHeader, Command.getOptions(), helpFooter, true);
     }
 
     private String getOptionalParam(String commandLineKey, String fallbackProperty) {

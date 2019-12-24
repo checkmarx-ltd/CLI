@@ -1,6 +1,7 @@
 package com.cx.plugin.cli.utils;
 
 import com.cx.plugin.cli.constants.Command;
+import com.cx.plugin.cli.exceptions.BadOptionCombinationException;
 import com.cx.plugin.cli.exceptions.CLIParsingException;
 import com.cx.restclient.configuration.CxScanConfig;
 import com.cx.restclient.dto.DependencyScannerType;
@@ -14,15 +15,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.net.URISyntaxException;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 class CxConfigHelperTests {
     @Test
-    @DisplayName("SCA-only scan: command line should be correctly converted to scan config")
-    void ScaArgs_Valid() throws ParseException, CLIParsingException, URISyntaxException {
-        final String LOCATION_PATH = "c:\\cxdev\\projectsToScan\\SastAndOsaSource",
+    @DisplayName("Command line should be correctly converted to scan config during a SCA-only scan")
+    void ScaArgs_Valid() throws ParseException, CLIParsingException {
+        final String LOCATION_PATH = "c:\\anydir\\child-dir",
                 API_URL = "https://api.example.com",
                 ACCESS_CONTROL_URL = "https://ac.example.com",
                 WEB_APP_URL = "https://web.example.com",
@@ -37,8 +36,7 @@ class CxConfigHelperTests {
                 MEDIUM = 2,
                 LOW = 3;
 
-        String[] args = {
-                Command.SCA_SCAN.value(),
+        final String[] DEFAULT_ARGS = {
                 "-projectname", "CxServer\\SP\\myprojectname",
                 "-scalocationpath", LOCATION_PATH,
                 "-scaapiurl", API_URL,
@@ -54,8 +52,7 @@ class CxConfigHelperTests {
                 "-scafilesexclude", FILE_EXCLUDE,
                 "-scapathexclude", PATH_EXCLUDE
         };
-
-        CommandLine commandLine = getCommandLine(args);
+        CommandLine commandLine = parseCommandLine(Command.SCA_SCAN, DEFAULT_ARGS);
 
         CxConfigHelper configHelper = new CxConfigHelper();
         CxScanConfig config = configHelper.resolveConfiguration(Command.SCA_SCAN, commandLine);
@@ -85,24 +82,31 @@ class CxConfigHelperTests {
     }
 
     @Test
-    @DisplayName("Exception should be thrown if we pass ambiguous arguments")
-    void ScaArgs_Invalid() throws ParseException {
-        assertException(Command.OSA_SCAN, new String[]{"-enableosa"});
-        assertException(Command.SCA_SCAN, new String[]{"-enablesca"});
-        assertException(Command.SCAN, new String[]{"-enablesca", "-enableosa"});
+    @DisplayName("Exception should be thrown if we pass invalid combinations of arguments")
+    void ScaArgs_InvalidArgCombination() throws ParseException {
+        String[] invalidOsaArgs = {
+                "-enablesca", "-cxserver", "myhostname", "-cxuser", "user", "-cxpassword", "pwd",
+                "-locationtype", "folder", "-locationpath", "c:\\anydir\\child-dir"};
+        assertException(Command.OSA_SCAN, invalidOsaArgs);
+
+        String[] invalidScaArgs = {"-enableosa"};
+        assertException(Command.SCA_SCAN, invalidScaArgs);
+
+        String[] invalidSastArgs = {"-enablesca", "-enableosa"};
+        assertException(Command.SCAN, invalidSastArgs);
     }
 
     private void assertException(Command command, String[] args) throws ParseException {
-        String[] fullArgs = ArrayUtils.add(args, 0, command.value());
-        CommandLine commandLine = getCommandLine(fullArgs);
+        CommandLine commandLine = parseCommandLine(command, args);
         CxConfigHelper configHelper = new CxConfigHelper();
 
-        assertThrows(CLIParsingException.class, () ->
+        BadOptionCombinationException ex = assertThrows(BadOptionCombinationException.class, () ->
                 configHelper.resolveConfiguration(command, commandLine));
     }
 
-    private CommandLine getCommandLine(String[] args) throws ParseException {
+    private CommandLine parseCommandLine(Command command, String[] args) throws ParseException {
+        String[] fullArgs = ArrayUtils.add(args, 0, command.value());
         CommandLineParser parser = new DefaultParser();
-        return parser.parse(Command.getOptions(), args);
+        return parser.parse(Command.getOptions(), fullArgs);
     }
 }
