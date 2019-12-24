@@ -13,17 +13,17 @@ import static com.cx.plugin.cli.constants.Parameters.*;
  */
 public enum Command {
     //TODO: add usages example for async scan
-    SCAN("Scan", Constants.SCAN_USAGE, Constants.SCAN_DESC),
-    ASYNC_SCAN("AsyncScan", Constants.SCAN_USAGE, Constants.SCAN_DESC),
+    SCAN("Scan", UsageExamples.SCAN, Constants.SCAN_DESC),
+    ASYNC_SCAN("AsyncScan", UsageExamples.SCAN, Constants.SCAN_DESC),
 
-    OSA_SCAN("OsaScan", Constants.OSA_USAGE, Constants.OSA_DESC),
-    ASYNC_OSA_SCAN("AsyncOsaScan", Constants.OSA_USAGE, Constants.OSA_DESC),
+    OSA_SCAN("OsaScan", UsageExamples.OSA, Constants.OSA_DESC),
+    ASYNC_OSA_SCAN("AsyncOsaScan", UsageExamples.OSA, Constants.OSA_DESC),
 
     SCA_SCAN("ScaScan", "ScaScan <sca_args>", "SCA Scan"),
     ASYNC_SCA_SCAN("AsyncScaScan", "AsyncScaScan <sca_args>", "Asynchronous SCA Scan"),
 
-    GENERATE_TOKEN("GenerateToken", Constants.TOKEN_GEN_USAGE, Constants.TOKEN_GEN_DESC),
-    REVOKE_TOKEN("RevokeToken", Constants.TOKEN_REVOKE_USAGE, Constants.TOKEN_REVOKE_DESC);
+    GENERATE_TOKEN("GenerateToken", UsageExamples.TOKEN_GEN, Constants.TOKEN_GEN_DESC),
+    REVOKE_TOKEN("RevokeToken", UsageExamples.TOKEN_REVOKE, Constants.TOKEN_REVOKE_DESC);
 
     private final String usageExample;
     private final String description;
@@ -151,12 +151,6 @@ public enum Command {
     }
 
     private static class Constants {
-        static final String SCAN_USAGE = "\n\nCxConsole Scan -Projectname SP\\Cx\\Engine\\AST -CxServer http://localhost -cxuser admin@cx -cxpassword admin -locationtype folder -locationpath C:\\cx" +
-                " -preset All -incremental -reportpdf a.pdf\nCxConsole Scan -projectname SP\\Cx\\Engine\\AST -cxserver http://localhost -cxuser admin@cx -cxpassword admin -locationtype tfs" +
-                " -locationurl http://vsts2003:8080 -locationuser dm\\matys -locationpassword XYZ -preset default -reportxml a.xml -reportpdf b.pdf" +
-                " -incremental -forcescan\nCxConsole Scan -projectname SP\\Cx\\Engine\\AST -cxserver http://localhost -cxuser admin@cx -cxpassword admin -locationtype share" +
-                " -locationpath '\\\\storage\\path1;\\\\storage\\path2' -locationuser dm\\matys -locationpassword XYZ -preset \"Sans 25\" -reportxls a.xls -reportpdf b.pdf -private -verbose -log a.log\n" +
-                " -LocationPathExclude test*, *log* -LocationFilesExclude web.config , *.class\n";
         static final String PROJECT_NAME_DESC = "A full absolute name of a project. " +
                 "The full Project name includes the whole path to the project, including Server, service provider, company, and team. " +
                 "Example:  -ProjectName \"CxServer\\SP\\Company\\Users\\bs java\" " +
@@ -176,14 +170,8 @@ public enum Command {
         static final String LOCATION_TYPE_DESC = "Source location type, one of: folder,shared (network location), SVN, TFS, Perforce, GIT. Mandatory";
 
         static final String TOKEN_GEN_DESC = "\nThe \"GenerateToken\" command allows to generate login token, to be used instead of username and password.";
-        static final String TOKEN_GEN_USAGE = "runCxConsole.cmd GenerateToken -CxServer http://localhost -cxuser admin@company -cxpassword admin -v";
         static final String TOKEN_REVOKE_DESC = "\nThe \"RevokeToken\" command allows to discard existing token.";
-        static final String TOKEN_REVOKE_USAGE = "runCxConsole.cmd RevokeToken -CxToken 1241513513tsfrg42 -CxServer http://localhost -v";
 
-        static final String OSA_USAGE = "\n\nrunCxConsole.cmd OsaScan -v -Projectname SP\\Cx\\Engine\\AST -CxServer http://localhost -cxuser admin -cxpassword admin -osaLocationPath C:\\cx  -OsaFilesExclude *.class OsaPathExclude src,temp  \n"
-                + "runCxConsole.cmd  OsaScan -v -projectname SP\\Cx\\Engine\\AST -cxserver http://localhost -cxuser admin -cxpassword admin -locationtype folder -locationurl http://vsts2003:8080 -locationuser dm\\matys -locationpassword XYZ  \n"
-                + "runCxConsole.cmd  OsaScan -v -projectname SP\\Cx\\Engine\\AST -cxserver http://localhost -cxuser admin -cxpassword admin -locationtype shared -locationpath '\\storage\\path1;\\storage\\path2' -locationuser dm\\matys -locationpassword XYZ  -log a.log\n \n"
-                + "runCxConsole.cmd  OsaScan -v -Projectname CxServer\\SP\\Company\\my project -CxServer http://localhost -cxuser admin -cxpassword admin -locationtype folder -locationpath C:\\Users\\some_project -OsaFilesExclude *.bat ";
         static final String LOCATION_PATH_DESC = "Local or network path to sources or source repository branch. Mandatory if location type is folder, SVN, TFS, Perforce or shared.";
         static final String LOCATION_URL_DESC = "Source control URL. Madnatory if locationtype is any source control system.";
         static final String LOCATION_BRANCH_DESC = "Source GIT branch, Mandatory if location type is GIT";
