@@ -13,17 +13,17 @@ import static com.cx.plugin.cli.constants.Parameters.*;
  */
 public enum Command {
     //TODO: add usages example for async scan
-    SCAN("Scan", UsageExamples.SCAN, Constants.SCAN_DESC),
-    ASYNC_SCAN("AsyncScan", UsageExamples.SCAN, Constants.SCAN_DESC),
+    SCAN("Scan", UsageExamples.SCAN, ArgDescriptions.SCAN),
+    ASYNC_SCAN("AsyncScan", UsageExamples.SCAN, ArgDescriptions.SCAN),
 
-    OSA_SCAN("OsaScan", UsageExamples.OSA, Constants.OSA_DESC),
-    ASYNC_OSA_SCAN("AsyncOsaScan", UsageExamples.OSA, Constants.OSA_DESC),
+    OSA_SCAN("OsaScan", UsageExamples.OSA, ArgDescriptions.OSA),
+    ASYNC_OSA_SCAN("AsyncOsaScan", UsageExamples.OSA, ArgDescriptions.OSA),
 
     SCA_SCAN("ScaScan", "ScaScan <sca_args>", "SCA Scan"),
     ASYNC_SCA_SCAN("AsyncScaScan", "AsyncScaScan <sca_args>", "Asynchronous SCA Scan"),
 
-    GENERATE_TOKEN("GenerateToken", UsageExamples.TOKEN_GEN, Constants.TOKEN_GEN_DESC),
-    REVOKE_TOKEN("RevokeToken", UsageExamples.TOKEN_REVOKE, Constants.TOKEN_REVOKE_DESC);
+    GENERATE_TOKEN("GenerateToken", UsageExamples.TOKEN_GEN, ArgDescriptions.TOKEN_GEN),
+    REVOKE_TOKEN("RevokeToken", UsageExamples.TOKEN_REVOKE, ArgDescriptions.TOKEN_REVOKE);
 
     private final String usageExample;
     private final String description;
@@ -76,64 +76,64 @@ public enum Command {
 
     public static Options getOptions() {
         Options options = new Options();
-        options.addOption(SERVER_URL, true, Constants.CX_SERVER_DESC);
-        options.addOption(USER_NAME, true, Constants.CX_USER_DESC);
-        options.addOption(USER_PASSWORD, true, Constants.CX_PASS_DESC);
-        options.addOption(TOKEN, true, Constants.CX_TOKEN_DESC);
-        options.addOption(GENERATETOKEN, false, Constants.TOKEN_GEN_DESC);
-        options.addOption(REVOKETOKEN, true, Constants.TOKEN_REVOKE_DESC);
+        options.addOption(SERVER_URL, true, ArgDescriptions.CX_SERVER);
+        options.addOption(USER_NAME, true, ArgDescriptions.CX_USER);
+        options.addOption(USER_PASSWORD, true, ArgDescriptions.CX_PASS);
+        options.addOption(TOKEN, true, ArgDescriptions.CX_TOKEN);
+        options.addOption(GENERATETOKEN, false, ArgDescriptions.TOKEN_GEN);
+        options.addOption(REVOKETOKEN, true, ArgDescriptions.TOKEN_REVOKE);
 
-        options.addOption(FULL_PROJECT_PATH, true, Constants.PROJECT_NAME_DESC);
-        options.addOption(IS_CHECKED_POLICY, false, Constants.IS_CHECKED_POLICY_DESC);
-        options.addOption(WORKSPACE_MODE, true, Constants.WORKSPACE_MODE_DESC);
-        options.addOption(LOCATION_TYPE, true, Constants.LOCATION_TYPE_DESC);
-        options.addOption(LOCATION_PATH, true, Constants.LOCATION_PATH_DESC);
-        options.addOption(LOCATION_BRANCH, true, Constants.LOCATION_BRANCH_DESC);
-        options.addOption(PRIVATE_KEY, true, Constants.LOCATION_PRIVATE_KEY_DESC);
-        options.addOption(LOCATION_URL, true, Constants.LOCATION_URL_DESC);
-        options.addOption(LOCATION_PORT, true, Constants.LOCATION_PORT_DESC);
-        options.addOption(LOCATION_USER, true, Constants.LOCATION_USER_DESC);
-        options.addOption(LOCATION_PASSWORD, true, Constants.LOCATION_PASSWORD_DESC);
-        options.addOption(LOCATION_PATH_EXCLUDE, true, Constants.LOCATION_PATH_EXCLUDE_DESC);
-        options.addOption(LOCATION_FILES_EXCLUDE, true, Constants.LOCATION_FILES_EXCLUDE_DESC);
+        options.addOption(FULL_PROJECT_PATH, true, ArgDescriptions.PROJECT_NAME);
+        options.addOption(IS_CHECKED_POLICY, false, ArgDescriptions.IS_CHECKED_POLICY);
+        options.addOption(WORKSPACE_MODE, true, ArgDescriptions.WORKSPACE_MODE);
+        options.addOption(LOCATION_TYPE, true, ArgDescriptions.LOCATION_TYPE);
+        options.addOption(LOCATION_PATH, true, ArgDescriptions.LOCATION_PATH);
+        options.addOption(LOCATION_BRANCH, true, ArgDescriptions.LOCATION_BRANCH);
+        options.addOption(PRIVATE_KEY, true, ArgDescriptions.LOCATION_PRIVATE_KEY);
+        options.addOption(LOCATION_URL, true, ArgDescriptions.LOCATION_URL);
+        options.addOption(LOCATION_PORT, true, ArgDescriptions.LOCATION_PORT);
+        options.addOption(LOCATION_USER, true, ArgDescriptions.LOCATION_USER);
+        options.addOption(LOCATION_PASSWORD, true, ArgDescriptions.LOCATION_PASSWORD);
+        options.addOption(LOCATION_PATH_EXCLUDE, true, ArgDescriptions.LOCATION_PATH_EXCLUDE);
+        options.addOption(LOCATION_FILES_EXCLUDE, true, ArgDescriptions.LOCATION_FILES_EXCLUDE);
 
-        options.addOption(OSA_LOCATION_PATH, true, Constants.OSA_LOCATION_PATH_DESC);
-        options.addOption(OSA_FILES_INCLUDE, true, Constants.OSA_FILES_INCLUDE_DESC);
-        options.addOption(OSA_FILES_EXCLUDE, true, Constants.OSA_FILES_EXCLUDE_DESC);
-        options.addOption(OSA_FOLDER_EXCLUDE, true, Constants.OSA_FOLDER_EXCLUDE_DESC);
-        options.addOption(OSA_ARCHIVE_TO_EXTRACT, true, Constants.OSA_ARCHIVE_TO_EXTRACT_DESC);
-        options.addOption(OSA_SCAN_DEPTH, true, Constants.OSA_SCAN_DEPTH_DESC);
-        options.addOption(OSA_ENABLED, false, Constants.OSA_ENABLED_DESC);
-        options.addOption(SCA_ENABLED, false, Constants.SCA_ENABLED_DESC);
-        options.addOption(OSA_JSON_REPORT, true, Constants.OSA_JSON_REPORT_DESC);
-        options.addOption(INSTALL_PACKAGE_MANAGER, false, Constants.INSTALL_PACKAGE_MANAGER_DESC);
-//        options.addOption(DOCKER_IMAGE_PATTERN, true, Constants.DOCKER_IMAGE_PATTERN_DESC);
-//        options.addOption(DOCKER_EXCLUDE, true, Constants.DOCKER_EXCLUDE_DESC);
+        options.addOption(OSA_LOCATION_PATH, true, ArgDescriptions.OSA_LOCATION_PATH);
+        options.addOption(OSA_FILES_INCLUDE, true, ArgDescriptions.OSA_FILES_INCLUDE);
+        options.addOption(OSA_FILES_EXCLUDE, true, ArgDescriptions.OSA_FILES_EXCLUDE);
+        options.addOption(OSA_FOLDER_EXCLUDE, true, ArgDescriptions.OSA_FOLDER_EXCLUDE);
+        options.addOption(OSA_ARCHIVE_TO_EXTRACT, true, ArgDescriptions.OSA_ARCHIVE_TO_EXTRACT);
+        options.addOption(OSA_SCAN_DEPTH, true, ArgDescriptions.OSA_SCAN_DEPTH);
+        options.addOption(OSA_ENABLED, false, ArgDescriptions.OSA_ENABLED);
+        options.addOption(SCA_ENABLED, false, ArgDescriptions.SCA_ENABLED);
+        options.addOption(OSA_JSON_REPORT, true, ArgDescriptions.OSA_JSON_REPORT);
+        options.addOption(INSTALL_PACKAGE_MANAGER, false, ArgDescriptions.INSTALL_PACKAGE_MANAGER);
+//        options.addOption(DOCKER_IMAGE_PATTERN, true, Constants.DOCKER_IMAGE_PATTERN);
+//        options.addOption(DOCKER_EXCLUDE, true, Constants.DOCKER_EXCLUDE);
 
-        options.addOption(PDF_REPORT, true, Constants.PDF_REPORT_DESC);
-        options.addOption(XML_REPORT, true, Constants.XML_REPORT_DESC);
-        options.addOption(CSV_REPORT, true, Constants.CSV_REPORT_DESC);
-        options.addOption(RTF_REPORT, true, Constants.RTF_REPORT_DESC);
+        options.addOption(PDF_REPORT, true, ArgDescriptions.PDF_REPORT);
+        options.addOption(XML_REPORT, true, ArgDescriptions.XML_REPORT);
+        options.addOption(CSV_REPORT, true, ArgDescriptions.CSV_REPORT);
+        options.addOption(RTF_REPORT, true, ArgDescriptions.RTF_REPORT);
 
-        options.addOption(IS_INCREMENTAL, false, Constants.IS_INCREMENTAL_DESC);
-        options.addOption(IS_FORCE_SCAN, false, Constants.IS_FORCE_SCAN_DESC);
-        options.addOption(IS_PRIVATE, false, Constants.IS_PRIVATE_DESC);
-        options.addOption(Option.builder(PRESET).desc(Constants.PRESET_DESC).hasArg(true).argName("preset").build());
-        options.addOption(Option.builder(SCAN_COMMENT).desc(Constants.SCAN_COMMENT_DESC).hasArg(true).argName("text").build());
-        options.addOption(Option.builder(IS_SSO).desc(Constants.IS_SSO_DESC).hasArg(false).build());
-        options.addOption(SAST_HIGH, true, Constants.SAST_HIGH_DESC);
-        options.addOption(SAST_MEDIUM, true, Constants.SAST_MEDIUM_DESC);
-        options.addOption(SAST_LOW, true, Constants.SAST_LOW_DESC);
-        options.addOption(OSA_HIGH, true, Constants.OSA_HIGH_DESC);
-        options.addOption(OSA_MEDIUM, true, Constants.OSA_MEDIUM_DESC);
-        options.addOption(OSA_LOW, true, Constants.OSA_LOW_DESC);
+        options.addOption(IS_INCREMENTAL, false, ArgDescriptions.IS_INCREMENTAL);
+        options.addOption(IS_FORCE_SCAN, false, ArgDescriptions.IS_FORCE_SCAN);
+        options.addOption(IS_PRIVATE, false, ArgDescriptions.IS_PRIVATE);
+        options.addOption(Option.builder(PRESET).desc(ArgDescriptions.PRESET).hasArg(true).argName("preset").build());
+        options.addOption(Option.builder(SCAN_COMMENT).desc(ArgDescriptions.SCAN_COMMENT).hasArg(true).argName("text").build());
+        options.addOption(Option.builder(IS_SSO).desc(ArgDescriptions.IS_SSO).hasArg(false).build());
+        options.addOption(SAST_HIGH, true, ArgDescriptions.SAST_HIGH);
+        options.addOption(SAST_MEDIUM, true, ArgDescriptions.SAST_MEDIUM);
+        options.addOption(SAST_LOW, true, ArgDescriptions.SAST_LOW);
+        options.addOption(OSA_HIGH, true, ArgDescriptions.OSA_HIGH);
+        options.addOption(OSA_MEDIUM, true, ArgDescriptions.OSA_MEDIUM);
+        options.addOption(OSA_LOW, true, ArgDescriptions.OSA_LOW);
 
-        options.addOption(SCA_API_URL, true, Constants.SCA_API_URL_DESC);
-        options.addOption(SCA_ACCESS_CONTROL_URL, true, Constants.SCA_ACCESS_CONTROL_URL_DESC);
-        options.addOption(SCA_WEB_APP_URL, true, Constants.SCA_WEB_APP_URL_DESC);
-        options.addOption(SCA_USERNAME, true, Constants.SCA_USERNAME_DESC);
-        options.addOption(SCA_PASSWORD, true, Constants.SCA_PASSWORD_DESC);
-        options.addOption(SCA_TENANT, true, Constants.SCA_TENANT_DESC);
+        options.addOption(SCA_API_URL, true, ArgDescriptions.SCA_API_URL);
+        options.addOption(SCA_ACCESS_CONTROL_URL, true, ArgDescriptions.SCA_ACCESS_CONTROL_URL);
+        options.addOption(SCA_WEB_APP_URL, true, ArgDescriptions.SCA_WEB_APP_URL);
+        options.addOption(SCA_USERNAME, true, ArgDescriptions.SCA_USERNAME);
+        options.addOption(SCA_PASSWORD, true, ArgDescriptions.SCA_PASSWORD);
+        options.addOption(SCA_TENANT, true, ArgDescriptions.SCA_TENANT);
 
         options.addOption(SCA_HIGH, true, "");
         options.addOption(SCA_MEDIUM, true, "");
@@ -143,88 +143,11 @@ public enum Command {
         options.addOption(SCA_LOCATION_PATH, true, "");
         options.addOption(SCA_FOLDER_EXCLUDE, true, "");
 
-        options.addOption(VERBOSE, VERBOSE_LONG, false, Constants.VERBOSE_DESC);
-        options.addOption(LOG_PATH, true, Constants.LOG_PATH_DESC);
-        options.addOption(TRUSTED_CERTIFICATES, false, Constants.TRUSTED_CERTIFICATES_DESC);
+        options.addOption(VERBOSE, VERBOSE_LONG, false, ArgDescriptions.VERBOSE);
+        options.addOption(LOG_PATH, true, ArgDescriptions.LOG_PATH);
+        options.addOption(TRUSTED_CERTIFICATES, false, ArgDescriptions.TRUSTED_CERTIFICATES);
 
         return options;
     }
 
-    private static class Constants {
-        static final String PROJECT_NAME_DESC = "A full absolute name of a project. " +
-                "The full Project name includes the whole path to the project, including Server, service provider, company, and team. " +
-                "Example:  -ProjectName \"CxServer\\SP\\Company\\Users\\bs java\" " +
-                "If project with such a name doesn't exist in the system, new project will be created.";
-        static final String SCAN_DESC = "\nThe \"Scan\" command allows to scan new and existing projects." +
-                " It accepts all project settings as an arguments, similar to Web interface.";
-
-        static final String OSA_DESC = "\nThe \"OsaScan\" command enables you to run an open source analysis (CxOSA) scan for an existing project as a CLI command. The CxOSA scan is, by default, run in synchronous mode (OsaScan)." +
-                " This means that the CLI initiates the scan task and the scan results can be viewed in the CLI and in the log file created.";
-
-        static final String CX_TOKEN_DESC = "Login token. Mandatory, Unless username and password are provided or SSO login is used on Windows ('-useSSO' flag)";
-        static final String CX_PASS_DESC = "Login password. Mandatory, Unless token is used or SSO login is used on Windows ('-useSSO' flag)";
-        static final String CX_USER_DESC = "Login username. Mandatory, Unless token is used or SSO login is used on Windows ('-useSSO' flag)";
-        static final String CX_SERVER_DESC = "IP address or resolvable name of CxSuite web server";
-
-        static final String WORKSPACE_MODE_DESC = "When -LocationType parameter is set to Perforce, add this parameter and add the workspace name into -locationPath. Optional";
-        static final String LOCATION_TYPE_DESC = "Source location type, one of: folder,shared (network location), SVN, TFS, Perforce, GIT. Mandatory";
-
-        static final String TOKEN_GEN_DESC = "\nThe \"GenerateToken\" command allows to generate login token, to be used instead of username and password.";
-        static final String TOKEN_REVOKE_DESC = "\nThe \"RevokeToken\" command allows to discard existing token.";
-
-        static final String LOCATION_PATH_DESC = "Local or network path to sources or source repository branch. Mandatory if location type is folder, SVN, TFS, Perforce or shared.";
-        static final String LOCATION_URL_DESC = "Source control URL. Madnatory if locationtype is any source control system.";
-        static final String LOCATION_BRANCH_DESC = "Source GIT branch, Mandatory if location type is GIT";
-        static final String LOCATION_PORT_DESC = "Source control system port. Default: 8080 (TFS), 80 (SVN), or 1666 (Perforce). Optional.";
-        static final String LOCATION_USER_DESC = "Source control/network credentials. Mandatory if locationtype is TFS/Perforce/shared";
-        static final String LOCATION_PASSWORD_DESC = "Source control/network credentials. Mandatory if locationtype is TFS/Perforce/shared";
-        static final String LOCATION_PATH_EXCLUDE_DESC = "Comma separated list of folder name patterns to exclude from scan. For example, exclude all test and log folders: -locationPathExclude test* log_* Optional";
-        static final String LOCATION_FILES_EXCLUDE_DESC = "Comma separated list of file name patterns to exclude from scan. For example, exclude all files with '.class' extension: -LocationFilesExclude *.class Optional";
-        static final String LOCATION_PRIVATE_KEY_DESC = "GIT SSH key locations, Mandatory if location type is GIT using SSH";
-
-        static final String OSA_LOCATION_PATH_DESC = "Local or network path to sources or source repository branch. May include multiple list of folders (local or shared) separated by comma. Optional";
-        static final String OSA_FILES_INCLUDE_DESC = "Comma separated list of file name patterns to exclude from the OSA scan. \n" +
-                "For example: *.dll will include only dll files. Optional";
-        static final String OSA_FILES_EXCLUDE_DESC = "Comma separated list of file name patterns to exclude from the OSA scan. Exclude extensions by using *.<extension>, or exclude files by using */<file>.\n" +
-                "Examples: -OsaFilesExclude *.class excludes all files which start with the .class. \n" +
-                "Examples: -OsaFilesExclude */plexus-utils-1.5.6.jar excludes all files which start with plexus-utils-1.5.6.jar. Optional";
-        static final String OSA_FOLDER_EXCLUDE_DESC = "Comma separated list of folder path patterns to exclude from the OSA scan. \n" +
-                "For example: -OsaPathExclude test excludes all folders which start with test prefix. Optional.";
-        static final String OSA_ARCHIVE_TO_EXTRACT_DESC = "Comma separated list of file extensions to be extracted in the OSA scan. \n" +
-                "For example: -OsaArchiveToExtract *.zip extracts only files with .zip extension. Optional.";
-        static final String OSA_SCAN_DEPTH_DESC = "Extraction depth of files to include in the OSA scan. Optional.";
-        static final String OSA_ENABLED_DESC = "Enable open source analysis (CxOSA). -osaLocationPath should be specified or the -LocationType parameter needs to be defined as 'folder' or 'shared' (if -osaLocationPath doesn't exist, use -locationPath). Optional.";
-        static final String SCA_ENABLED_DESC = String.format("Enable software composition analysis (SCA). SCA is the successor of CxOSA. Normally either -%1$s or -%2$s should be specified. If both are specified, -%2$s will be used. -osaLocationPath should be specified or the -LocationType parameter needs to be defined as 'folder' or 'shared' (if -osaLocationPath doesn't exist, use -locationPath). Optional.", OSA_ENABLED, SCA_ENABLED);
-        static final String OSA_JSON_REPORT_DESC = "Generate CxOSA JSON report. Optional, not supported in AsyncScan mode";
-        static final String INSTALL_PACKAGE_MANAGER_DESC = "Retrieve all supported package dependencies before performing OSA scan (see Remarks section). Optional.";
-        static final String DOCKER_IMAGE_PATTERN_DESC = "The docker images to be selected for scan"; //TODO: add the description
-        static final String DOCKER_EXCLUDE_DESC = "Set the GLOB pattern property for excluding docker files to scan. Optional.";
-        static final String PDF_REPORT_DESC = "Name or path to results report, by type. Optional. Not supported in AsyncScan mode.";
-        static final String XML_REPORT_DESC = "Name or path to results report, by type. Optional. Not supported in AsyncScan mode.";
-        static final String CSV_REPORT_DESC = "Name or path to results report, by type. Optional. Not supported in AsyncScan mode.";
-        static final String RTF_REPORT_DESC = "Name or path to results report, by type. Optional. Not supported in AsyncScan mode.";
-        static final String IS_INCREMENTAL_DESC = "Run incremental scan instead of a full scan. Scans only new and modified files, relative to project's last scan(-Incremental will disable any -ForceScan setting). Optional.";
-        static final String IS_FORCE_SCAN_DESC = "Force scan on source code, which has not been changed since the last scan of the same project (not compatible with -Incremental option). Optional.";
-        static final String IS_PRIVATE_DESC = "Scan will not be visible to other users. Optional";
-        static final String PRESET_DESC = "If not provided, will use preset defined in existing project or, for a new project, the default preset. Optional";
-        static final String SCAN_COMMENT_DESC = "Saves a comment with the scan results. For example: -comment 'important scan1'. Optional. Not supported in AsyncScan mode";
-        static final String IS_SSO_DESC = "Single Sign-On: Use Windows credentials of current user to log into CxSAST. Optioanl";
-        static final String SAST_HIGH_DESC = "CxSAST high severity vulnerability threshold. If the number of high vulnerabilities exceeds the threshold, scan will end with an error (see Error/Exit Codes). Optional. Not supported in AsyncScan mode";
-        static final String SAST_MEDIUM_DESC = "CxSAST medium severity vulnerability threshold. If the number of medium vulnerabilities exceeds the threshold, scan will end with an error (see Error/Exit Codes). Optional. Not supported in AsyncScan mode";
-        static final String SAST_LOW_DESC = "CxSAST low severity vulnerability threshold. If the number of low vulnerabilities exceeds the threshold, scan will end with an error (see Error/Exit Codes). Optional. Not supported in AsyncScan mode";
-        static final String OSA_HIGH_DESC = "CxOSA high severity vulnerability threshold. If the number of high vulnerabilities exceeds the threshold, scan will end with an error (see Error/Exit Codes). Optional. Not supported in AsyncScan mode";
-        static final String OSA_MEDIUM_DESC = "CxOSA medium severity vulnerability threshold. If the number of medium vulnerabilities exceeds the threshold, scan will end with an error (see Error/Exit Codes). Optional. Not supported in AsyncScan mode";
-        static final String OSA_LOW_DESC = "CxOSA low severity vulnerability threshold. If the number of low vulnerabilities exceeds the threshold, scan will end with an error (see Error/Exit Codes). Optional. Not supported in AsyncScan mode";
-        static final String IS_CHECKED_POLICY_DESC = "This parameter will break the build if the CxOSA policy is violated. Optional.";
-        static final String VERBOSE_DESC = "Turns on verbose mode. All messages and events will be sent to the console or log file.";
-        static final String LOG_PATH_DESC = "Log file to be created.";
-        static final String TRUSTED_CERTIFICATES_DESC = "The ‘TrustedCertificates’ parameter can be used to add certified security to the connection. By default, all certificates are trusted. When disabled, only certificates signed by a trusted certificate authority can be accepted.";
-
-        static final String SCA_API_URL_DESC = "IP address or resolvable name of a SCA instance.";
-        static final String SCA_ACCESS_CONTROL_URL_DESC = "IP address or resolvable name of an access control server that is used to access SCA.";
-        static final String SCA_WEB_APP_URL_DESC = "URL of the SCA web application. Used to generate web report URL. If this option is not provided in the command line, a value from the config file is used.";
-        static final String SCA_USERNAME_DESC = "SCA username.";
-        static final String SCA_PASSWORD_DESC = "SCA password.";
-        static final String SCA_TENANT_DESC = "Tenant name to be used during authentication.";
-    }
 }
