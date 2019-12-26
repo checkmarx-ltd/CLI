@@ -10,11 +10,11 @@
 
     <files>
         <file>
-            <source>src/main/scripts/runCxConsole.cmd</source>
+            <source>target/classes/runCxConsole.cmd</source>
             <outputDirectory>./.</outputDirectory>
         </file>
         <file>
-            <source>src/main/scripts/runCxConsole.sh</source>
+            <source>target/classes/runCxConsole.sh</source>
             <outputDirectory>./.</outputDirectory>
             <fileMode>0777</fileMode>
         </file>
