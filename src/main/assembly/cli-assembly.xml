@@ -42,7 +42,7 @@
                 <include>${groupId}:${artifactId}*</include>
             </includes>
             <useProjectArtifact>true</useProjectArtifact>
-            <outputFileNameMapping>CxConsolePlugin-CLI-${myVersion}.jar</outputFileNameMapping>
+            <outputFileNameMapping>CxConsolePlugin-CLI-${version}.jar</outputFileNameMapping>
         </dependencySet>
     </dependencySets>
 
