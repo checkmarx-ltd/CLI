@@ -7,7 +7,7 @@
 
     <groupId>com.cx.plugin</groupId>
     <artifactId>cli</artifactId>
-    <version>2019.4.4</version>
+    <version>2019.4.5</version>
     <packaging>jar</packaging>
 
     <repositories>
@@ -127,7 +127,7 @@
         <dependency>
             <groupId>com.checkmarx</groupId>
             <artifactId>cx-client-common</artifactId>
-            <version>9.20.3</version>
+            <version>9.20.4</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
