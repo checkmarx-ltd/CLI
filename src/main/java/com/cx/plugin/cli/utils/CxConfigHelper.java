@@ -59,7 +59,7 @@ public final class CxConfigHelper {
         scanConfig.setDependencyScannerType(getDependencyScannerType());
         scanConfig.setCxOrigin(CX_ORIGIN);
 
-        if (scanConfig.isSastOrOSAEnabled()) {
+        if (scanConfig.isSastOrOSAEnabled() || command.equals(Command.GENERATE_TOKEN) || command.equals(Command.REVOKE_TOKEN)) {
             scanConfig.setUrl(getSastOrOsaServerUrl());
             setSastOrOsaCredentials(scanConfig);
         }
