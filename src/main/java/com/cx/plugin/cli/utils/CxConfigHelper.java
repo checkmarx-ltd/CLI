@@ -85,8 +85,7 @@ public final class CxConfigHelper {
         scanConfig.setForceScan(!cmd.hasOption(IS_FORCE_SCAN));
         setSASTThresholds(scanConfig);
 
-        String dsLocationPath = getSharedDependencyScanOption(scanConfig, OSA_LOCATION_PATH, SCA_LOCATION_PATH);
-        if (dsLocationPath == null) {
+        if (scanConfig.isSastOrOSAEnabled()) {
             ScanSourceConfigurator locator = new ScanSourceConfigurator();
             locator.configureSourceLocation(commandLine, props, scanConfig);
         }
