@@ -85,7 +85,8 @@ public final class CxConfigHelper {
         scanConfig.setForceScan(!cmd.hasOption(IS_FORCE_SCAN));
         setSASTThresholds(scanConfig);
 
-        if (scanConfig.isSastOrOSAEnabled()) {
+        String dsLocationPath = getSharedDependencyScanOption(scanConfig, OSA_LOCATION_PATH, SCA_LOCATION_PATH);
+        if (scanConfig.getSastEnabled() || dsLocationPath == null) {
             ScanSourceConfigurator locator = new ScanSourceConfigurator();
             locator.configureSourceLocation(commandLine, props, scanConfig);
         }
@@ -324,9 +325,13 @@ public final class CxConfigHelper {
         return result;
     }
 
-    private static int getLastIndexOfTeam(String fullPath) {
-        int lastIdx = fullPath.lastIndexOf("\\");
-        return lastIdx != -1 ? lastIdx : fullPath.lastIndexOf("/");
+    private static int getLastIndexOfTeam(String fullPath) throws CLIParsingException {
+        int lastIdxOfBackSlash = fullPath.lastIndexOf("\\");
+        int lastIdxOfSlash = fullPath.lastIndexOf("/");
+        if (lastIdxOfBackSlash == -1 && lastIdxOfSlash == -1) {
+            throw new CLIParsingException(String.format("[CxConsole] Invalid project path specified: %s", fullPath));
+        }
+        return lastIdxOfBackSlash != -1 ? lastIdxOfBackSlash : lastIdxOfSlash;
     }
 
     private static String extractProjectName(String fullPath) throws CLIParsingException {
