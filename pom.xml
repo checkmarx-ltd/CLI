@@ -127,7 +127,7 @@
         <dependency>
             <groupId>com.checkmarx</groupId>
             <artifactId>cx-client-common</artifactId>
-            <version>9.20.5.SCA-SNAPSHOT</version>
+            <version>9.20.SCA.TEAMPATH-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
