@@ -15,6 +15,8 @@ import com.cx.restclient.osa.dto.OSAResults;
 import com.cx.restclient.sast.dto.SASTResults;
 import com.google.common.io.Files;
 import org.apache.commons.cli.*;
+import org.apache.commons.io.IOUtils;
+import org.apache.http.Consts;
 import org.apache.log4j.Appender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -22,10 +24,7 @@ import org.apache.log4j.RollingFileAppender;
 import org.apache.log4j.xml.DOMConfigurator;
 import org.slf4j.impl.Log4jLoggerFactory;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Writer;
+import java.io.*;
 import java.net.URISyntaxException;
 import java.util.Arrays;
 
@@ -48,6 +47,7 @@ public class CxConsoleLauncher {
             if (args.length == 0) {
                 throw new CLIParsingException("No arguments were given");
             }
+            args = overrideProperties(args);
 
             args = convertParamToLowerCase(args);
             CommandLineParser parser = new DefaultParser();
@@ -69,6 +69,28 @@ public class CxConsoleLauncher {
         }
 
         System.exit(exitCode);
+    }
+    private static String[] overrideProperties(String[] args) {
+        String propFilePath = null;
+
+        for (int i = 0; i < args.length; i++) {
+            if ("-propFile".equals(args[i])) {
+                propFilePath = args[i + 1];
+                break;
+            }
+        }
+
+        if (propFilePath != null) {
+            try {
+                log.info("Overriding properties from file: " + propFilePath);
+                String argsStr = IOUtils.toString(new FileInputStream(propFilePath), Consts.UTF_8);
+                args = argsStr.split("\\s+");
+            } catch (Exception e) {
+                log.error("can't read file", e);
+            }
+        }
+
+        return args;
     }
 
     private static int execute(Command command, CommandLine commandLine) throws CLIParsingException, IOException, CxClientException, URISyntaxException, InterruptedException {
