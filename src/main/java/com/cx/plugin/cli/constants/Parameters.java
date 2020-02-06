@@ -6,12 +6,12 @@ package com.cx.plugin.cli.constants;
 public final class Parameters {
 
     public static final String VERBOSE = "v";
-    public static final String VERBOSE_LONG = "verbose";
+    static final String VERBOSE_LONG = "verbose";
     public static final String SERVER_URL = "cxserver";
     public static final String USER_NAME = "cxuser";
     public static final String USER_PASSWORD = "cxpassword";
-    public static final String GENERATETOKEN = "generatetoken";
-    public static final String REVOKETOKEN = "revoketoken";
+    static final String GENERATETOKEN = "generatetoken";
+    static final String REVOKETOKEN = "revoketoken";
     public static final String TOKEN = "cxtoken";
 
     public static final String FULL_PROJECT_PATH = "projectname";
@@ -36,6 +36,7 @@ public final class Parameters {
     public static final String OSA_ARCHIVE_TO_EXTRACT = "osaarchivetoextract";
     public static final String OSA_SCAN_DEPTH = "osascandepth";
     public static final String OSA_ENABLED = "enableosa";
+    public static final String SCA_ENABLED = "enablesca";
     public static final String OSA_JSON_REPORT = "osajson";
     public static final String INSTALL_PACKAGE_MANAGER = "executepackagedependency";
     public static final String DOCKER_IMAGE_PATTERN = "dockerscan";
@@ -63,4 +64,18 @@ public final class Parameters {
     public static final String OSA_LOW = "osalow";
     public static final String TRUSTED_CERTIFICATES = "trustedcertificates";
 
+    public static final String SCA_API_URL = "scaapiurl";
+    public static final String SCA_ACCESS_CONTROL_URL = "scaaccesscontrolurl";
+    public static final String SCA_WEB_APP_URL = "scawebappurl";
+    public static final String SCA_USERNAME = "scausername";
+    public static final String SCA_PASSWORD = "scapassword";
+    public static final String SCA_TENANT = "scatenant";
+
+    public static final String SCA_HIGH = "scahigh";
+    public static final String SCA_MEDIUM = "scamedium";
+    public static final String SCA_LOW = "scalow";
+    public static final String SCA_FILES_INCLUDE = "scafilesinclude";
+    public static final String SCA_FILES_EXCLUDE = "scafilesexclude";
+    public static final String SCA_FOLDER_EXCLUDE = "scapathexclude";
+    public static final String SCA_LOCATION_PATH = "scalocationpath";
 }

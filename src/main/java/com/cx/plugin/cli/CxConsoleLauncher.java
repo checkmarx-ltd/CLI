@@ -7,14 +7,18 @@ import com.cx.plugin.cli.exceptions.CLIParsingException;
 import com.cx.plugin.cli.utils.CxConfigHelper;
 import com.cx.plugin.cli.utils.ErrorParsingHelper;
 import com.cx.restclient.CxShragaClient;
-import com.cx.restclient.common.ShragaUtils;
 import com.cx.restclient.configuration.CxScanConfig;
+import com.cx.restclient.dto.DependencyScanResults;
+import com.cx.restclient.dto.DependencyScannerType;
 import com.cx.restclient.dto.ScanResults;
+import com.cx.restclient.dto.scansummary.ScanSummary;
 import com.cx.restclient.exception.CxClientException;
-import com.cx.restclient.osa.dto.OSAResults;
 import com.cx.restclient.sast.dto.SASTResults;
 import com.google.common.io.Files;
-import org.apache.commons.cli.*;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.ParseException;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.Consts;
 import org.apache.log4j.Appender;
@@ -44,31 +48,30 @@ public class CxConsoleLauncher {
         Command command = null;
 
         try {
-            if (args.length == 0) {
-                throw new CLIParsingException("No arguments were given");
-            }
+            verifyArgsCount(args);
             args = overrideProperties(args);
 
             args = convertParamToLowerCase(args);
-            CommandLineParser parser = new DefaultParser();
-            CommandLine commandLine = parser.parse(Command.getOptions(), args);
-            command = Command.getCommandByValue(commandLine.getArgs()[0]);
-            if (command == null) {
-                throw new CLIParsingException(String.format(INVALID_COMMAND_ERROR, commandLine.getArgs()[0], Command.getAllValues()));
-            }
-
+            CommandLine commandLine = getCommandLine(args);
+            command = getCommand(commandLine);
             initLogging(commandLine);
             exitCode = execute(command, commandLine);
         } catch (CLIParsingException | ParseException e) {
             CxConfigHelper.printHelp(command);
             log.error(String.format("\n\n[CxConsole] Error parsing command: \n%s\n\n", e));
             exitCode = ErrorParsingHelper.parseError(e.getMessage());
-        } catch (CxClientException | IOException | URISyntaxException | InterruptedException e) {
-            log.error(String.format("%s", e.getMessage()));
+        } catch (CxClientException | IOException | InterruptedException e) {
+            log.error(e.getMessage());
             exitCode = ErrorParsingHelper.parseError(e.getMessage());
         }
 
         System.exit(exitCode);
+    }
+
+    private static void verifyArgsCount(String[] args) throws CLIParsingException {
+        if (args.length == 0) {
+            throw new CLIParsingException("No arguments were given");
+        }
     }
     private static String[] overrideProperties(String[] args) {
         String propFilePath = null;
@@ -93,11 +96,13 @@ public class CxConsoleLauncher {
         return args;
     }
 
-    private static int execute(Command command, CommandLine commandLine) throws CLIParsingException, IOException, CxClientException, URISyntaxException, InterruptedException {
+    private static int execute(Command command, CommandLine commandLine)
+            throws CLIParsingException, IOException, CxClientException, InterruptedException {
         int exitCode = Errors.SCAN_SUCCEEDED.getCode();
         CxConfigHelper.printConfig(commandLine);
 
-        CxScanConfig cxScanConfig = CxConfigHelper.resolveConfigurations(command, commandLine);
+        CxConfigHelper configHelper = new CxConfigHelper();
+        CxScanConfig cxScanConfig = configHelper.resolveConfiguration(command, commandLine);
 
         org.slf4j.Logger logger = new Log4jLoggerFactory().getLogger(log.getName());
         CxShragaClient client = new CxShragaClient(cxScanConfig, logger);
@@ -119,35 +124,46 @@ public class CxConsoleLauncher {
             client.createSASTScan();
         }
 
-        if (cxScanConfig.getOsaEnabled()) {
-            client.createOSAScan();
+        if (cxScanConfig.getDependencyScannerType() != DependencyScannerType.NONE) {
+            client.createDependencyScan();
         }
 
         if (cxScanConfig.getSynchronous()) {
-            final ScanResults scanResults = waitForResults(client, cxScanConfig.getSastEnabled(), cxScanConfig.getOsaEnabled());
-            final String failureResult = ShragaUtils.getBuildFailureResult(cxScanConfig, scanResults.getSastResults(),
-                    scanResults.getOsaResults());
-            if (!failureResult.isEmpty()) {
-                log.info(failureResult);
-                exitCode = ErrorParsingHelper.resolveThresholdFailures(failureResult);
+            final ScanResults scanResults = waitForResults(client, cxScanConfig);
+            ScanSummary scanSummary = new ScanSummary(cxScanConfig, scanResults);
+            if (scanSummary.hasErrors()) {
+                log.info(scanSummary.toString());
+                exitCode = ErrorParsingHelper.getErrorType(scanSummary).getCode();
             }
         }
 
         return exitCode;
     }
 
-    private static ScanResults waitForResults(CxShragaClient client, boolean sastWait, boolean osaWait) throws InterruptedException, CxClientException, IOException {
-        ScanResults results = new ScanResults();
-        SASTResults sastResults;
-        OSAResults osaResults;
+    private static CommandLine getCommandLine(String[] args) throws ParseException {
+        CommandLineParser parser = new DefaultParser();
+        CommandLine commandLine = parser.parse(Command.getOptions(), args);
+        return commandLine;
+    }
 
-        if (sastWait) {
-            sastResults = client.waitForSASTResults();
+    private static Command getCommand(CommandLine commandLine) throws CLIParsingException {
+        Command command = Command.getCommandByValue(commandLine.getArgs()[0]);
+        if (command == null) {
+            throw new CLIParsingException(String.format(INVALID_COMMAND_ERROR, commandLine.getArgs()[0], Command.getAllValues()));
+        }
+        return command;
+    }
+
+    private static ScanResults waitForResults(CxShragaClient client, CxScanConfig config) throws InterruptedException, CxClientException, IOException {
+        ScanResults results = new ScanResults();
+
+        if (config.getSastEnabled()) {
+            SASTResults sastResults = client.waitForSASTResults();
             results.setSastResults(sastResults);
         }
-        if (osaWait) {
-            osaResults = client.waitForOSAResults();
-            results.setOsaResults(osaResults);
+        if (config.getDependencyScannerType() != DependencyScannerType.NONE) {
+            DependencyScanResults dependencyScanResults = client.waitForDependencyScanResults();
+            results.setDependencyScanResults(dependencyScanResults);
         }
 
         return results;

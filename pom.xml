@@ -7,7 +7,7 @@
 
     <groupId>com.cx.plugin</groupId>
     <artifactId>cli</artifactId>
-    <version>2019.4.6</version>
+    <version>2019.4.10.beta</version>
     <packaging>jar</packaging>
 
     <repositories>
@@ -127,7 +127,7 @@
         <dependency>
             <groupId>com.checkmarx</groupId>
             <artifactId>cx-client-common</artifactId>
-            <version>9.20.5</version>
+            <version>9.20.SCA.TEAMPATH-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -157,6 +157,12 @@
             <groupId>javax.activation</groupId>
             <artifactId>activation</artifactId>
             <version>1.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.5.2</version>
+            <scope>test</scope>
         </dependency>
 <!--Already Imported in the cli-client-common-->
 <!--        &lt;!&ndash; https://mvnrepository.com/artifact/org.glassfish.jaxb/jaxb-runtime &ndash;&gt;

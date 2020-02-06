@@ -24,7 +24,7 @@ public class PropertiesManager {
      */
     public static final String KEY_PROGRESS_INTERVAL = "scan.job.progress.interval";
     public static final String KEY_OSA_PROGRESS_INTERVAL = "scan.osa.job.progress.interval";
-    public static final String KEY_RETIRES = "scan.job.connection.retries";
+    public static final String KEY_RETRIES = "scan.job.connection.retries";
     public static final String REPORT_TIMEOUT = "scan.job.report.timeout";
     public static final String KEY_EXCLUDED_FOLDERS = "scan.zip.ignored.folders";
     public static final String KEY_EXCLUDED_FILES = "scan.zip.ignored.files";
@@ -37,6 +37,13 @@ public class PropertiesManager {
     public static final String KEY_VERSION = "cxconsole.version";
     public static final String KEY_USE_KERBEROS_AUTH = "use_kerberos_authentication";
     public static final String KEY_KERBEROS_USERNAME = "kerberos.username";
+
+    static final String KEY_SCA_API_URL = "scan.sca.api.url";
+    static final String KEY_SCA_ACCESS_CONTROL_URL = "scan.sca.accesscontrol.url";
+    static final String KEY_SCA_WEB_APP_URL = "scan.sca.webapp.url";
+    static final String KEY_SCA_INCLUDED_FILES = "scan.sca.include.files";
+    static final String KEY_SCA_EXCLUDED_FILES = "scan.sca.exclude.files";
+    static final String KEY_SCA_PROGRESS_INTERVAL = "scan.sca.job.progress.interval";
 
     private final String SEPARATOR = FileSystems.getDefault().getSeparator();
     private String userDir = System.getProperty("user.dir");
@@ -113,7 +120,7 @@ public class PropertiesManager {
         applicationProperties.put(REPORT_TIMEOUT, "30");
         applicationProperties.put(KEY_PROGRESS_INTERVAL, "15");
         applicationProperties.put(KEY_OSA_PROGRESS_INTERVAL, "5");
-        applicationProperties.put(KEY_RETIRES, "3");
+        applicationProperties.put(KEY_RETRIES, "3");
         applicationProperties.put(KEY_EXCLUDED_FOLDERS, "_cvs, .svn, .hg, .git, .bzr, bin, obj, backup");
         applicationProperties.put(KEY_EXCLUDED_FILES, "*.DS_Store, *.ipr, *.iws, *.bak, *.tmp, *.aac, *.aif, *.iff, *.m3u, *.mid, *.mp3, *.mpa, *.ra, *.wav, *.wma, *.3g2, *.3gp, *.asf, *.asx, *.avi, *.flv, *.mov, *.mp4, *.mpg, *.rm, *.swf, *.vob, *.wmv, *.bmp, *.gif, *.jpg, *.png, *.psd, *.tif, *.jar, *.zip, *.rar, *.exe, *.dll, *.pdb, *.7z, *.gz, *.tar.gz, *.tar, *.ahtm, *.ahtml, *.fhtml, *.hdm, *.hdml, *.hsql, *.ht, *.hta, *.htc, *.htd, *.htmls, *.ihtml, *.mht, *.mhtm, *.mhtml, *.ssi, *.stm, *.stml, *.ttml, *.txn, *.xhtm, *.xhtml, *.class, *.iml");
         applicationProperties.put(KEY_MAX_ZIP_SIZE, "200");

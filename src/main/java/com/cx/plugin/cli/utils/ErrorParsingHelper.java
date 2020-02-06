@@ -1,10 +1,15 @@
 package com.cx.plugin.cli.utils;
 
 import com.cx.plugin.cli.errorsconstants.Errors;
-import static com.cx.plugin.cli.errorsconstants.ErrorMessages.*;
+import com.cx.restclient.dto.scansummary.ErrorSource;
+import com.cx.restclient.dto.scansummary.ScanSummary;
+import com.cx.restclient.dto.scansummary.ThresholdError;
 
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
+
+import static com.cx.plugin.cli.errorsconstants.ErrorMessages.*;
 
 public class ErrorParsingHelper {
 
@@ -33,7 +38,7 @@ public class ErrorParsingHelper {
         // OSA thresholds
         messageToCodeMap.put(OSA_HIGH_THRESHOLD_ERROR_MSG, Errors.OSA_HIGH_THRESHOLD_ERROR.getCode());
         messageToCodeMap.put(OSA_MEDIUM_THRESHOLD_ERROR_MSG, Errors.OSA_MEDIUM_THRESHOLD_ERROR.getCode());
-        messageToCodeMap.put(OSA_LOW_THRESHOLD_ERROR_MSG, Errors.OSA_LOW_THRESHOLD_ERROR_EXIT_CODE.getCode());
+        messageToCodeMap.put(OSA_LOW_THRESHOLD_ERROR_MSG, Errors.OSA_LOW_THRESHOLD_ERROR.getCode());
         // SAST thresholds
         messageToCodeMap.put(SAST_HIGH_THRESHOLD_ERROR_MSG, Errors.SAST_HIGH_THRESHOLD_ERROR.getCode());
         messageToCodeMap.put(SAST_MEDIUM_THRESHOLD_ERROR_MSG, Errors.SAST_MEDIUM_THRESHOLD_ERROR.getCode());
@@ -42,50 +47,50 @@ public class ErrorParsingHelper {
         return messageToCodeMap;
     }
 
-    private static int resolveSastThresholdFailure(String failureResult) {
-        if (failureResult.contains("CxSAST high")) {
-            return Errors.SAST_HIGH_THRESHOLD_ERROR.getCode();
+    public static Errors getErrorType(ScanSummary scanSummary) {
+        if (scanSummary.isPolicyViolated()) {
+            return Errors.POLICY_VIOLATION_ERROR;
         }
-        if (failureResult.contains("CxSAST medium")) {
-            return Errors.SAST_MEDIUM_THRESHOLD_ERROR.getCode();
+
+        ThresholdError sastMostSevere = getMostSevereThresholdError(scanSummary, ErrorSource.SAST);
+        ThresholdError dsMostSevere = getMostSevereThresholdError(scanSummary, ErrorSource.DEPENDENCY_SCANNER);
+        if (sastMostSevere != null && dsMostSevere != null) {
+            return Errors.GENERIC_THRESHOLD_FAILURE_ERROR;
+        } else if (sastMostSevere == null && dsMostSevere == null) {
+            return Errors.SCAN_SUCCEEDED;
+        } else {
+            return toThresholdErrorCode(sastMostSevere != null ? sastMostSevere : dsMostSevere);
         }
-        if (failureResult.contains("CxSAST low")) {
-            return Errors.SAST_LOW_THRESHOLD_ERROR.getCode();
-        }
-        return 0;
     }
 
-    private static int resolveOsaThresholdFailure(String failureResult) {
-        if (failureResult.contains("CxOSA high")) {
-            return Errors.OSA_HIGH_THRESHOLD_ERROR.getCode();
+    private static Errors toThresholdErrorCode(ThresholdError error) {
+        if (error.getSource() == ErrorSource.SAST) {
+            switch (error.getSeverity()) {
+                case HIGH:
+                    return Errors.SAST_HIGH_THRESHOLD_ERROR;
+                case MEDIUM:
+                    return Errors.SAST_MEDIUM_THRESHOLD_ERROR;
+                default:
+                    return Errors.SAST_LOW_THRESHOLD_ERROR;
+            }
+        } else {
+            switch (error.getSeverity()) {
+                case HIGH:
+                    return Errors.OSA_HIGH_THRESHOLD_ERROR;
+                case MEDIUM:
+                    return Errors.OSA_MEDIUM_THRESHOLD_ERROR;
+                default:
+                    return Errors.OSA_LOW_THRESHOLD_ERROR;
+            }
         }
-        if (failureResult.contains("CxOSA medium")) {
-            return Errors.OSA_MEDIUM_THRESHOLD_ERROR.getCode();
-        }
-        if (failureResult.contains("CxOSA low")) {
-            return Errors.OSA_LOW_THRESHOLD_ERROR_EXIT_CODE.getCode();
-        }
-        return 0;
     }
 
-    public static int resolveThresholdFailures(String failureResult) {
-        if(failureResult.contains("Project policy status : violated")) {
-            return Errors.POLICY_VIOLATION_ERROR.getCode();
-        }
-
-        int sastErrorCode = resolveSastThresholdFailure(failureResult);
-        int osaErrorCode = resolveOsaThresholdFailure(failureResult);
-
-        if(sastErrorCode != 0 && osaErrorCode != 0) {
-            return Errors.GENERIC_THRESHOLD_FAILURE_ERROR.getCode();
-        }
-        else if (sastErrorCode != 0 && osaErrorCode == 0) {
-            return sastErrorCode;
-        }
-        else if (sastErrorCode == 0 && osaErrorCode != 0) {
-            return osaErrorCode;
-        }
-        return 0;
+    private static ThresholdError getMostSevereThresholdError(ScanSummary scanSummary, ErrorSource source) {
+        return scanSummary.getThresholdErrors()
+                .stream()
+                .filter(error -> error.getSource() == source)
+                .max(Comparator.comparing(ThresholdError::getSeverity))
+                .orElse(null);
     }
 
     public static int parseError(String errorMsg) {
