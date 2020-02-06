@@ -117,6 +117,7 @@ public enum Command {
 
         options.addOption(IS_INCREMENTAL, false, ArgDescriptions.IS_INCREMENTAL);
         options.addOption(IS_FORCE_SCAN, false, ArgDescriptions.IS_FORCE_SCAN);
+        options.addOption(IS_DISABLE_FORCE_SCAN, false, ArgDescriptions.IS_DISABLE_FORCE_SCAN);
         options.addOption(IS_PRIVATE, false, ArgDescriptions.IS_PRIVATE);
         options.addOption(Option.builder(PRESET).desc(ArgDescriptions.PRESET).hasArg(true).argName("preset").build());
         options.addOption(Option.builder(SCAN_COMMENT).desc(ArgDescriptions.SCAN_COMMENT).hasArg(true).argName("text").build());
