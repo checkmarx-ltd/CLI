@@ -49,7 +49,6 @@ public final class Parameters {
     public static final String RTF_REPORT = "reportrtf";
     public static final String IS_INCREMENTAL = "incremental";
     public static final String IS_FORCE_SCAN = "forcescan";
-    public static final String IS_DISABLE_FORCE_SCAN = "disableforcescan";
     public static final String IS_PRIVATE = "private";
 
     public static final String PRESET = "preset";

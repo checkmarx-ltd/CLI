@@ -82,7 +82,7 @@ public final class CxConfigHelper {
         scanConfig.setScanComment(cmd.getOptionValue(SCAN_COMMENT));
         setScanReports(scanConfig);
         scanConfig.setIncremental(cmd.hasOption(IS_INCREMENTAL));
-        scanConfig.setForceScan(!cmd.hasOption(IS_FORCE_SCAN)&&!cmd.hasOption(IS_DISABLE_FORCE_SCAN));
+        scanConfig.setForceScan(cmd.hasOption(IS_FORCE_SCAN));
         setSASTThresholds(scanConfig);
 
         String dsLocationPath = getSharedDependencyScanOption(scanConfig, OSA_LOCATION_PATH, SCA_LOCATION_PATH);
