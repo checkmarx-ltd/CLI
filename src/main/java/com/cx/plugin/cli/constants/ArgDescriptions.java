@@ -70,7 +70,7 @@ class ArgDescriptions {
     static final String CSV_REPORT = "Name or path to results report, by type. Optional. Not supported in AsyncScan mode.";
     static final String RTF_REPORT = "Name or path to results report, by type. Optional. Not supported in AsyncScan mode.";
     static final String IS_INCREMENTAL = "Run incremental scan instead of a full scan. Scans only new and modified files, relative to project's last scan(-Incremental will disable any -ForceScan setting). Optional.";
-    static final String IS_FORCE_SCAN = "Disables the Force scan of the source code, if no changes done to the source code then the last scan result will be returned. This flag is deprecated, please use '-DisableForceScan' instead. Optional.";
+    static final String IS_FORCE_SCAN = "Force scan on source code, which has not been changed since the last scan of the same project (not compatible with -Incremental option). Optional.";
     static final String IS_PRIVATE = "Scan will not be visible to other users. Optional";
     static final String PRESET = "If not provided, will use preset defined in existing project or, for a new project, the default preset. Optional";
     static final String SCAN_COMMENT = "Saves a comment with the scan results. For example: -comment 'important scan1'. Optional. Not supported in AsyncScan mode";
