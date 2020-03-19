@@ -12,7 +12,6 @@ import static com.cx.plugin.cli.constants.Parameters.*;
  * Created by idanA on 11/26/2018.
  */
 public enum Command {
-    //TODO: add usages example for async scan
     SCAN("Scan", UsageExamples.SCAN, ArgDescriptions.SCAN),
     ASYNC_SCAN("AsyncScan", UsageExamples.SCAN, ArgDescriptions.SCAN),
 
@@ -107,8 +106,6 @@ public enum Command {
         options.addOption(SCA_ENABLED, false, ArgDescriptions.SCA_ENABLED);
         options.addOption(OSA_JSON_REPORT, true, ArgDescriptions.OSA_JSON_REPORT);
         options.addOption(INSTALL_PACKAGE_MANAGER, false, ArgDescriptions.INSTALL_PACKAGE_MANAGER);
-//        options.addOption(DOCKER_IMAGE_PATTERN, true, Constants.DOCKER_IMAGE_PATTERN);
-//        options.addOption(DOCKER_EXCLUDE, true, Constants.DOCKER_EXCLUDE);
 
         options.addOption(PDF_REPORT, true, ArgDescriptions.PDF_REPORT);
         options.addOption(XML_REPORT, true, ArgDescriptions.XML_REPORT);

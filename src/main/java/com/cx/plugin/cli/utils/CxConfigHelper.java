@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.io.File;
-import java.net.URISyntaxException;
 
 import static com.cx.plugin.cli.constants.Parameters.*;
 import static com.cx.plugin.cli.utils.PropertiesManager.*;
@@ -165,7 +164,8 @@ public final class CxConfigHelper {
     }
 
     private void setDependencyScanFilterPattern(CxScanConfig scanConfig) {
-        String includedFiles, excludedFiles;
+        String includedFiles;
+        String excludedFiles;
         if (scanConfig.getDependencyScannerType() == DependencyScannerType.OSA) {
             includedFiles = getOptionalParam(OSA_FILES_INCLUDE, KEY_OSA_INCLUDED_FILES);
             excludedFiles = getOptionalParam(OSA_FILES_EXCLUDE, KEY_OSA_EXCLUDED_FILES);
