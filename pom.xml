@@ -33,6 +33,11 @@
         <jersey.version>1.0.3</jersey.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+        <sonar.projectKey>checkmarx-ltd_CLI</sonar.projectKey>
+        <sonar.organization>checkmarx-ltd</sonar.organization>
+        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+        <sonar.login>aa2d934e103411e6732b55cbdc7ce2b46919b362</sonar.login>
     </properties>
 
     <organization>
