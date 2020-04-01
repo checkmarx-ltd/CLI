@@ -6,6 +6,7 @@ import com.cx.plugin.cli.exceptions.BadOptionCombinationException;
 import com.cx.plugin.cli.exceptions.CLIParsingException;
 import com.cx.restclient.configuration.CxScanConfig;
 import com.cx.restclient.dto.DependencyScannerType;
+import com.cx.restclient.dto.ProxyConfig;
 import com.cx.restclient.sca.dto.SCAConfig;
 import com.google.common.base.Strings;
 import org.apache.commons.cli.CommandLine;
@@ -21,6 +22,7 @@ import java.net.URISyntaxException;
 
 import static com.cx.plugin.cli.constants.Parameters.*;
 import static com.cx.plugin.cli.utils.PropertiesManager.*;
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 /**
  * Created by idanA on 11/5/2018.
@@ -49,6 +51,8 @@ public final class CxConfigHelper {
         checkForAmbiguousArgs();
 
         CxScanConfig scanConfig = new CxScanConfig();
+
+        scanConfig.setProxyConfig(genProxyConfig());
 
         scanConfig.setSastEnabled(command.equals(Command.SCAN) || command.equals(Command.ASYNC_SCAN));
 
@@ -94,7 +98,7 @@ public final class CxConfigHelper {
         scanConfig.setProgressInterval(props.getIntProperty(KEY_PROGRESS_INTERVAL));
         scanConfig.setConnectionRetries(props.getIntProperty(KEY_RETRIES));
         scanConfig.setDefaultProjectName(props.getProperty(KEY_DEF_PROJECT_NAME));
-        
+
         configureDependencyScan(scanConfig);
 
         return scanConfig;
@@ -192,7 +196,7 @@ public final class CxConfigHelper {
         String token = commandLine.getOptionValue(TOKEN);
         String username = commandLine.getOptionValue(USER_NAME);
         String password = commandLine.getOptionValue(USER_PASSWORD);
-        if (StringUtils.isNotEmpty(token)) {
+        if (isNotEmpty(token)) {
             scanConfig.setRefreshToken(token);
         } else if ((Strings.isNullOrEmpty(username) || Strings.isNullOrEmpty(password)) && !isSSO) {
             throw new CLIParsingException("[CxConsole] User name and password are mandatory unless SSO or token is used");
@@ -211,11 +215,9 @@ public final class CxConfigHelper {
         String message = null;
         if (commandLine.hasOption(OSA_ENABLED) && commandLine.hasOption(SCA_ENABLED)) {
             message = String.format("%s and %s arguments cannot be specified together.", OSA_ENABLED, SCA_ENABLED);
-        }
-        else if (command == Command.SCA_SCAN && commandLine.hasOption(OSA_ENABLED)) {
+        } else if (command == Command.SCA_SCAN && commandLine.hasOption(OSA_ENABLED)) {
             message = String.format("%s argument cannot be used with %s command", OSA_ENABLED, command);
-        }
-        else if (command == Command.OSA_SCAN && commandLine.hasOption(SCA_ENABLED)) {
+        } else if (command == Command.OSA_SCAN && commandLine.hasOption(SCA_ENABLED)) {
             message = String.format("%s argument cannot be used with %s command", SCA_ENABLED, command);
         }
 
@@ -318,8 +320,7 @@ public final class CxConfigHelper {
             result = DependencyScannerType.OSA;
         } else if (command == Command.SCA_SCAN || command == Command.ASYNC_SCA_SCAN || commandLine.hasOption(SCA_ENABLED)) {
             result = DependencyScannerType.SCA;
-        }
-        else {
+        } else {
             result = DependencyScannerType.NONE;
         }
         return result;
@@ -387,11 +388,11 @@ public final class CxConfigHelper {
     private String getOptionalParam(String commandLineKey, String fallbackProperty) {
         String commandLineValue = commandLine.getOptionValue(commandLineKey);
         String propertyValue = props.getProperty(fallbackProperty);
-        return StringUtils.isNotEmpty(commandLineValue) ? commandLineValue : propertyValue;
+        return isNotEmpty(commandLineValue) ? commandLineValue : propertyValue;
     }
 
     private static String getRequiredParam(
-            CommandLine cmdLine, String cmdLineOptionName, @Nullable String fallbackProperty) 
+            CommandLine cmdLine, String cmdLineOptionName, @Nullable String fallbackProperty)
             throws CLIParsingException {
         String result = cmdLine.getOptionValue(cmdLineOptionName);
         if (Strings.isNullOrEmpty(result) && fallbackProperty != null) {
@@ -403,8 +404,7 @@ public final class CxConfigHelper {
             if (fallbackProperty != null) {
                 message = String.format("%s command line option or %s configuration setting must be specified.",
                         cmdLineOptionName, fallbackProperty);
-            }
-            else {
+            } else {
                 message = String.format("%s command line option must be specified.", cmdLineOptionName);
             }
             throw new CLIParsingException(message);
@@ -415,4 +415,44 @@ public final class CxConfigHelper {
     private static String normalizeUrl(String rawValue) {
         return rawValue.startsWith("http") ? rawValue : "http://" + rawValue;
     }
+
+    private ProxyConfig genProxyConfig() {
+        final String HTTP_HOST = System.getProperty("http.proxyHost");
+        final String HTTP_PORT = System.getProperty("http.proxyPort");
+        final String HTTP_USERNAME = System.getProperty("http.proxyUser");
+        final String HTTP_PASSWORD = System.getProperty("http.proxyPassword");
+
+        final String HTTPS_HOST = System.getProperty("https.proxyHost");
+        final String HTTPS_PORT = System.getProperty("https.proxyPort");
+        final String HTTPS_USERNAME = System.getProperty("https.proxyUser");
+        final String HTTPS_PASSWORD = System.getProperty("https.proxyPassword");
+
+        ProxyConfig proxyConfig = null;
+        try {
+            if (isNotEmpty(HTTP_HOST) && isNotEmpty(HTTP_PORT)) {
+                proxyConfig = new ProxyConfig();
+                proxyConfig.setUseHttps(false);
+                proxyConfig.setHost(HTTP_HOST);
+                proxyConfig.setPort(Integer.parseInt(HTTP_PORT));
+                if (isNotEmpty(HTTP_USERNAME) && isNotEmpty(HTTP_PASSWORD)) {
+                    proxyConfig.setUsername(HTTP_USERNAME);
+                    proxyConfig.setPassword(HTTP_PASSWORD);
+                }
+            } else if (isNotEmpty(HTTPS_HOST) && isNotEmpty(HTTPS_PORT)) {
+                proxyConfig = new ProxyConfig();
+                proxyConfig.setUseHttps(true);
+                proxyConfig.setHost(HTTPS_HOST);
+                proxyConfig.setPort(Integer.parseInt(HTTPS_PORT));
+                if (isNotEmpty(HTTPS_USERNAME) && isNotEmpty(HTTPS_PASSWORD)) {
+                    proxyConfig.setUsername(HTTPS_USERNAME);
+                    proxyConfig.setPassword(HTTPS_PASSWORD);
+                }
+            }
+        } catch (Exception e) {
+            log.error("Fail to set custom proxy", e);
+        }
+
+        return proxyConfig;
+    }
+
 }

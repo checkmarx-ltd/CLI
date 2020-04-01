@@ -29,7 +29,6 @@ import org.apache.log4j.xml.DOMConfigurator;
 import org.slf4j.impl.Log4jLoggerFactory;
 
 import java.io.*;
-import java.net.URISyntaxException;
 import java.util.Arrays;
 
 import static com.cx.plugin.cli.constants.Parameters.LOG_PATH;
@@ -38,7 +37,6 @@ import static com.cx.plugin.cli.errorsconstants.ErrorMessages.INVALID_COMMAND_ER
 /**
  * Created by idanA on 11/4/2018.
  */
-
 public class CxConsoleLauncher {
 
     private static Logger log = Logger.getLogger(CxConsoleLauncher.class);
@@ -73,6 +71,7 @@ public class CxConsoleLauncher {
             throw new CLIParsingException("No arguments were given");
         }
     }
+
     private static String[] overrideProperties(String[] args) {
         String propFilePath = null;
 
@@ -116,6 +115,7 @@ public class CxConsoleLauncher {
             String token = client.getToken();
             log.info(String.format("The login token is: %s", token));
             return exitCode;
+
         }
 
         client.init();
@@ -196,6 +196,6 @@ public class CxConsoleLauncher {
         } catch (IOException e) {
             throw new CLIParsingException("[CxConsole] error creating log file", e);
         }
-
     }
+
 }
