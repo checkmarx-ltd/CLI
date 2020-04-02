@@ -68,6 +68,8 @@ public final class CxConfigHelper {
             return scanConfig;
         }
 
+        scanConfig.setEngineConfigurationName(cmd.getOptionValue(CONFIGURATION));
+
         scanConfig.setUseSSOLogin(cmd.hasOption(IS_SSO));
         scanConfig.setDisableCertificateValidation(cmd.hasOption(TRUSTED_CERTIFICATES));
 
