@@ -100,4 +100,6 @@ class ArgDescriptions {
     static final String SCA_FILES_EXCLUDE = String.format(FILE_EXCLUDE_TEMPLATE, "CxSCA", "ScaFilesExclude");
     static final String SCA_LOCATION_PATH = "Local or network path to sources that should scanned. Optional.";
     static final String SCA_FOLDER_EXCLUDE = String.format(FOLDER_EXCLUDE_TEMPLATE, "CxSCA", "ScaPathExclude");
+
+    static final String CONFIGURATION = "Code language configuration. Possible values are : Default Configuration, Japanese (Shift-JIS), Korean and Multi-language Scan. If configuration is not set, 'Default Configuration' is used.";
 }

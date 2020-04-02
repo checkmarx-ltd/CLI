@@ -146,6 +146,7 @@ public enum Command {
         options.addOption(VERBOSE, VERBOSE_LONG, false, ArgDescriptions.VERBOSE);
         options.addOption(LOG_PATH, true, ArgDescriptions.LOG_PATH);
         options.addOption(TRUSTED_CERTIFICATES, false, ArgDescriptions.TRUSTED_CERTIFICATES);
+        options.addOption(CONFIGURATION, true, ArgDescriptions.CONFIGURATION);
 
         return options;
     }
