@@ -8,6 +8,7 @@ import com.cx.restclient.configuration.CxScanConfig;
 import com.cx.restclient.dto.DependencyScannerType;
 import com.cx.restclient.dto.ProxyConfig;
 import com.cx.restclient.sca.dto.SCAConfig;
+import com.cx.restclient.sca.dto.SourceLocationType;
 import com.google.common.base.Strings;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
@@ -149,6 +150,9 @@ public final class CxConfigHelper {
         sca.setUsername(getRequiredParam(commandLine, SCA_USERNAME, null));
         sca.setPassword(getRequiredParam(commandLine, SCA_PASSWORD, null));
         sca.setTenant(getRequiredParam(commandLine, SCA_TENANT, null));
+
+        sca.setRemoteRepositoryInfo(null);
+        sca.setSourceLocationType(SourceLocationType.LOCAL_DIRECTORY);
 
         scanConfig.setScaConfig(sca);
     }
