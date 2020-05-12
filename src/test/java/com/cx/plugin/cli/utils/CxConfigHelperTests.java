@@ -27,7 +27,7 @@ class CxConfigHelperTests {
                 WEB_APP_URL = "https://web.example.com",
                 USERNAME = "myusername",
                 PASSWORD = "mypassword",
-                TENANT = "mytenant",
+                ACCOUNT = "myaccount",
                 FILE_INCLUDE = "includedfiles",
                 FILE_EXCLUDE = "excludedfiles",
                 PATH_EXCLUDE = "excludedpath";
@@ -44,7 +44,7 @@ class CxConfigHelperTests {
                 "-scawebappurl", WEB_APP_URL,
                 "-scausername", USERNAME,
                 "-scapassword", PASSWORD,
-                "-scatenant", TENANT,
+                "-scaaccount", ACCOUNT,
                 "-scahigh", String.valueOf(HIGH),
                 "-scamedium", String.valueOf(MEDIUM),
                 "-scalow", String.valueOf(LOW),
@@ -78,7 +78,7 @@ class CxConfigHelperTests {
         assertEquals(WEB_APP_URL, sca.getWebAppUrl());
         assertEquals(USERNAME, sca.getUsername());
         assertEquals(PASSWORD, sca.getPassword());
-        assertEquals(TENANT, sca.getTenant());
+        assertEquals(ACCOUNT, sca.getTenant());
     }
 
     @Test

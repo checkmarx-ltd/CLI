@@ -133,7 +133,7 @@ public enum Command {
         options.addOption(SCA_WEB_APP_URL, true, ArgDescriptions.SCA_WEB_APP_URL);
         options.addOption(SCA_USERNAME, true, ArgDescriptions.SCA_USERNAME);
         options.addOption(SCA_PASSWORD, true, ArgDescriptions.SCA_PASSWORD);
-        options.addOption(SCA_TENANT, true, ArgDescriptions.SCA_TENANT);
+        options.addOption(SCA_ACCOUNT, true, ArgDescriptions.SCA_ACCOUNT);
 
         options.addOption(SCA_HIGH, true, ArgDescriptions.SCA_HIGH);
         options.addOption(SCA_MEDIUM, true, ArgDescriptions.SCA_MEDIUM);

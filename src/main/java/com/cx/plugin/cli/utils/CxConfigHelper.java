@@ -149,7 +149,7 @@ public final class CxConfigHelper {
 
         sca.setUsername(getRequiredParam(commandLine, SCA_USERNAME, null));
         sca.setPassword(getRequiredParam(commandLine, SCA_PASSWORD, null));
-        sca.setTenant(getRequiredParam(commandLine, SCA_TENANT, null));
+        sca.setTenant(getRequiredParam(commandLine, SCA_ACCOUNT, null));
 
         sca.setRemoteRepositoryInfo(null);
         sca.setSourceLocationType(SourceLocationType.LOCAL_DIRECTORY);
