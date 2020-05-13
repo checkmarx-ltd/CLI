@@ -80,8 +80,12 @@ public final class CxConfigHelper {
 
         scanConfig.setPublic(!cmd.hasOption(IS_PRIVATE));
         scanConfig.setEnablePolicyViolations(cmd.hasOption(IS_CHECKED_POLICY));
-        scanConfig.setProjectName(extractProjectName(cmd.getOptionValue(FULL_PROJECT_PATH)));
-        scanConfig.setTeamPath(extractTeamPath(cmd.getOptionValue(FULL_PROJECT_PATH)));
+        if(command.equals(Command.SCA_SCAN)){
+            scanConfig.setProjectName(cmd.getOptionValue(FULL_PROJECT_PATH));
+        }else{
+            scanConfig.setProjectName(extractProjectName(cmd.getOptionValue(FULL_PROJECT_PATH)));
+            scanConfig.setTeamPath(extractTeamPath(cmd.getOptionValue(FULL_PROJECT_PATH)));
+        }
         scanConfig.setPresetName(cmd.getOptionValue(PRESET) == null ? DEFAULT_PRESET_NAME : cmd.getOptionValue(PRESET));
 
         scanConfig.setSastFolderExclusions(getOptionalParam(LOCATION_PATH_EXCLUDE, KEY_EXCLUDED_FOLDERS));
