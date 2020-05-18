@@ -91,7 +91,7 @@ class ArgDescriptions {
     static final String SCA_WEB_APP_URL = "URL of the SCA web application. Used to generate web report URL. If this option is not provided in the command line, a value from the config file is used.";
     static final String SCA_USERNAME = "SCA username.";
     static final String SCA_PASSWORD = "SCA password.";
-    static final String SCA_TENANT = "Tenant name to be used during authentication.";
+    static final String SCA_ACCOUNT = "Account name to be used during authentication.";
 
     static final String SCA_HIGH = String.format(THRESHOLD_TEMPLATE, "CxSCA", "high");
     static final String SCA_MEDIUM = String.format(THRESHOLD_TEMPLATE, "CxSCA", "medium");

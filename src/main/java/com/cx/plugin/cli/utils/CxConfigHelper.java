@@ -8,6 +8,7 @@ import com.cx.restclient.configuration.CxScanConfig;
 import com.cx.restclient.dto.DependencyScannerType;
 import com.cx.restclient.dto.ProxyConfig;
 import com.cx.restclient.sca.dto.SCAConfig;
+import com.cx.restclient.sca.dto.SourceLocationType;
 import com.google.common.base.Strings;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
@@ -79,8 +80,12 @@ public final class CxConfigHelper {
 
         scanConfig.setPublic(!cmd.hasOption(IS_PRIVATE));
         scanConfig.setEnablePolicyViolations(cmd.hasOption(IS_CHECKED_POLICY));
-        scanConfig.setProjectName(extractProjectName(cmd.getOptionValue(FULL_PROJECT_PATH)));
-        scanConfig.setTeamPath(extractTeamPath(cmd.getOptionValue(FULL_PROJECT_PATH)));
+        if(command.equals(Command.SCA_SCAN)){
+            scanConfig.setProjectName(extractProjectName(cmd.getOptionValue(FULL_PROJECT_PATH)));
+        }else{
+            scanConfig.setProjectName(extractProjectName(cmd.getOptionValue(FULL_PROJECT_PATH)));
+            scanConfig.setTeamPath(extractTeamPath(cmd.getOptionValue(FULL_PROJECT_PATH)));
+        }
         scanConfig.setPresetName(cmd.getOptionValue(PRESET) == null ? DEFAULT_PRESET_NAME : cmd.getOptionValue(PRESET));
 
         scanConfig.setSastFolderExclusions(getOptionalParam(LOCATION_PATH_EXCLUDE, KEY_EXCLUDED_FOLDERS));
@@ -148,7 +153,10 @@ public final class CxConfigHelper {
 
         sca.setUsername(getRequiredParam(commandLine, SCA_USERNAME, null));
         sca.setPassword(getRequiredParam(commandLine, SCA_PASSWORD, null));
-        sca.setTenant(getRequiredParam(commandLine, SCA_TENANT, null));
+        sca.setTenant(getRequiredParam(commandLine, SCA_ACCOUNT, null));
+
+        sca.setRemoteRepositoryInfo(null);
+        sca.setSourceLocationType(SourceLocationType.LOCAL_DIRECTORY);
 
         scanConfig.setScaConfig(sca);
     }
