@@ -13,13 +13,11 @@ import com.google.common.base.Strings;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.io.File;
-import java.net.URISyntaxException;
 
 import static com.cx.plugin.cli.constants.Parameters.*;
 import static com.cx.plugin.cli.utils.PropertiesManager.*;
@@ -29,14 +27,19 @@ import static org.apache.commons.lang3.StringUtils.isNotEmpty;
  * Created by idanA on 11/5/2018.
  */
 public final class CxConfigHelper {
+
     private static Logger log = LoggerFactory.getLogger(CxConfigHelper.class);
 
     private static final String DEFAULT_PRESET_NAME = "Checkmarx Default";
 
-    private static PropertiesManager props = PropertiesManager.getProps();
+    private static PropertiesManager props;
 
     private Command command;
     private CommandLine commandLine;
+
+    public CxConfigHelper(String configFilePath) {
+        props = PropertiesManager.getProps(configFilePath);
+    }
 
     /**
      * Resolves configuration from the config file and the console parameters
@@ -80,10 +83,10 @@ public final class CxConfigHelper {
 
         scanConfig.setPublic(!cmd.hasOption(IS_PRIVATE));
         scanConfig.setEnablePolicyViolations(cmd.hasOption(IS_CHECKED_POLICY));
-        if(command.equals(Command.SCA_SCAN)){
-            scanConfig.setProjectName(extractProjectName(cmd.getOptionValue(FULL_PROJECT_PATH),true));
-        }else{
-            scanConfig.setProjectName(extractProjectName(cmd.getOptionValue(FULL_PROJECT_PATH),false));
+        if (command.equals(Command.SCA_SCAN)) {
+            scanConfig.setProjectName(extractProjectName(cmd.getOptionValue(FULL_PROJECT_PATH), true));
+        } else {
+            scanConfig.setProjectName(extractProjectName(cmd.getOptionValue(FULL_PROJECT_PATH), false));
             scanConfig.setTeamPath(extractTeamPath(cmd.getOptionValue(FULL_PROJECT_PATH)));
         }
         scanConfig.setPresetName(cmd.getOptionValue(PRESET) == null ? DEFAULT_PRESET_NAME : cmd.getOptionValue(PRESET));
@@ -336,11 +339,11 @@ public final class CxConfigHelper {
         return result;
     }
 
-    private static int getLastIndexOfTeam(String fullPath,boolean isScaScan) throws CLIParsingException {
+    private static int getLastIndexOfTeam(String fullPath, boolean isScaScan) throws CLIParsingException {
         int lastIdxOfBackSlash = fullPath.lastIndexOf("\\");
         int lastIdxOfSlash = fullPath.lastIndexOf("/");
         if (lastIdxOfBackSlash == -1 && lastIdxOfSlash == -1) {
-            if(isScaScan){
+            if (isScaScan) {
                 return -1; // so it takes the name from index 0, which is the start if the project name
             }
             throw new CLIParsingException(String.format("[CxConsole]  Invalid project path specified: %s", fullPath));
@@ -348,11 +351,11 @@ public final class CxConfigHelper {
         return lastIdxOfBackSlash != -1 ? lastIdxOfBackSlash : lastIdxOfSlash;
     }
 
-    private static String extractProjectName(String fullPath,boolean isScaScan) throws CLIParsingException {
+    private static String extractProjectName(String fullPath, boolean isScaScan) throws CLIParsingException {
         if (Strings.isNullOrEmpty(fullPath)) {
             throw new CLIParsingException("[CxConsole] No project path was specified");
         }
-        int lastIdx = getLastIndexOfTeam(fullPath,isScaScan);
+        int lastIdx = getLastIndexOfTeam(fullPath, isScaScan);
         return fullPath.substring(lastIdx + 1);
     }
 
@@ -360,7 +363,7 @@ public final class CxConfigHelper {
         if (Strings.isNullOrEmpty(fullPath)) {
             throw new CLIParsingException("[CxConsole] No project path was specified");
         }
-        int lastIdx = getLastIndexOfTeam(fullPath,false);
+        int lastIdx = getLastIndexOfTeam(fullPath, false);
         return fullPath.substring(0, lastIdx);
     }
 

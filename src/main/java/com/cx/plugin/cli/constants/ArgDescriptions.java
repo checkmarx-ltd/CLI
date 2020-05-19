@@ -33,6 +33,7 @@ class ArgDescriptions {
     static final String CX_PASS = "Login password. Mandatory, Unless token is used or SSO login is used on Windows ('-useSSO' flag)";
     static final String CX_USER = "Login username. Mandatory, Unless token is used or SSO login is used on Windows ('-useSSO' flag)";
     static final String CX_SERVER = "IP address or resolvable name of CxSuite web server";
+    static final String CX_CLI_CONFIG = "Path to CLI configuration file";
 
     static final String WORKSPACE_MODE = "When -LocationType parameter is set to Perforce, add this parameter and add the workspace name into -locationPath. Optional";
     static final String LOCATION_TYPE = "Source location type, one of: folder,shared (network location), SVN, TFS, Perforce, GIT. Mandatory";

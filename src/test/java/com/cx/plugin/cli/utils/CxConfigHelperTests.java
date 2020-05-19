@@ -54,7 +54,7 @@ class CxConfigHelperTests {
         };
         CommandLine commandLine = parseCommandLine(Command.SCA_SCAN, DEFAULT_ARGS);
 
-        CxConfigHelper configHelper = new CxConfigHelper();
+        CxConfigHelper configHelper = new CxConfigHelper(null);
         CxScanConfig config = configHelper.resolveConfiguration(Command.SCA_SCAN, commandLine);
         assertNotNull(config);
         assertFalse(config.getSastEnabled());
@@ -98,7 +98,7 @@ class CxConfigHelperTests {
 
     private void assertException(Command command, String[] args) throws ParseException {
         CommandLine commandLine = parseCommandLine(command, args);
-        CxConfigHelper configHelper = new CxConfigHelper();
+        CxConfigHelper configHelper = new CxConfigHelper(null);
 
         BadOptionCombinationException ex = assertThrows(BadOptionCombinationException.class, () ->
                 configHelper.resolveConfiguration(command, commandLine));

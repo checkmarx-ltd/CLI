@@ -64,10 +64,6 @@ public class PropertiesManager {
         loadProperties(defConfig);
     }
 
-    public static PropertiesManager getProps() {
-        return props == null ? new PropertiesManager(null) : props;
-    }
-
     public static PropertiesManager getProps(String configFilePath) {
         return props == null ? new PropertiesManager(configFilePath) : props;
     }

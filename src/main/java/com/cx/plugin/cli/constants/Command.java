@@ -76,6 +76,7 @@ public enum Command {
 
     public static Options getOptions() {
         Options options = new Options();
+        options.addOption(CLI_CONFIG, true, ArgDescriptions.CX_CLI_CONFIG);
         options.addOption(SERVER_URL, true, ArgDescriptions.CX_SERVER);
         options.addOption(USER_NAME, true, ArgDescriptions.CX_USER);
         options.addOption(USER_PASSWORD, true, ArgDescriptions.CX_PASS);

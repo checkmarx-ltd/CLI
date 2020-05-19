@@ -100,7 +100,7 @@ public class CxConsoleLauncher {
         int exitCode = Errors.SCAN_SUCCEEDED.getCode();
         CxConfigHelper.printConfig(commandLine);
 
-        CxConfigHelper configHelper = new CxConfigHelper();
+        CxConfigHelper configHelper = new CxConfigHelper(commandLine.getOptionValue(Parameters.CLI_CONFIG));
         CxScanConfig cxScanConfig = configHelper.resolveConfiguration(command, commandLine);
 
         org.slf4j.Logger logger = new Log4jLoggerFactory().getLogger(log.getName());
