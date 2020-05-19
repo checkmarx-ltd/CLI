@@ -81,7 +81,7 @@ public final class CxConfigHelper {
         scanConfig.setPublic(!cmd.hasOption(IS_PRIVATE));
         scanConfig.setEnablePolicyViolations(cmd.hasOption(IS_CHECKED_POLICY));
         if(command.equals(Command.SCA_SCAN)){
-            scanConfig.setProjectName(extractProjectName(cmd.getOptionValue(FULL_PROJECT_PATH)));
+            scanConfig.setProjectName(cmd.getOptionValue(FULL_PROJECT_PATH));
         }else{
             scanConfig.setProjectName(extractProjectName(cmd.getOptionValue(FULL_PROJECT_PATH)));
             scanConfig.setTeamPath(extractTeamPath(cmd.getOptionValue(FULL_PROJECT_PATH)));
@@ -340,7 +340,7 @@ public final class CxConfigHelper {
         int lastIdxOfBackSlash = fullPath.lastIndexOf("\\");
         int lastIdxOfSlash = fullPath.lastIndexOf("/");
         if (lastIdxOfBackSlash == -1 && lastIdxOfSlash == -1) {
-            throw new CLIParsingException(String.format("[CxConsole] Invalid project path specified: %s", fullPath));
+            throw new CLIParsingException(String.format("[CxConsole]  Invalid project path specified: %s", fullPath));
         }
         return lastIdxOfBackSlash != -1 ? lastIdxOfBackSlash : lastIdxOfSlash;
     }
