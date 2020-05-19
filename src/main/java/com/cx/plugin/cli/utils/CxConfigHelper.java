@@ -81,9 +81,9 @@ public final class CxConfigHelper {
         scanConfig.setPublic(!cmd.hasOption(IS_PRIVATE));
         scanConfig.setEnablePolicyViolations(cmd.hasOption(IS_CHECKED_POLICY));
         if(command.equals(Command.SCA_SCAN)){
-            scanConfig.setProjectName(extractProjectName(cmd.getOptionValue(FULL_PROJECT_PATH)));
+            scanConfig.setProjectName(extractProjectName(cmd.getOptionValue(FULL_PROJECT_PATH),true));
         }else{
-            scanConfig.setProjectName(extractProjectName(cmd.getOptionValue(FULL_PROJECT_PATH)));
+            scanConfig.setProjectName(extractProjectName(cmd.getOptionValue(FULL_PROJECT_PATH),false));
             scanConfig.setTeamPath(extractTeamPath(cmd.getOptionValue(FULL_PROJECT_PATH)));
         }
         scanConfig.setPresetName(cmd.getOptionValue(PRESET) == null ? DEFAULT_PRESET_NAME : cmd.getOptionValue(PRESET));
@@ -336,20 +336,23 @@ public final class CxConfigHelper {
         return result;
     }
 
-    private static int getLastIndexOfTeam(String fullPath) throws CLIParsingException {
+    private static int getLastIndexOfTeam(String fullPath,boolean isScaScan) throws CLIParsingException {
         int lastIdxOfBackSlash = fullPath.lastIndexOf("\\");
         int lastIdxOfSlash = fullPath.lastIndexOf("/");
         if (lastIdxOfBackSlash == -1 && lastIdxOfSlash == -1) {
-            throw new CLIParsingException(String.format("[CxConsole] Invalid project path specified: %s", fullPath));
+            if(isScaScan){
+                return -1; // so it takes the name from index 0, which is the start if the project name
+            }
+            throw new CLIParsingException(String.format("[CxConsole]  Invalid project path specified: %s", fullPath));
         }
         return lastIdxOfBackSlash != -1 ? lastIdxOfBackSlash : lastIdxOfSlash;
     }
 
-    private static String extractProjectName(String fullPath) throws CLIParsingException {
+    private static String extractProjectName(String fullPath,boolean isScaScan) throws CLIParsingException {
         if (Strings.isNullOrEmpty(fullPath)) {
             throw new CLIParsingException("[CxConsole] No project path was specified");
         }
-        int lastIdx = getLastIndexOfTeam(fullPath);
+        int lastIdx = getLastIndexOfTeam(fullPath,isScaScan);
         return fullPath.substring(lastIdx + 1);
     }
 
@@ -357,7 +360,7 @@ public final class CxConfigHelper {
         if (Strings.isNullOrEmpty(fullPath)) {
             throw new CLIParsingException("[CxConsole] No project path was specified");
         }
-        int lastIdx = getLastIndexOfTeam(fullPath);
+        int lastIdx = getLastIndexOfTeam(fullPath,false);
         return fullPath.substring(0, lastIdx);
     }
 
