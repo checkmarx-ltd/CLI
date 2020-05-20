@@ -6,7 +6,7 @@
     <formats>
         <format>zip</format>
     </formats>
-    <includeBaseDirectory>true</includeBaseDirectory>
+    <includeBaseDirectory>false</includeBaseDirectory>
 
     <files>
         <file>
@@ -17,6 +17,7 @@
             <source>target/classes/runCxConsole.sh</source>
             <outputDirectory>./.</outputDirectory>
             <fileMode>0777</fileMode>
+            <lineEnding>unix</lineEnding>
         </file>
         <file>
             <source>config/cx_console.properties</source>
