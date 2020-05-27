@@ -3,8 +3,16 @@
 # Add steps that analyze code, save build artifacts, deploy, and more :
 # https://docs.microsoft.com/azure/devops/pipelines/languages/java
 
+
+trigger:
+  branches:
+    include:
+    - master
+
 pr:
-- master
+  branches:
+    include:
+    - master
 
 pool: 
   name: 'Jenkins'
