@@ -1,3 +1,4 @@
+#!/usr/bin/env groovy
 pipeline {
     agent {
             label 'Plugins'
@@ -23,6 +24,14 @@ pipeline {
             steps {
                 script {
                     bat "mvn clean process-resources install verify"
+                }
+            }
+        }
+
+        stage('SonarCloud Scan') {
+            steps {
+                script {
+                    bat "mvn verify sonar:sonar"
                 }
             }
         }
