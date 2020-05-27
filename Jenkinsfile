@@ -14,16 +14,8 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                script {
-                    // Get code from git.
-                    currentRevision = checkout([
-                        $class: 'GitSCM',
-                        branches: [[name : "${params.commitId}"]],
-                        userRemoteConfigs: [[
-                            url: 'https://github.com/checkmarx-ltd/CLI.git'
-                        ]]
-                    ])
-                }
+                echo "checkout branch: ${env.BRANCH_NAME}"
+                checkout scm
             }
         }
 
