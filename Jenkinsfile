@@ -31,7 +31,7 @@ pipeline {
         stage('Build') {
             steps {
                 script {
-                    sh "mvn clean process-resources install verify"
+                    bat "mvn clean process-resources install verify"
                 }
             }
         }
