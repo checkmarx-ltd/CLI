@@ -3,18 +3,18 @@
 # Add steps that analyze code, save build artifacts, deploy, and more :
 # https://docs.microsoft.com/azure/devops/pipelines/languages/java
 
-trigger:
+pr:
 - master
 
 pool: 
-  name: 'JenkinsPool'
-  vmImage: 'jenkins-trigger'
+  name: 'Jenkins'
+  vmImage: 'jenkins-agent'
 
 steps:
 - task: JenkinsQueueJob@2
   inputs:
-    serverEndpoint: 'Locla TFS'
-    jobName: 'Plugin-CLI-MVN_ByCommit'
+    serverEndpoint: 'Jenkins'
+    jobName: 'Plugin-CLI_LTD_ByCommit'
     captureConsole: true
     capturePipeline: true
     isParameterizedJob: true
