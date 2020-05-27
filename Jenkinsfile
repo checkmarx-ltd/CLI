@@ -23,7 +23,15 @@ pipeline {
         stage('Build') {
             steps {
                 script {
-                    bat "mvn clean process-resources install verify"
+                    bat "mvn clean process-resources install -DskipTests"
+                }
+            }
+        }
+
+        stage('Unit tests') {
+            steps {
+                script {
+                    bat "mvn surefire:test"
                 }
             }
         }
