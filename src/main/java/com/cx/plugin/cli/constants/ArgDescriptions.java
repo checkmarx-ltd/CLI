@@ -51,11 +51,14 @@ class ArgDescriptions {
     static final String LOCATION_FILES_EXCLUDE = "Comma separated list of file name patterns to exclude from scan. For example, exclude all files with '.class' extension: -LocationFilesExclude *.class Optional";
     static final String LOCATION_PRIVATE_KEY = "GIT SSH key locations, Mandatory if location type is GIT using SSH";
 
-    static final String OSA_LOCATION_PATH = "Local or network path to sources or source repository branch. May include multiple list of folders (local or shared) separated by comma. Optional";
-    static final String OSA_FILES_INCLUDE = String.format(FILE_INCLUDE_TEMPLATE, "CxOSA");
-    static final String OSA_FILES_EXCLUDE = String.format(FILE_EXCLUDE_TEMPLATE, "CxOSA", "OsaFilesExclude");
+    static final String CX_SAST = "CxSAST";
+    static final String CX_OSA = "CxOSA";
+    static final String CX_SCA = "CxSCA";
 
-    static final String OSA_FOLDER_EXCLUDE = String.format(FOLDER_EXCLUDE_TEMPLATE, "CxOSA", "OsaPathExclude");
+    static final String OSA_LOCATION_PATH = "Local or network path to sources or source repository branch. May include multiple list of folders (local or shared) separated by comma. Optional";
+    static final String OSA_FILES_INCLUDE = String.format(FILE_INCLUDE_TEMPLATE, CX_OSA);
+    static final String OSA_FILES_EXCLUDE = String.format(FILE_EXCLUDE_TEMPLATE, CX_OSA, "OsaFilesExclude");
+    static final String OSA_FOLDER_EXCLUDE = String.format(FOLDER_EXCLUDE_TEMPLATE, CX_OSA, "OsaPathExclude");
 
     static final String OSA_ARCHIVE_TO_EXTRACT = "Comma separated list of file extensions to be extracted in the OSA scan. \n" +
             "For example: -OsaArchiveToExtract *.zip extracts only files with .zip extension. Optional.";
@@ -76,12 +79,17 @@ class ArgDescriptions {
     static final String PRESET = "If not provided, will use preset defined in existing project or, for a new project, the default preset. Optional";
     static final String SCAN_COMMENT = "Saves a comment with the scan results. For example: -comment 'important scan1'. Optional. Not supported in AsyncScan mode";
     static final String IS_SSO = "Single Sign-On: Use Windows credentials of current user to log into CxSAST. Optional.";
-    static final String SAST_HIGH = String.format(THRESHOLD_TEMPLATE, "CxSAST", "high");
-    static final String SAST_MEDIUM = String.format(THRESHOLD_TEMPLATE, "CxSAST", "medium");
-    static final String SAST_LOW = String.format(THRESHOLD_TEMPLATE, "CxSAST", "low");
-    static final String OSA_HIGH = String.format(THRESHOLD_TEMPLATE, "CxOSA", "high");
-    static final String OSA_MEDIUM = String.format(THRESHOLD_TEMPLATE, "CxOSA", "medium");
-    static final String OSA_LOW = String.format(THRESHOLD_TEMPLATE, "CxOSA", "low");
+
+    static final String HIGH = "high";
+    static final String MEDIUM = "medium";
+    static final String LOW = "low";
+
+    static final String SAST_HIGH = String.format(THRESHOLD_TEMPLATE, CX_SAST, HIGH);
+    static final String SAST_MEDIUM = String.format(THRESHOLD_TEMPLATE, CX_SAST, MEDIUM);
+    static final String SAST_LOW = String.format(THRESHOLD_TEMPLATE, CX_SAST, LOW);
+    static final String OSA_HIGH = String.format(THRESHOLD_TEMPLATE, CX_OSA, HIGH);
+    static final String OSA_MEDIUM = String.format(THRESHOLD_TEMPLATE, CX_OSA, MEDIUM);
+    static final String OSA_LOW = String.format(THRESHOLD_TEMPLATE, CX_OSA, LOW);
     static final String IS_CHECKED_POLICY = "This parameter will break the build if the CxOSA policy is violated. Optional.";
     static final String VERBOSE = "Turns on verbose mode. All messages and events will be sent to the console or log file.";
     static final String LOG_PATH = "Log file to be created.";
@@ -94,13 +102,13 @@ class ArgDescriptions {
     static final String SCA_PASSWORD = "SCA password.";
     static final String SCA_ACCOUNT = "Account name to be used during authentication.";
 
-    static final String SCA_HIGH = String.format(THRESHOLD_TEMPLATE, "CxSCA", "high");
-    static final String SCA_MEDIUM = String.format(THRESHOLD_TEMPLATE, "CxSCA", "medium");
-    static final String SCA_LOW = String.format(THRESHOLD_TEMPLATE, "CxSCA", "low");
-    static final String SCA_FILES_INCLUDE = String.format(FILE_INCLUDE_TEMPLATE, "CxSCA");
-    static final String SCA_FILES_EXCLUDE = String.format(FILE_EXCLUDE_TEMPLATE, "CxSCA", "ScaFilesExclude");
+    static final String SCA_HIGH = String.format(THRESHOLD_TEMPLATE, CX_SCA, HIGH);
+    static final String SCA_MEDIUM = String.format(THRESHOLD_TEMPLATE, CX_SCA, MEDIUM);
+    static final String SCA_LOW = String.format(THRESHOLD_TEMPLATE, CX_SCA, LOW);
+    static final String SCA_FILES_INCLUDE = String.format(FILE_INCLUDE_TEMPLATE, CX_SCA);
+    static final String SCA_FILES_EXCLUDE = String.format(FILE_EXCLUDE_TEMPLATE, CX_SCA, "ScaFilesExclude");
     static final String SCA_LOCATION_PATH = "Local or network path to sources that should scanned. Optional.";
-    static final String SCA_FOLDER_EXCLUDE = String.format(FOLDER_EXCLUDE_TEMPLATE, "CxSCA", "ScaPathExclude");
+    static final String SCA_FOLDER_EXCLUDE = String.format(FOLDER_EXCLUDE_TEMPLATE, CX_SCA, "ScaPathExclude");
 
     static final String CONFIGURATION = "Code language configuration. Possible values are : Default Configuration, Japanese (Shift-JIS), Korean and Multi-language Scan. If configuration is not set, 'Default Configuration' is used.";
 }
