@@ -41,7 +41,7 @@ public class CxConsoleLauncher {
 
     private static Logger log = Logger.getLogger(CxConsoleLauncher.class);
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         int exitCode;
         Command command = null;
 
@@ -57,9 +57,6 @@ public class CxConsoleLauncher {
         } catch (CLIParsingException | ParseException e) {
             CxConfigHelper.printHelp(command);
             log.error(String.format("\n\n[CxConsole] Error parsing command: \n%s\n\n", e));
-            exitCode = ErrorParsingHelper.parseError(e.getMessage());
-        } catch (CxClientException | IOException | InterruptedException e) {
-            log.error(e.getMessage());
             exitCode = ErrorParsingHelper.parseError(e.getMessage());
         }
 
