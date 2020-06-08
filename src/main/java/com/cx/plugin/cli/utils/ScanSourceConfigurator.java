@@ -21,6 +21,13 @@ class ScanSourceConfigurator {
     private static final String PERFORCE_DEFAULT_PORT = "1666";
     private static final String TFS_DEFAULT_PORT = "8080";
 
+    private String LOCATION_PATH_EXCEPTION = "[CxConsole] locationPath parameter needs to be specified when using [%s] as locationType";
+    private String LOCATION_USER_EXCEPTION = "[CxConsole] locationUser parameter needs to be specified when using [%s] as locationType";
+    private String LOCATION_PASSWORD_EXCEPTION = "[CxConsole] locationPassword parameter needs to be specified when using [%s] as locationType";
+    private String LOCATION_URL_EXCEPTION = "[CxConsole] locationURL parameter needs to be specified when using [%s] as locationType";
+    private String INVALID_PORT_EXCEPTION = "[CxConsole] Invalid port specified: [%s]";
+
+
     private static final Logger log = LoggerFactory.getLogger(ScanSourceConfigurator.class);
 
     private CxScanConfig scanConfig;
@@ -84,7 +91,7 @@ class ScanSourceConfigurator {
 
     private void setLocalSourceLocation(String locationPath, PropertiesManager props) throws CLIParsingException {
         if (Strings.isNullOrEmpty(locationPath)) {
-            throw new CLIParsingException(String.format("[CxConsole] locationPath parameter needs to be specified when using [%s] as locationType", "folder"));
+            throw new CLIParsingException(String.format(LOCATION_PATH_EXCEPTION, "folder"));
         }
         scanConfig.setSourceDir(locationPath);
         scanConfig.setMaxZipSize(props.getIntProperty(KEY_MAX_ZIP_SIZE));
@@ -92,13 +99,13 @@ class ScanSourceConfigurator {
 
     private void setSharedSourceLocation(String locationPath, String locationUser, String locationPass) throws CLIParsingException {
         if (Strings.isNullOrEmpty(locationPath)) {
-            throw new CLIParsingException(String.format("[CxConsole] locationPath parameter needs to be specified when using [%s] as locationType", RemoteSourceTypes.SHARED.value()));
+            throw new CLIParsingException(String.format(LOCATION_PATH_EXCEPTION, RemoteSourceTypes.SHARED.value()));
         }
         if (Strings.isNullOrEmpty(locationUser)) {
-            throw new CLIParsingException(String.format("[CxConsole] locationUser parameter needs to be specified when using [%s] as locationType", RemoteSourceTypes.SHARED.value()));
+            throw new CLIParsingException(String.format(LOCATION_USER_EXCEPTION, RemoteSourceTypes.SHARED.value()));
         }
         if (locationPass == null) {
-            throw new CLIParsingException(String.format("[CxConsole] locationPassword parameter needs to be specified when using [%s] as locationType", RemoteSourceTypes.SHARED.value()));
+            throw new CLIParsingException(String.format(LOCATION_PASSWORD_EXCEPTION, RemoteSourceTypes.SHARED.value()));
         }
 
         scanConfig.setRemoteSrcUser(locationUser);
@@ -110,10 +117,10 @@ class ScanSourceConfigurator {
 
     private void setSVNSourceLocation(String locationURL, String locationPath, String locationUser, String locationPass, String locationPort) throws CLIParsingException {
         if (Strings.isNullOrEmpty(locationPath)) {
-            throw new CLIParsingException(String.format("[CxConsole] locationPath parameter needs to be specified when using [%s] as locationType", RemoteSourceTypes.SVN.value()));
+            throw new CLIParsingException(String.format(LOCATION_PATH_EXCEPTION, RemoteSourceTypes.SVN.value()));
         }
         if (Strings.isNullOrEmpty(locationURL)) {
-            throw new CLIParsingException(String.format("[CxConsole] locationURL parameter needs to be specified when using [%s] as locationType", RemoteSourceTypes.SVN.value()));
+            throw new CLIParsingException(String.format(LOCATION_URL_EXCEPTION, RemoteSourceTypes.SVN.value()));
         }
 
         scanConfig.setRemoteSrcUser(locationUser);
@@ -129,22 +136,22 @@ class ScanSourceConfigurator {
         try {
             scanConfig.setRemoteSrcPort(Integer.parseInt(locationPort));
         } catch (NumberFormatException e) {
-            throw new CLIParsingException(String.format("[CxConsole] Invalid port specified: [%s]", locationPort), e);
+            throw new CLIParsingException(String.format(INVALID_PORT_EXCEPTION, locationPort), e);
         }
     }
 
     private void setTFSSourceLocation(String locationURL, String locationPath, String locationUser, String locationPass, String locationPort) throws CLIParsingException {
         if (Strings.isNullOrEmpty(locationPath)) {
-            throw new CLIParsingException(String.format("[CxConsole] locationPath parameter needs to be specified when using [%s] as locationType", RemoteSourceTypes.TFS.value()));
+            throw new CLIParsingException(String.format(LOCATION_PATH_EXCEPTION, RemoteSourceTypes.TFS.value()));
         }
         if (Strings.isNullOrEmpty(locationURL)) {
-            throw new CLIParsingException(String.format("[CxConsole] locationURL parameter needs to be specified when using [%s] as locationType", RemoteSourceTypes.TFS.value()));
+            throw new CLIParsingException(String.format(LOCATION_URL_EXCEPTION, RemoteSourceTypes.TFS.value()));
         }
         if (Strings.isNullOrEmpty(locationUser)) {
-            throw new CLIParsingException(String.format("[CxConsole] locationUser parameter needs to be specified when using [%s] as locationType", RemoteSourceTypes.TFS.value()));
+            throw new CLIParsingException(String.format(LOCATION_USER_EXCEPTION, RemoteSourceTypes.TFS.value()));
         }
         if (locationPass == null) {
-            throw new CLIParsingException(String.format("[CxConsole] locationPassword parameter needs to be specified when using [%s] as locationType", RemoteSourceTypes.TFS.value()));
+            throw new CLIParsingException(String.format(LOCATION_PASSWORD_EXCEPTION, RemoteSourceTypes.TFS.value()));
         }
 
         scanConfig.setRemoteSrcUser(locationUser);
@@ -160,22 +167,22 @@ class ScanSourceConfigurator {
         try {
             scanConfig.setRemoteSrcPort(Integer.parseInt(locationPort));
         } catch (NumberFormatException e) {
-            throw new CLIParsingException(String.format("[CxConsole] Invalid port specified: [%s]", locationPort), e);
+            throw new CLIParsingException(String.format(INVALID_PORT_EXCEPTION, locationPort), e);
         }
     }
 
     private void setPerforceSourceLocation(String locationURL, String locationPath, String locationUser, String locationPass, String locationPort, String workspaceMode) throws CLIParsingException {
         if (Strings.isNullOrEmpty(locationPath)) {
-            throw new CLIParsingException(String.format("[CxConsole] locationPath parameter needs to be specified when using [%s] as locationType", RemoteSourceTypes.PERFORCE.value()));
+            throw new CLIParsingException(String.format(LOCATION_PATH_EXCEPTION, RemoteSourceTypes.PERFORCE.value()));
         }
         if (Strings.isNullOrEmpty(locationURL)) {
-            throw new CLIParsingException(String.format("[CxConsole] locationURL parameter needs to be specified when using [%s] as locationType", RemoteSourceTypes.PERFORCE.value()));
+            throw new CLIParsingException(String.format(LOCATION_URL_EXCEPTION, RemoteSourceTypes.PERFORCE.value()));
         }
         if (Strings.isNullOrEmpty(locationUser)) {
-            throw new CLIParsingException(String.format("[CxConsole] locationUser parameter needs to be specified when using [%s] as locationType", RemoteSourceTypes.PERFORCE.value()));
+            throw new CLIParsingException(String.format(LOCATION_USER_EXCEPTION, RemoteSourceTypes.PERFORCE.value()));
         }
         if (locationPass == null) {
-            throw new CLIParsingException(String.format("[CxConsole] locationPassword parameter needs to be specified when using [%s] as locationType", RemoteSourceTypes.PERFORCE.value()));
+            throw new CLIParsingException(String.format(LOCATION_PASSWORD_EXCEPTION, RemoteSourceTypes.PERFORCE.value()));
         }
 
         scanConfig.setRemoteSrcUser(locationUser);
@@ -192,7 +199,7 @@ class ScanSourceConfigurator {
         try {
             scanConfig.setRemoteSrcPort(Integer.parseInt(locationPort));
         } catch (NumberFormatException e) {
-            throw new CLIParsingException(String.format("[CxConsole] Invalid port specified: [%s]", locationPort), e);
+            throw new CLIParsingException(String.format(INVALID_PORT_EXCEPTION, locationPort), e);
         }
     }
 
@@ -214,7 +221,7 @@ class ScanSourceConfigurator {
                 scanConfig.setRemoteSrcPort(Integer.parseInt(locationPort));
             }
         } catch (NumberFormatException e) {
-            throw new CLIParsingException(String.format("[CxConsole] Invalid port specified: [%s]", locationPort), e);
+            throw new CLIParsingException(String.format(INVALID_PORT_EXCEPTION, locationPort), e);
         }
     }
 
