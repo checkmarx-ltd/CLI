@@ -59,7 +59,7 @@
         <plugins>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.7.0</version>
+                <version>3.8.1</version>
                 <configuration>
                     <source>${jdk.version}</source>
                     <target>${jdk.version}</target>
@@ -68,7 +68,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>3.1.2</version>
+                <version>3.2.0</version>
                 <configuration>
                     <!--                    <excludes>-->
                     <!--                        <exclude>**/log4j.properties</exclude>-->
@@ -85,7 +85,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
-                <version>3.0.1</version>
+                <version>3.1.2</version>
                 <executions>
                     <execution>
                         <id>copy-dependencies</id>
@@ -105,7 +105,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <version>3.0.0</version>
+                <version>3.3.0</version>
                 <executions>
                     <execution>
                         <id>make-assembly</id>
@@ -143,12 +143,12 @@
         <dependency>
             <groupId>javax.activation</groupId>
             <artifactId>activation</artifactId>
-            <version>1.1</version>
+            <version>1.1.1</version>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <version>5.5.2</version>
+            <version>5.6.2</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
