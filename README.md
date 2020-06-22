@@ -19,15 +19,3 @@ Please find more info in the official website: <a href="https://www.checkmarx.co
 
 <a href="https://checkmarx.atlassian.net/wiki/spaces/KC/pages/44335590/CxSAST+CLI+Plugin">Checkmarx Knowledge Center</a>
 
-
-# License
-
-Checkmarx CLI
-
-Copyright (C) 2020 Checkmarx LTD.
-
-This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License along with this program. If not, see https://www.gnu.org/licenses/.
