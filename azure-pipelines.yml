@@ -11,13 +11,15 @@ trigger:
     - master
 
 pool: 
-  name: 'MyPcMajd'
+  name: 'Jenkins'
+  vmImage: 'jenkins-agent'
 
 steps:
-- task: Application security testing@2020
+- task: JenkinsQueueJob@2
   inputs:
-    projectName: '123123'
-    enableSastScan: true
-    CheckmarxService: 'SAST1'
-    fullTeamName: '\CxServer'
-    enableDependencyScan: false
+    serverEndpoint: 'Jenkins'
+    jobName: 'Plugin-CLI_LTD_ByCommit'
+    captureConsole: true
+    capturePipeline: true
+    isParameterizedJob: true
+    jobParameters: Commit=$(Build.SourceVersion)
