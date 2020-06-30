@@ -15,14 +15,6 @@ pool:
   vmImage: 'jenkins-agent'
 
 steps:
-- task: JenkinsQueueJob@2
-  inputs:
-    serverEndpoint: 'Jenkins'
-    jobName: 'Plugin-CLI_LTD_ByCommit'
-    captureConsole: true
-    capturePipeline: true
-    isParameterizedJob: true
-    jobParameters: Commit=$(Build.SourceVersion)
 - task: Application security testing@2020
   inputs:
     projectName: '123123'
