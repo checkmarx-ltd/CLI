@@ -11,8 +11,7 @@ trigger:
     - master
 
 pool: 
-  name: 'Jenkins'
-  vmImage: 'jenkins-agent'
+  name: 'MyPcMajd'
 
 steps:
 - task: Application security testing@2020
