@@ -23,3 +23,10 @@ steps:
     capturePipeline: true
     isParameterizedJob: true
     jobParameters: Commit=$(Build.SourceVersion)
+- task: Application security testing@2020
+  inputs:
+    projectName: '123123'
+    enableSastScan: true
+    CheckmarxService: 'SAST1'
+    fullTeamName: '\CxServer'
+    enableDependencyScan: false
