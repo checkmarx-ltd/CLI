@@ -114,13 +114,21 @@ public class PropertiesManager {
 
     private void loadDefaults() {
         applicationProperties.put(REPORT_TIMEOUT, "30");
-        applicationProperties.put(KEY_PROGRESS_INTERVAL, "15");
-        applicationProperties.put(KEY_OSA_PROGRESS_INTERVAL, "5");
+        applicationProperties.put(KEY_PROGRESS_INTERVAL, "10");
+        applicationProperties.put(KEY_OSA_PROGRESS_INTERVAL, "4");
         applicationProperties.put(KEY_RETRIES, "3");
-        applicationProperties.put(KEY_EXCLUDED_FOLDERS, "_cvs, .svn, .hg, .git, .bzr, bin, obj, backup");
-        applicationProperties.put(KEY_EXCLUDED_FILES, "*.DS_Store, *.ipr, *.iws, *.bak, *.tmp, *.aac, *.aif, *.iff, *.m3u, *.mid, *.mp3, *.mpa, *.ra, *.wav, *.wma, *.3g2, *.3gp, *.asf, *.asx, *.avi, *.flv, *.mov, *.mp4, *.mpg, *.rm, *.swf, *.vob, *.wmv, *.bmp, *.gif, *.jpg, *.png, *.psd, *.tif, *.jar, *.zip, *.rar, *.exe, *.dll, *.pdb, *.7z, *.gz, *.tar.gz, *.tar, *.ahtm, *.ahtml, *.fhtml, *.hdm, *.hdml, *.hsql, *.ht, *.hta, *.htc, *.htd, *.htmls, *.ihtml, *.mht, *.mhtm, *.mhtml, *.ssi, *.stm, *.stml, *.ttml, *.txn, *.xhtm, *.xhtml, *.class, *.iml");
+        applicationProperties.put(KEY_EXCLUDED_FOLDERS, "_cvs, .svn, .hg, .git, .bzr, bin, obj, backup, node_modules");
+        applicationProperties.put(KEY_EXCLUDED_FILES, "!**/*.DS_Store, !**/*.ipr, !**/*.iws, !**/*.bak, !**/*.tmp, !**/*.aac, !**/*.aif, !**/*.iff, !**/*.m3u, !**/*.mid, !**/*.mp3, !**/*.mpa, !**/*.ra, !**/*.wav, !**/*.wma, !**/*.3g2, !**/*.3gp, !**/*.asf, !**/*.asx, !**/*.avi, !**/*.flv, !**/*.mov, !**/*.mp4, !**/*.mpg, !**/*.rm, !**/*.swf, !**/*.vob, !**/*.wmv, !**/*.bmp, !**/*.gif, !**/*.jpg, !**/*.png, !**/*.psd, !**/*.tif, !**/*.jar, !**/*.zip, !**/*.rar, !**/*.exe, !**/*.dll, !**/*.pdb, !**/*.7z, !**/*.gz, !**/*.tar.gz, !**/*.tar, !**/*.ahtm, !**/*.ahtml, !**/*.fhtml, !**/*.hdm, !**/*.hdml, !**/*.hsql, !**/*.ht, !**/*.hta, !**/*.htc, !**/*.htd, !**/*.htmls, !**/*.ihtml, !**/*.mht, !**/*.mhtm, !**/*.mhtml, !**/*.ssi, !**/*.stm, !**/*.stml, !**/*.ttml, !**/*.txn, !**/*.class, !**/*.iml, !Checkmarx/Reports/*.*");
         applicationProperties.put(KEY_MAX_ZIP_SIZE, "200");
         applicationProperties.put(KEY_DEF_PROJECT_NAME, "console.project");
+        applicationProperties.put(KEY_OSA_INCLUDED_FILES, "**/**");
+        applicationProperties.put(KEY_OSA_EXCLUDED_FILES, "");
+        applicationProperties.put(KEY_OSA_EXTRACTABLE_INCLUDE_FILES, "*.zip, *.war, *.ear, *.tgz");
+        applicationProperties.put(KEY_OSA_SCAN_DEPTH, "4");
+        applicationProperties.put(KEY_USE_KERBEROS_AUTH, "false");
+        applicationProperties.put(KEY_SCA_API_URL, "https://api-sca.checkmarx.net");
+        applicationProperties.put(KEY_SCA_ACCESS_CONTROL_URL, "https://platform.checkmarx.net");
+        applicationProperties.put(KEY_SCA_WEB_APP_URL, "https://sca.checkmarx.net");
 
         File propsFile = new File(defaultPath);
         if (!propsFile.exists()) {

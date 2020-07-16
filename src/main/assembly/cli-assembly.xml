@@ -23,10 +23,6 @@
             <source>config/cx_console.properties</source>
             <outputDirectory>config</outputDirectory>
         </file>
-        <file>
-            <source>log4j.xml</source>
-            <outputDirectory>./.</outputDirectory>
-        </file>
     </files>
 
     <dependencySets>
