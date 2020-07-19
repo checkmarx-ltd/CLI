@@ -29,6 +29,7 @@ import org.apache.log4j.xml.DOMConfigurator;
 import org.slf4j.impl.Log4jLoggerFactory;
 
 import java.io.*;
+import java.net.URL;
 import java.util.Arrays;
 
 import static com.cx.plugin.cli.constants.Parameters.LOG_PATH;
@@ -106,16 +107,28 @@ public class CxConsoleLauncher {
         org.slf4j.Logger logger = new Log4jLoggerFactory().getLogger(log.getName());
         CxShragaClient client = new CxShragaClient(cxScanConfig, logger);
 
+        if (command.equals(Command.TEST_CONNECTION)) {
+            if (cxScanConfig.getScaConfig() != null) {
+                log.info(String.format("Testing connection to: %s", cxScanConfig.getScaConfig().getAccessControlUrl()));
+                CxShragaClient.testScaConnection(cxScanConfig, logger);
+            } else {
+                log.info(String.format("Testing connection to: %s", cxScanConfig.getUrl()));
+                client.login();
+            }
+            log.info("Login successful");
+            return exitCode;
+        }
+
         if (command.equals(Command.REVOKE_TOKEN)) {
             log.info(String.format("Revoking access token: %s", cxScanConfig.getRefreshToken()));
             client.revokeToken(cxScanConfig.getRefreshToken());
             return exitCode;
         }
+
         if (command.equals(Command.GENERATE_TOKEN)) {
             String token = client.getToken();
             log.info(String.format("The login token is: %s", token));
             return exitCode;
-
         }
 
         client.init();
@@ -177,9 +190,10 @@ public class CxConsoleLauncher {
     }
 
     private static void initLogging(CommandLine commandLine) throws CLIParsingException {
-        String logPath = commandLine.getOptionValue(LOG_PATH, "." + File.separator + "logs" + File.separator + "cx_console");
+        String logPath = commandLine.getOptionValue(LOG_PATH, "." + File.separator + "logs" + File.separator + "cx_console.log");
         File logFile = new File(logPath);
-        DOMConfigurator.configure("." + File.separator + "log4j.xml");
+        URL systemResource = ClassLoader.getSystemResource("log4j.xml");
+        DOMConfigurator.configure(systemResource);
         try {
             if (!logFile.exists()) {
                 Files.createParentDirs(logFile);

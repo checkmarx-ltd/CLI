@@ -23,7 +23,9 @@ public enum Command {
     ASYNC_SCA_SCAN("AsyncScaScan", UsageExamples.ASYNC_SCA_SCAN, ArgDescriptions.ASYNC_SCA_SCAN),
 
     GENERATE_TOKEN("GenerateToken", UsageExamples.TOKEN_GEN, ArgDescriptions.TOKEN_GEN),
-    REVOKE_TOKEN("RevokeToken", UsageExamples.TOKEN_REVOKE, ArgDescriptions.TOKEN_REVOKE);
+    REVOKE_TOKEN("RevokeToken", UsageExamples.TOKEN_REVOKE, ArgDescriptions.TOKEN_REVOKE),
+
+    TEST_CONNECTION("TestConnection", UsageExamples.TEST_CONNECTION, ArgDescriptions.TEST_CONNECTION);
 
     private final String usageExample;
     private final String description;

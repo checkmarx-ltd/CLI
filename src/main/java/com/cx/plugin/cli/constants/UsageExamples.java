@@ -21,4 +21,6 @@ class UsageExamples {
 
     static final String SCA_SCAN = String.format(SCA_SCAN_TEMPLATE, "ScaScan");
     static final String ASYNC_SCA_SCAN = String.format(SCA_SCAN_TEMPLATE, "AsyncScaScan");
+
+    static final String TEST_CONNECTION = "runCxConsole.cmd TestConnection -CxServer http://localhost -usesso -v";
 }

@@ -56,6 +56,10 @@ public final class CxConfigHelper {
 
         CxScanConfig scanConfig = new CxScanConfig();
 
+        if (testConnection(scanConfig)) {
+            return scanConfig;
+        }
+
         scanConfig.setProxyConfig(genProxyConfig());
 
         scanConfig.setSastEnabled(command.equals(Command.SCAN) || command.equals(Command.ASYNC_SCAN));
@@ -472,4 +476,17 @@ public final class CxConfigHelper {
         return proxyConfig;
     }
 
+    private boolean testConnection(CxScanConfig scanConfig) throws CLIParsingException {
+        if (command.equals(Command.TEST_CONNECTION)) {
+            if (commandLine.getOptionValue(SERVER_URL) != null) {
+                scanConfig.setUrl(getSastOrOsaServerUrl());
+                setSastOrOsaCredentials(scanConfig);
+                scanConfig.setUseSSOLogin(commandLine.hasOption(IS_SSO));
+            } else {
+                setScaSpecificConfig(scanConfig);
+            }
+            return true;
+        }
+        return false;
+    }
 }
