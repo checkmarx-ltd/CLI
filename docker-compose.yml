@@ -1,0 +1,11 @@
+version: '3'
+
+services:
+  cxcli:
+    image: cxcli:latest
+    container_name: cxcli
+    build:
+      context: ./
+      dockerfile: Dockerfile
+      args:
+        CLI_VERSION: 2020.2.18
