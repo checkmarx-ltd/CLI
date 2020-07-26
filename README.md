@@ -16,7 +16,7 @@ Please find more info in the official website: <a href="https://www.checkmarx.co
 
 # Official Documentation
 
-<a href="https://checkmarx.atlassian.net/wiki/spaces/KC/pages/44335590/CxSAST+CLI+Plugin">Checkmarx Knowledge Center</a>
+<a href="https://checkmarx.atlassian.net/wiki/spaces/SD/pages/1339424904/CLI+Plugin">Checkmarx Knowledge Center</a>
 
 ## Build
 mvn clean install
