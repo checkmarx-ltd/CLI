@@ -165,6 +165,8 @@ public final class CxConfigHelper {
         sca.setRemoteRepositoryInfo(null);
         sca.setSourceLocationType(SourceLocationType.LOCAL_DIRECTORY);
 
+        sca.setIncludeSources(commandLine.hasOption(SCA_INCLUDE_SOURCE));
+
         scanConfig.setScaConfig(sca);
     }
 
