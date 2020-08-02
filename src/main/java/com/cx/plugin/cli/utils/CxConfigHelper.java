@@ -166,6 +166,11 @@ public final class CxConfigHelper {
         sca.setSourceLocationType(SourceLocationType.LOCAL_DIRECTORY);
 
         sca.setIncludeSources(commandLine.hasOption(SCA_INCLUDE_SOURCE));
+        sca.setFingerprintFilePath(commandLine.getOptionValue(SCA_FINGERPRINT_FILE, null));
+
+        if (sca.getFingerprintFilePath() != null && sca.isIncludeSources()){
+            throw new BadOptionCombinationException("fingerprint file path cannot be set when including sources");
+        }
 
         scanConfig.setScaConfig(sca);
     }

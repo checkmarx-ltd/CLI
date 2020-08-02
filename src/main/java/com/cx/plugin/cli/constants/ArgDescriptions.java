@@ -110,6 +110,7 @@ class ArgDescriptions {
     static final String SCA_LOCATION_PATH = "Local or network path to sources that should scanned. Optional.";
     static final String SCA_FOLDER_EXCLUDE = String.format(FOLDER_EXCLUDE_TEMPLATE, CX_SCA, "ScaPathExclude");
     static final String SCA_INCLUDE_SOURCE = "Turns on sending entire source code for analysis. Default is sending manifest files only";
+    static final String SCA_FINGERPRINT_FILE = "Path to save fingerprint file for debugging purposes. Will be stored if sources are not included in the scan. If directory is provided, a file under the name CxSCA-fingerprints.json will be created";
 
     static final String CONFIGURATION = "Code language configuration. Possible values are : Default Configuration, Japanese (Shift-JIS), Korean and Multi-language Scan. If configuration is not set, 'Default Configuration' is used.";
 

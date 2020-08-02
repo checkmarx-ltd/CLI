@@ -80,6 +80,8 @@ public final class Parameters {
     public static final String SCA_FOLDER_EXCLUDE = "scapathexclude";
     public static final String SCA_LOCATION_PATH = "scalocationpath";
     public static final String SCA_INCLUDE_SOURCE = "scaincludesource";
+    public static final String SCA_FINGERPRINT_FILE = "scafingerprintfile";
+
 
     public static final String CONFIGURATION = "configuration";
 

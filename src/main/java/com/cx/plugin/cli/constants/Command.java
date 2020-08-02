@@ -146,6 +146,7 @@ public enum Command {
         options.addOption(SCA_LOCATION_PATH, true, ArgDescriptions.SCA_LOCATION_PATH);
         options.addOption(SCA_FOLDER_EXCLUDE, true, ArgDescriptions.SCA_FOLDER_EXCLUDE);
         options.addOption(SCA_INCLUDE_SOURCE, false, ArgDescriptions.SCA_INCLUDE_SOURCE);
+        options.addOption(SCA_FINGERPRINT_FILE, true, ArgDescriptions.SCA_FINGERPRINT_FILE);
 
         options.addOption(VERBOSE, VERBOSE_LONG, false, ArgDescriptions.VERBOSE);
         options.addOption(LOG_PATH, true, ArgDescriptions.LOG_PATH);
