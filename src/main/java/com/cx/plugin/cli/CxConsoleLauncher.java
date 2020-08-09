@@ -6,14 +6,14 @@ import com.cx.plugin.cli.errorsconstants.Errors;
 import com.cx.plugin.cli.exceptions.CLIParsingException;
 import com.cx.plugin.cli.utils.CxConfigHelper;
 import com.cx.plugin.cli.utils.ErrorParsingHelper;
-import com.cx.restclient.CxShragaClient;
+import com.cx.restclient.CxClientDelegator;
+import com.cx.restclient.CxSASTClient;
 import com.cx.restclient.configuration.CxScanConfig;
-import com.cx.restclient.dto.DependencyScanResults;
-import com.cx.restclient.dto.DependencyScannerType;
 import com.cx.restclient.dto.ScanResults;
 import com.cx.restclient.dto.scansummary.ScanSummary;
 import com.cx.restclient.exception.CxClientException;
 import com.cx.restclient.sast.dto.SASTResults;
+import com.cx.restclient.sast.utils.LegacyClient;
 import com.google.common.io.Files;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -23,9 +23,10 @@ import org.apache.commons.io.IOUtils;
 import org.apache.http.Consts;
 import org.apache.log4j.Appender;
 import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
 import org.apache.log4j.RollingFileAppender;
 import org.apache.log4j.xml.DOMConfigurator;
+import org.slf4j.LoggerFactory;
 import org.slf4j.impl.Log4jLoggerFactory;
 
 import java.io.*;
@@ -40,7 +41,7 @@ import static com.cx.plugin.cli.errorsconstants.ErrorMessages.INVALID_COMMAND_ER
  */
 public class CxConsoleLauncher {
 
-    private static Logger log = Logger.getLogger(CxConsoleLauncher.class);
+    private static Logger log = LoggerFactory.getLogger(CxConsoleLauncher.class);
 
     public static void main(String[] args){
         int exitCode;
@@ -105,15 +106,18 @@ public class CxConsoleLauncher {
         CxScanConfig cxScanConfig = configHelper.resolveConfiguration(command, commandLine);
 
         org.slf4j.Logger logger = new Log4jLoggerFactory().getLogger(log.getName());
-        CxShragaClient client = new CxShragaClient(cxScanConfig, logger);
+        CxSastConnectionProvider connectionProvider = new CxSastConnectionProvider(cxScanConfig,logger);
+
+        CxClientDelegator clientDelegator = new CxClientDelegator(cxScanConfig, log);
+        clientDelegator.init();
 
         if (command.equals(Command.TEST_CONNECTION)) {
-            if (cxScanConfig.getScaConfig() != null) {
-                log.info(String.format("Testing connection to: %s", cxScanConfig.getScaConfig().getAccessControlUrl()));
-                CxShragaClient.testScaConnection(cxScanConfig, logger);
+            if (cxScanConfig.getAstScaConfig() != null) {
+                log.info(String.format("Testing connection to: %s", cxScanConfig.getAstScaConfig().getAccessControlUrl()));
+                clientDelegator.getScaClient().testScaConnection();
             } else {
                 log.info(String.format("Testing connection to: %s", cxScanConfig.getUrl()));
-                client.login();
+                connectionProvider.login();
             }
             log.info("Login successful");
             return exitCode;
@@ -121,29 +125,28 @@ public class CxConsoleLauncher {
 
         if (command.equals(Command.REVOKE_TOKEN)) {
             log.info(String.format("Revoking access token: %s", cxScanConfig.getRefreshToken()));
-            client.revokeToken(cxScanConfig.getRefreshToken());
+            connectionProvider.revokeToken(cxScanConfig.getRefreshToken());
             return exitCode;
         }
 
         if (command.equals(Command.GENERATE_TOKEN)) {
-            String token = client.getToken();
+            String token = connectionProvider.getToken();
             log.info(String.format("The login token is: %s", token));
             return exitCode;
         }
 
-        client.init();
+        clientDelegator.initiateScan();
 
-        if (cxScanConfig.getSastEnabled()) {
-            client.createSASTScan();
-        }
-
-        if (cxScanConfig.getDependencyScannerType() != DependencyScannerType.NONE) {
-            client.createDependencyScan();
-        }
 
         if (cxScanConfig.getSynchronous()) {
-            final ScanResults scanResults = waitForResults(client, cxScanConfig);
-            ScanSummary scanSummary = new ScanSummary(cxScanConfig, scanResults);
+            final ScanResults scanResults = clientDelegator.waitForScanResults();
+            ScanSummary scanSummary = new ScanSummary(
+                    cxScanConfig,
+                    scanResults.getSastResults(),
+                    scanResults.getOsaResults(),
+                    scanResults.getScaResults()
+            );
+
             if (scanSummary.hasErrors()) {
                 log.info(scanSummary.toString());
                 exitCode = ErrorParsingHelper.getErrorType(scanSummary).getCode();
@@ -167,17 +170,9 @@ public class CxConsoleLauncher {
         return command;
     }
 
-    private static ScanResults waitForResults(CxShragaClient client, CxScanConfig config) throws InterruptedException, CxClientException, IOException {
+    private static ScanResults waitForResults(CxClientDelegator client, CxScanConfig config) throws InterruptedException, CxClientException, IOException {
         ScanResults results = new ScanResults();
-
-        if (config.getSastEnabled()) {
-            SASTResults sastResults = client.waitForSASTResults();
-            results.setSastResults(sastResults);
-        }
-        if (config.getDependencyScannerType() != DependencyScannerType.NONE) {
-            DependencyScanResults dependencyScanResults = client.waitForDependencyScanResults();
-            results.setDependencyScanResults(dependencyScanResults);
-        }
+        ScanResults sastResults = client.waitForScanResults();
 
         return results;
     }

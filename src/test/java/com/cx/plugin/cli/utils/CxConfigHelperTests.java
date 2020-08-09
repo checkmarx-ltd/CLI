@@ -3,9 +3,9 @@ package com.cx.plugin.cli.utils;
 import com.cx.plugin.cli.constants.Command;
 import com.cx.plugin.cli.exceptions.BadOptionCombinationException;
 import com.cx.plugin.cli.exceptions.CLIParsingException;
+import com.cx.restclient.ast.dto.sca.AstScaConfig;
 import com.cx.restclient.configuration.CxScanConfig;
-import com.cx.restclient.dto.DependencyScannerType;
-import com.cx.restclient.sca.dto.SCAConfig;
+import com.cx.restclient.dto.ScannerType;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -57,8 +57,8 @@ class CxConfigHelperTests {
         CxConfigHelper configHelper = new CxConfigHelper(null);
         CxScanConfig config = configHelper.resolveConfiguration(Command.SCA_SCAN, commandLine);
         assertNotNull(config);
-        assertFalse(config.getSastEnabled());
-        assertEquals(DependencyScannerType.SCA, config.getDependencyScannerType());
+        assertFalse(config.isSastEnabled());
+        assertTrue(config.getScannerTypes().contains(ScannerType.AST_SCA));
         assertTrue(StringUtils.isNotEmpty(config.getProjectName()));
         assertTrue(StringUtils.isNotEmpty(config.getTeamPath()));
         assertEquals(LOCATION_PATH, config.getOsaLocationPath());
@@ -71,7 +71,7 @@ class CxConfigHelperTests {
         assertTrue(StringUtils.contains(config.getOsaFilterPattern(), FILE_EXCLUDE));
         assertEquals(PATH_EXCLUDE, config.getOsaFolderExclusions());
 
-        SCAConfig sca = config.getScaConfig();
+        AstScaConfig sca = config.getAstScaConfig();
         assertNotNull(sca);
         assertEquals(ACCESS_CONTROL_URL, sca.getAccessControlUrl());
         assertEquals(API_URL, sca.getApiUrl());
