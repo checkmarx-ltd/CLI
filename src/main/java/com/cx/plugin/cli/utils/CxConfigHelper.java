@@ -4,11 +4,11 @@ import com.cx.plugin.cli.constants.Command;
 import com.cx.plugin.cli.constants.Parameters;
 import com.cx.plugin.cli.exceptions.BadOptionCombinationException;
 import com.cx.plugin.cli.exceptions.CLIParsingException;
+import com.cx.restclient.ast.dto.sca.AstScaConfig;
 import com.cx.restclient.configuration.CxScanConfig;
-import com.cx.restclient.dto.DependencyScannerType;
 import com.cx.restclient.dto.ProxyConfig;
-import com.cx.restclient.sca.dto.SCAConfig;
-import com.cx.restclient.sca.dto.SourceLocationType;
+import com.cx.restclient.dto.ScannerType;
+import com.cx.restclient.dto.SourceLocationType;
 import com.google.common.base.Strings;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
@@ -62,13 +62,23 @@ public final class CxConfigHelper {
 
         scanConfig.setProxyConfig(genProxyConfig());
 
-        scanConfig.setSastEnabled(command.equals(Command.SCAN) || command.equals(Command.ASYNC_SCAN));
+        if(command.equals(Command.SCAN) || command.equals(Command.ASYNC_SCAN)){
+            scanConfig.setSastEnabled(true);
+            scanConfig.addScannerType(ScannerType.SAST);
+
+        }
 
         scanConfig.setSynchronous(command.equals(Command.SCAN) ||
                 command.equals(Command.OSA_SCAN) ||
                 command.equals(Command.SCA_SCAN));
 
-        scanConfig.setDependencyScannerType(getDependencyScannerType());
+
+        ScannerType scannerType = getDependencyScannerType();
+
+        if (scannerType != null)
+            scanConfig.addScannerType(scannerType);
+
+
         scanConfig.setCxOrigin(CX_ORIGIN);
 
         if (scanConfig.isSastOrOSAEnabled() || command.equals(Command.GENERATE_TOKEN) || command.equals(Command.REVOKE_TOKEN)) {
@@ -104,7 +114,7 @@ public final class CxConfigHelper {
         setSASTThresholds(scanConfig);
 
         String dsLocationPath = getSharedDependencyScanOption(scanConfig, OSA_LOCATION_PATH, SCA_LOCATION_PATH);
-        if (scanConfig.getSastEnabled() || dsLocationPath == null) {
+        if (scanConfig.isSastEnabled() || dsLocationPath == null) {
             ScanSourceConfigurator locator = new ScanSourceConfigurator();
             locator.configureSourceLocation(commandLine, props, scanConfig);
         }
@@ -119,13 +129,13 @@ public final class CxConfigHelper {
     }
 
     private void configureDependencyScan(CxScanConfig scanConfig) throws CLIParsingException {
-        if (scanConfig.getDependencyScannerType() == DependencyScannerType.NONE) {
+        if (!scanConfig.isAstScaEnabled() && !scanConfig.isOsaEnabled()) {
             return;
         }
 
-        if (scanConfig.getDependencyScannerType() == DependencyScannerType.OSA) {
+        if (scanConfig.isOsaEnabled()) {
             setOsaSpecificConfig(scanConfig);
-        } else {
+        } else if(scanConfig.isAstScaEnabled()){
             setScaSpecificConfig(scanConfig);
         }
 
@@ -146,8 +156,9 @@ public final class CxConfigHelper {
         scanConfig.setOsaScanDepth(osaScanDepth);
     }
 
+
     private void setScaSpecificConfig(CxScanConfig scanConfig) throws CLIParsingException {
-        SCAConfig sca = new SCAConfig();
+        AstScaConfig sca = new AstScaConfig();
 
         String apiUrl = normalizeUrl(getRequiredParam(commandLine, SCA_API_URL, KEY_SCA_API_URL));
         sca.setApiUrl(apiUrl);
@@ -165,7 +176,7 @@ public final class CxConfigHelper {
         sca.setRemoteRepositoryInfo(null);
         sca.setSourceLocationType(SourceLocationType.LOCAL_DIRECTORY);
 
-        scanConfig.setScaConfig(sca);
+        scanConfig.setAstScaConfig(sca);
     }
 
     private void setSharedDependencyScanConfig(CxScanConfig scanConfig) {
@@ -177,7 +188,7 @@ public final class CxConfigHelper {
         String folderExclusions = getSharedDependencyScanOption(scanConfig, OSA_FOLDER_EXCLUDE, SCA_FOLDER_EXCLUDE);
         scanConfig.setOsaFolderExclusions(folderExclusions);
 
-        String key = scanConfig.getDependencyScannerType() == DependencyScannerType.OSA ?
+        String key = scanConfig.isOsaEnabled() ?
                 KEY_OSA_PROGRESS_INTERVAL :
                 KEY_SCA_PROGRESS_INTERVAL;
         scanConfig.setOsaProgressInterval(props.getIntProperty(key));
@@ -187,7 +198,7 @@ public final class CxConfigHelper {
 
     private void setDependencyScanFilterPattern(CxScanConfig scanConfig) {
         String includedFiles, excludedFiles;
-        if (scanConfig.getDependencyScannerType() == DependencyScannerType.OSA) {
+        if (scanConfig.isOsaEnabled()) {
             includedFiles = getOptionalParam(OSA_FILES_INCLUDE, KEY_OSA_INCLUDED_FILES);
             excludedFiles = getOptionalParam(OSA_FILES_EXCLUDE, KEY_OSA_EXCLUDED_FILES);
         } else {
@@ -323,22 +334,22 @@ public final class CxConfigHelper {
      */
     private String getSharedDependencyScanOption(CxScanConfig scanConfig, String osaOption, String scaOption) {
         String result = null;
-        if (scanConfig.getDependencyScannerType() == DependencyScannerType.OSA) {
+        if (scanConfig.isOsaEnabled()) {
             result = commandLine.getOptionValue(osaOption);
-        } else if (scanConfig.getDependencyScannerType() == DependencyScannerType.SCA) {
+        } else if (scanConfig.isAstScaEnabled()) {
             result = commandLine.getOptionValue(scaOption);
         }
         return result;
     }
 
-    private DependencyScannerType getDependencyScannerType() {
-        DependencyScannerType result;
+    private ScannerType getDependencyScannerType() {
+        ScannerType result;
         if (command == Command.OSA_SCAN || command == Command.ASYNC_OSA_SCAN || commandLine.hasOption(OSA_ENABLED)) {
-            result = DependencyScannerType.OSA;
+            result = ScannerType.OSA;
         } else if (command == Command.SCA_SCAN || command == Command.ASYNC_SCA_SCAN || commandLine.hasOption(SCA_ENABLED)) {
-            result = DependencyScannerType.SCA;
+            result = ScannerType.AST_SCA;
         } else {
-            result = DependencyScannerType.NONE;
+            result = null;
         }
         return result;
     }
