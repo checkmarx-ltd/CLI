@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.cx.plugin</groupId>
     <artifactId>CxConsolePlugin</artifactId>
-    <version>2020.3.3</version>
+    <version>2020.3.4</version>
     <packaging>jar</packaging>
 
     <repositories>
@@ -70,9 +70,11 @@
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>3.1.2</version>
                 <configuration>
-                    <!--                    <excludes>-->
-                    <!--                        <exclude>**/log4j.properties</exclude>-->
-                    <!--                    </excludes>-->
+                    <excludes>
+                        <exclude>**/log4j.xml</exclude>
+                        <exclude>**/*.cmd</exclude>
+                        <exclude>**/*.sh</exclude>
+                    </excludes>
                     <archive>
                         <manifest>
                             <mainClass>com.cx.plugin.cli.CxConsoleLauncher</mainClass>
