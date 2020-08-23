@@ -30,7 +30,6 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.impl.Log4jLoggerFactory;
 
 import java.io.*;
-import java.net.URL;
 import java.util.Arrays;
 
 import static com.cx.plugin.cli.constants.Parameters.LOG_PATH;
@@ -187,8 +186,7 @@ public class CxConsoleLauncher {
     private static void initLogging(CommandLine commandLine) throws CLIParsingException {
         String logPath = commandLine.getOptionValue(LOG_PATH, "." + File.separator + "logs" + File.separator + "cx_console.log");
         File logFile = new File(logPath);
-        URL systemResource = ClassLoader.getSystemResource("log4j.xml");
-        DOMConfigurator.configure(systemResource);
+        DOMConfigurator.configure("." + File.separator + "log4j.xml");
         try {
             if (!logFile.exists()) {
                 Files.createParentDirs(logFile);
