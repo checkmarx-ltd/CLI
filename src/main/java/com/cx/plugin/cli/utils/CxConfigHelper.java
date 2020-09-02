@@ -97,7 +97,7 @@ public final class CxConfigHelper {
 
         scanConfig.setPublic(!cmd.hasOption(IS_PRIVATE));
         scanConfig.setEnablePolicyViolations(cmd.hasOption(IS_CHECKED_POLICY));
-        if (command.equals(Command.SCA_SCAN)) {
+        if ((command.equals(Command.SCA_SCAN))||(command.equals(Command.ASYNC_SCA_SCAN))) {
             scanConfig.setProjectName(extractProjectName(cmd.getOptionValue(FULL_PROJECT_PATH), true));
         } else {
             scanConfig.setProjectName(extractProjectName(cmd.getOptionValue(FULL_PROJECT_PATH), false));
