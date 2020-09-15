@@ -169,13 +169,6 @@ public class CxConsoleLauncher {
         return command;
     }
 
-    private static ScanResults waitForResults(CxClientDelegator client, CxScanConfig config) throws InterruptedException, CxClientException, IOException {
-        ScanResults results = new ScanResults();
-        ScanResults sastResults = client.waitForScanResults();
-
-        return results;
-    }
-
     private static String[] convertParamToLowerCase(String[] args) {
         return Arrays
                 .stream(args)
