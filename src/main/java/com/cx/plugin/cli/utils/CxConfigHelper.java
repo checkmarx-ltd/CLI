@@ -392,7 +392,8 @@ public final class CxConfigHelper {
             String value;
             if (param.getOpt().equalsIgnoreCase(Parameters.USER_PASSWORD) ||
                     param.getOpt().equalsIgnoreCase(SCA_PASSWORD) ||
-                    param.getOpt().equalsIgnoreCase(LOCATION_PASSWORD)) {
+                    param.getOpt().equalsIgnoreCase(LOCATION_PASSWORD)||
+                    param.getOpt().equalsIgnoreCase(TOKEN)) {
                 value = "********";
             } else if (param.hasArg()) {
                 value = param.getValue();
