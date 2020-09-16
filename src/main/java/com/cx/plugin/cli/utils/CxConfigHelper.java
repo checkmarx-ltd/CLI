@@ -13,6 +13,7 @@ import com.google.common.base.Strings;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -395,6 +396,11 @@ public final class CxConfigHelper {
                     param.getOpt().equalsIgnoreCase(LOCATION_PASSWORD)||
                     param.getOpt().equalsIgnoreCase(TOKEN)) {
                 value = "********";
+            } else if(param.getOpt().equalsIgnoreCase(USER_NAME) ||
+                    param.getOpt().equalsIgnoreCase(SCA_USERNAME) ||
+                    param.getOpt().equalsIgnoreCase(LOCATION_USER)){
+                log.debug(String.format("%s: %s", name, param.getValue()));
+                value = DigestUtils.sha256Hex(param.getValue());
             } else if (param.hasArg()) {
                 value = param.getValue();
             } else {
