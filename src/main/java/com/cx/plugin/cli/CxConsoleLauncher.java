@@ -162,7 +162,12 @@ public class CxConsoleLauncher {
     }
 
     private static Command getCommand(CommandLine commandLine) throws CLIParsingException {
-        Command command = Command.getCommandByValue(commandLine.getArgs()[0]);
+        Command command;
+        try {
+            command = Command.getCommandByValue(commandLine.getArgs()[0]);
+        }catch (Exception e){
+            throw  new CLIParsingException(String.format(INVALID_COMMAND_ERROR, "", Command.getAllValues()));
+        }
         if (command == null) {
             throw new CLIParsingException(String.format(INVALID_COMMAND_ERROR, commandLine.getArgs()[0], Command.getAllValues()));
         }

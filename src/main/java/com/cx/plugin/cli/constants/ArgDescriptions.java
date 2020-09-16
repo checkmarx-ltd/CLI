@@ -7,9 +7,9 @@ class ArgDescriptions {
 
     private static final String FILE_INCLUDE_TEMPLATE = "Comma separated list of file name patterns to include to the %s scan. For example: *.dll will include only dll files. Optional";
 
-    private static final String FILE_EXCLUDE_TEMPLATE = "Comma separated list of file name patterns to exclude from the %1$s scan. Exclude extensions by using *.<extension>, or exclude files by using */<file>.\n" +
-            "Examples: -%2$s *.class excludes all files which start with the .class. \n" +
-            "Examples: -%2$s */plexus-utils-1.5.6.jar excludes all files which start with plexus-utils-1.5.6.jar. Optional";
+    private static final String FILE_EXCLUDE_TEMPLATE = "Comma separated list of file name patterns to exclude from the %1$s scan. Exclude extensions by using !*.<extension>, or exclude files by using !*/<file>.\n" +
+            "Examples: -%2$s !*.class excludes all files which start with the .class. \n" +
+            "Examples: -%2$s !*/plexus-utils-1.5.6.jar excludes all files which start with plexus-utils-1.5.6.jar. Optional";
 
     private static final String FOLDER_EXCLUDE_TEMPLATE = "Comma separated list of folder path patterns to exclude from the %s scan. \n" +
             "For example: -%s test excludes all folders which start with test prefix. Optional.";
