@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.cx.plugin</groupId>
     <artifactId>CxConsolePlugin</artifactId>
-    <version>2020.3.1</version>
+    <version>2020.3.5</version>
     <packaging>jar</packaging>
 
     <repositories>
@@ -132,7 +132,7 @@
         <dependency>
             <groupId>com.checkmarx</groupId>
             <artifactId>cx-client-common</artifactId>
-            <version>2020.2.24.SCA</version>
+            <version>2020.2.25.SCA</version>
         </dependency>
         <!-- those dependencies were implemented in the common, to solve a log4j warning -->
 <!--        <dependency>
