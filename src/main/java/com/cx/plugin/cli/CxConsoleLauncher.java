@@ -19,6 +19,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.ParseException;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.Consts;
 import org.apache.log4j.Appender;
@@ -32,7 +33,7 @@ import org.slf4j.impl.Log4jLoggerFactory;
 import java.io.*;
 import java.util.Arrays;
 
-import static com.cx.plugin.cli.constants.Parameters.LOG_PATH;
+import static com.cx.plugin.cli.constants.Parameters.*;
 import static com.cx.plugin.cli.errorsconstants.ErrorMessages.INVALID_COMMAND_ERROR;
 
 /**
@@ -123,15 +124,29 @@ public class CxConsoleLauncher {
         }
 
         if (command.equals(Command.REVOKE_TOKEN)) {
-            log.info(String.format("Revoking access token: %s", cxScanConfig.getRefreshToken()));
-            connectionProvider.revokeToken(cxScanConfig.getRefreshToken());
-            return exitCode;
+            if(CxTokenExists(commandLine)){
+                String token = cxScanConfig.getRefreshToken();
+                token = DigestUtils.sha256Hex(token);
+                log.info(String.format("Revoking access token: %s", token));
+                connectionProvider.revokeToken(cxScanConfig.getRefreshToken());
+                return exitCode;
+            }else{
+                log.error("-CxToken flag is missing.");
+                exitCode=Errors.GENERAL_ERROR.getCode();
+                return exitCode;
+            }
         }
 
         if (command.equals(Command.GENERATE_TOKEN)) {
-            String token = connectionProvider.getToken();
-            log.info(String.format("The login token is: %s", token));
-            return exitCode;
+            if(UserPasswordProvided(commandLine)) {
+                String token = connectionProvider.getToken();
+                log.info(String.format("The login token is: %s", token));
+                return exitCode;
+            }else{
+                log.error("-CxUser and -CxPassword flags are missing.");
+                exitCode=Errors.GENERAL_ERROR.getCode();
+                return exitCode;
+            }
         }
 
         clientDelegator.initiateScan();
@@ -159,6 +174,15 @@ public class CxConsoleLauncher {
         CommandLineParser parser = new DefaultParser();
         CommandLine commandLine = parser.parse(Command.getOptions(), args);
         return commandLine;
+    }
+
+    private static boolean CxTokenExists(CommandLine commandLine)
+    {
+        return commandLine.hasOption(TOKEN);
+    }
+
+    private static boolean UserPasswordProvided(CommandLine commandLine){
+        return commandLine.hasOption(USER_NAME) && commandLine.hasOption(USER_PASSWORD);
     }
 
     private static Command getCommand(CommandLine commandLine) throws CLIParsingException {
