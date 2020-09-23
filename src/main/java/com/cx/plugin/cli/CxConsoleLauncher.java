@@ -50,7 +50,6 @@ public class CxConsoleLauncher {
         try {
             verifyArgsCount(args);
             args = overrideProperties(args);
-
             args = convertParamToLowerCase(args);
             CommandLine commandLine = getCommandLine(args);
             command = getCommand(commandLine);
