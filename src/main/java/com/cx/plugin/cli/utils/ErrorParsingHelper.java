@@ -53,13 +53,23 @@ public class ErrorParsingHelper {
         }
 
         ThresholdError sastMostSevere = getMostSevereThresholdError(scanSummary, ErrorSource.SAST);
-        ThresholdError dsMostSevere = getMostSevereThresholdError(scanSummary, ErrorSource.DEPENDENCY_SCANNER);
-        if (sastMostSevere != null && dsMostSevere != null) {
+        //ThresholdError dsMostSevere = getMostSevereThresholdError(scanSummary, ErrorSource.DEPENDENCY_SCANNER);
+        ThresholdError osaMostSevere = getMostSevereThresholdError(scanSummary, ErrorSource.OSA);
+        ThresholdError scaMostSevere = getMostSevereThresholdError(scanSummary, ErrorSource.SCA);
+
+        //osa
+        //sca
+
+        if (sastMostSevere != null && (osaMostSevere != null || scaMostSevere != null)) {
             return Errors.GENERIC_THRESHOLD_FAILURE_ERROR;
-        } else if (sastMostSevere == null && dsMostSevere == null) {
+        } else if (sastMostSevere == null && osaMostSevere == null && scaMostSevere == null) {
             return Errors.SCAN_SUCCEEDED;
         } else {
-            return toThresholdErrorCode(sastMostSevere != null ? sastMostSevere : dsMostSevere);
+            if(sastMostSevere != null){
+                return toThresholdErrorCode(sastMostSevere);
+            }else {
+                return toThresholdErrorCode(osaMostSevere != null ? osaMostSevere : scaMostSevere);
+            }
         }
     }
 
