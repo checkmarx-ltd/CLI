@@ -13,6 +13,7 @@ import com.google.common.base.Strings;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -212,7 +213,7 @@ public final class CxConfigHelper {
         boolean isSSO = commandLine.hasOption(IS_SSO);
         String token = commandLine.getOptionValue(TOKEN);
         String username = commandLine.getOptionValue(USER_NAME);
-        String password = commandLine.getOptionValue(USER_PASSWORD);
+        String password = validatePassword(commandLine.getOptionValue(USER_PASSWORD));
         if (isNotEmpty(token)) {
             scanConfig.setRefreshToken(token);
         } else if ((Strings.isNullOrEmpty(username) || Strings.isNullOrEmpty(password)) && !isSSO) {
@@ -221,6 +222,10 @@ public final class CxConfigHelper {
             scanConfig.setUsername(username);
             scanConfig.setPassword(password);
         }
+    }
+
+    private String validatePassword(String password) {
+        return (StringUtils.isNotEmpty(password) && password.startsWith("''")) ? password.substring(2) : password;
     }
 
     private String getSastOrOsaServerUrl() throws CLIParsingException {
