@@ -35,5 +35,6 @@ public final class ErrorMessages {
     public static final String INVALID_COMMAND = "[CxConsole] Malformed console command: Expected command to start with one of: %s but was: %s";
     public static final String MISSING_DASH = "[CxConsole] Malformed console command: parameter must start with '-' but was %s";
     public static final String INVALID_COMMAND_ERROR = "command [%s] is invalid, valid command must start with one of %s";
+    public static final String INVALID_COMMAND_COUNT = "Invalid command count, One command must be provided Only. One of these commands must be provided only %s. ";
 
 }

@@ -32,8 +32,10 @@ import org.slf4j.impl.Log4jLoggerFactory;
 
 import java.io.*;
 import java.util.Arrays;
+import java.util.List;
 
 import static com.cx.plugin.cli.constants.Parameters.*;
+import static com.cx.plugin.cli.errorsconstants.ErrorMessages.INVALID_COMMAND_COUNT;
 import static com.cx.plugin.cli.errorsconstants.ErrorMessages.INVALID_COMMAND_ERROR;
 
 /**
@@ -186,15 +188,26 @@ public class CxConsoleLauncher {
 
     private static Command getCommand(CommandLine commandLine) throws CLIParsingException {
         Command command;
-        try {
-            command = Command.getCommandByValue(commandLine.getArgs()[0]);
-        }catch (Exception e){
-            throw  new CLIParsingException(String.format(INVALID_COMMAND_ERROR, "", Command.getAllValues()));
+        if(countCommands(commandLine)<2) {
+            try {
+                command = Command.getCommandByValue(commandLine.getArgs()[0]);
+            } catch (Exception e) {
+                throw new CLIParsingException(String.format(INVALID_COMMAND_ERROR, "", Command.getAllValues()));
+            }
+            if (command == null) {
+                throw new CLIParsingException(String.format(INVALID_COMMAND_ERROR, commandLine.getArgs()[0], Command.getAllValues()));
+            }
+        }else{
+            throw new CLIParsingException(String.format(INVALID_COMMAND_COUNT,commandLine.getArgList()));
         }
-        if (command == null) {
-            throw new CLIParsingException(String.format(INVALID_COMMAND_ERROR, commandLine.getArgs()[0], Command.getAllValues()));
-        }
+
         return command;
+    }
+
+    private static int countCommands(CommandLine commandLine){
+        int commandCount=0;
+        commandCount = commandLine.getArgList().size();
+        return commandCount;
     }
 
     private static String[] convertParamToLowerCase(String[] args) {
