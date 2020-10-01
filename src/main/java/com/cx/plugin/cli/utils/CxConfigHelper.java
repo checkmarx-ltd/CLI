@@ -178,6 +178,12 @@ public final class CxConfigHelper {
         sca.setRemoteRepositoryInfo(null);
         sca.setSourceLocationType(SourceLocationType.LOCAL_DIRECTORY);
 
+        String reportDir = commandLine.getOptionValue(SCA_JSON_REPORT);
+        scanConfig.setReportsDir(reportDir != null ? new File(reportDir) : null);
+        //use setOsaGenerateJsonReport instead of creating one for sca, because there is no case of using osa and sca simultaneously.
+        scanConfig.setOsaGenerateJsonReport(reportDir != null);
+        scanConfig.setScaJsonReport(reportDir);
+
         scanConfig.setAstScaConfig(sca);
     }
 
