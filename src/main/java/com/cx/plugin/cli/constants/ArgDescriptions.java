@@ -1,6 +1,11 @@
 package com.cx.plugin.cli.constants;
 
 class ArgDescriptions {
+
+    private ArgDescriptions() {
+        throw new IllegalStateException("Utility class");
+    }
+
     private static final String SYNC_SCAN_NOTE = "The scan is, by default, run in synchronous mode. This means that the CLI initiates the scan task and the scan results can be viewed in the CLI and in the log file created.";
 
     private static final String THRESHOLD_TEMPLATE = "%1$s %2$s severity vulnerability threshold. If the number of %2$s vulnerabilities exceeds the threshold, scan will end with an error (see Error/Exit Codes). Optional. Not supported in asynchronous mode.";

@@ -130,7 +130,7 @@ class ScanSourceConfigurator {
         scanConfig.setPaths(locationPath.split(";"));
         scanConfig.setRemoteSrcUrl(locationURL);
         if (Strings.isNullOrEmpty(locationPort)) {
-            log.info(String.format("[CxConsole] No port was specified for SVN, using port %s as default", SVN_DEFAULT_PORT));
+            log.info("[CxConsole] No port was specified for SVN, using port {} as default", SVN_DEFAULT_PORT);
             locationPort = SVN_DEFAULT_PORT;
         }
         try {
@@ -161,7 +161,7 @@ class ScanSourceConfigurator {
         scanConfig.setPaths(locationPath.split(";"));
         scanConfig.setRemoteSrcUrl(locationURL);
         if (Strings.isNullOrEmpty(locationPort)) {
-            log.info(String.format("[CxConsole] No port was specified for TFS, using port %s as default", TFS_DEFAULT_PORT));
+            log.info("[CxConsole] No port was specified for TFS, using port {} as default", TFS_DEFAULT_PORT);
             locationPort = TFS_DEFAULT_PORT;
         }
         try {
@@ -193,7 +193,7 @@ class ScanSourceConfigurator {
         scanConfig.setRemoteType(RemoteSourceTypes.PERFORCE);
         scanConfig.setPerforceMode(workspaceMode);
         if (Strings.isNullOrEmpty(locationPort)) {
-            log.info(String.format("[CxConsole] No port was specified for perforce, using port %s as default", PERFORCE_DEFAULT_PORT));
+            log.info("[CxConsole] No port was specified for perforce, using port {} as default", PERFORCE_DEFAULT_PORT);
             locationPort = PERFORCE_DEFAULT_PORT;
         }
         try {

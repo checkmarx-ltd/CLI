@@ -398,7 +398,6 @@ public final class CxConfigHelper {
         log.info("-----------------------------------------------------------------------------------------");
         log.info("CxConsole Configuration: ");
         log.info("--------------------");
-        //log.info(String.format("CxConsole Version: %s", getVersion()));
         for (Option param : commandLine.getOptions()) {
             String name = param.getLongOpt() != null ? param.getLongOpt() : param.getOpt();
             String value;
@@ -410,14 +409,15 @@ public final class CxConfigHelper {
             } else if(param.getOpt().equalsIgnoreCase(USER_NAME) ||
                     param.getOpt().equalsIgnoreCase(SCA_USERNAME) ||
                     param.getOpt().equalsIgnoreCase(LOCATION_USER)){
-                log.debug(String.format("%s: %s", name, param.getValue()));
+                value = param.getValue();
+                log.debug("{}: {}", name, value);
                 value = DigestUtils.sha256Hex(param.getValue());
             } else if (param.hasArg()) {
                 value = param.getValue();
             } else {
                 value = "true";
             }
-            log.info(String.format("%s: %s", name, value));
+            log.info("{}: {}", name, value);
         }
         log.info("--------------------\n\n");
     }

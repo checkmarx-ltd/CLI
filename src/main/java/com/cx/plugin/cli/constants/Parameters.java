@@ -5,6 +5,11 @@ package com.cx.plugin.cli.constants;
  */
 public final class Parameters {
 
+
+    private Parameters() {
+        throw new IllegalStateException("Utility class");
+    }
+
     public static final String VERBOSE = "v";
     public static final String VERBOSE_LONG = "verbose";
     public static final String CLI_CONFIG = "config";

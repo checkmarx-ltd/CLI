@@ -53,7 +53,6 @@ public class ErrorParsingHelper {
         }
 
         ThresholdError sastMostSevere = getMostSevereThresholdError(scanSummary, ErrorSource.SAST);
-        //ThresholdError dsMostSevere = getMostSevereThresholdError(scanSummary, ErrorSource.DEPENDENCY_SCANNER);
         ThresholdError osaMostSevere = getMostSevereThresholdError(scanSummary, ErrorSource.OSA);
         ThresholdError scaMostSevere = getMostSevereThresholdError(scanSummary, ErrorSource.SCA);
 

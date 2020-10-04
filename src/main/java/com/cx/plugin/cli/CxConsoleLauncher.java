@@ -59,7 +59,7 @@ public class CxConsoleLauncher {
             exitCode = execute(command, commandLine);
         } catch (CLIParsingException | ParseException e) {
             CxConfigHelper.printHelp(command);
-            log.error(String.format("\n\n[CxConsole] Error parsing command: \n%s\n\n", e));
+            log.error(String.format("%n%n[CxConsole] Error parsing command: %n%s%n%n", e));
             exitCode = ErrorParsingHelper.parseError(e.getMessage());
         } catch (CxClientException | IOException | InterruptedException e) {
         log.error(e.getMessage());
@@ -87,7 +87,7 @@ public class CxConsoleLauncher {
 
         if (propFilePath != null) {
             try {
-                log.info("Overriding properties from file: " + propFilePath);
+                log.info("Overriding properties from file: {}", propFilePath);
                 String argsStr = IOUtils.toString(new FileInputStream(propFilePath), Consts.UTF_8);
                 args = argsStr.split("\\s+");
             } catch (Exception e) {
@@ -114,10 +114,12 @@ public class CxConsoleLauncher {
 
         if (command.equals(Command.TEST_CONNECTION)) {
             if (cxScanConfig.getAstScaConfig() != null) {
-                log.info(String.format("Testing connection to: %s", cxScanConfig.getAstScaConfig().getAccessControlUrl()));
+                String accessControlUrl = cxScanConfig.getAstScaConfig().getAccessControlUrl();
+                log.info("Testing connection to: {}", accessControlUrl);
                 clientDelegator.getScaClient().testScaConnection();
             } else {
-                log.info(String.format("Testing connection to: %s", cxScanConfig.getUrl()));
+                String url = cxScanConfig.getUrl();
+                log.info("Testing connection to: {}", url);
                 connectionProvider.login();
             }
             log.info("Login successful");
@@ -128,7 +130,7 @@ public class CxConsoleLauncher {
             if(CxTokenExists(commandLine)){
                 String token = cxScanConfig.getRefreshToken();
                 token = DigestUtils.sha256Hex(token);
-                log.info(String.format("Revoking access token: %s", token));
+                log.info("Revoking access token: {}", token);
                 connectionProvider.revokeToken(cxScanConfig.getRefreshToken());
                 return exitCode;
             }else{
@@ -141,7 +143,7 @@ public class CxConsoleLauncher {
         if (command.equals(Command.GENERATE_TOKEN)) {
             if(UserPasswordProvided(commandLine)) {
                 String token = connectionProvider.getToken();
-                log.info(String.format("The login token is: %s", token));
+                log.info("The login token is: {}", token);
                 return exitCode;
             }else{
                 log.error("-CxUser and -CxPassword flags are missing.");
@@ -161,9 +163,9 @@ public class CxConsoleLauncher {
                     scanResults.getOsaResults(),
                     scanResults.getScaResults()
             );
-
+            String scanSummaryString = scanSummary.toString();
             if (scanSummary.hasErrors()) {
-                log.info(scanSummary.toString());
+                log.info(scanSummaryString);
                 exitCode = ErrorParsingHelper.getErrorType(scanSummary).getCode();
             }
         }
@@ -233,7 +235,7 @@ public class CxConsoleLauncher {
                 ((RollingFileAppender) faAppender).setThreshold(Level.TRACE);
             }
             ((RollingFileAppender) faAppender).setWriter(writer);
-            log.info("[CxConsole]  Log file location: " + logPath);
+            log.info("[CxConsole]  Log file location: {}", logPath);
         } catch (IOException e) {
             throw new CLIParsingException("[CxConsole] error creating log file", e);
         }
