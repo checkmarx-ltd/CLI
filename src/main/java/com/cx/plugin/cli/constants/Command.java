@@ -111,8 +111,6 @@ public enum Command {
         options.addOption(OSA_JSON_REPORT, true, ArgDescriptions.OSA_JSON_REPORT);
         options.addOption(SCA_JSON_REPORT, true, ArgDescriptions.SCA_JSON_REPORT);
         options.addOption(INSTALL_PACKAGE_MANAGER, false, ArgDescriptions.INSTALL_PACKAGE_MANAGER);
-//        options.addOption(DOCKER_IMAGE_PATTERN, true, Constants.DOCKER_IMAGE_PATTERN);
-//        options.addOption(DOCKER_EXCLUDE, true, Constants.DOCKER_EXCLUDE);
 
         options.addOption(PDF_REPORT, true, ArgDescriptions.PDF_REPORT);
         options.addOption(XML_REPORT, true, ArgDescriptions.XML_REPORT);

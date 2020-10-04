@@ -1,6 +1,11 @@
 package com.cx.plugin.cli.constants;
 
 class UsageExamples {
+
+    private UsageExamples() {
+        throw new IllegalStateException("Utility class");
+    }
+
     private static final String SCA_SCAN_TEMPLATE = "runCxConsole.cmd %s -projectname SP\\Cx\\Engine\\AST -scapathexclude .git -scalocationpath \\storage\\dir1\\subdir -scaUsername admin -scaPassword admin -scaAccount account -scahigh 1 -scamedium 2 -scalow 3";
 
     static final String SCAN = "\n\nCxConsole Scan -Projectname SP\\Cx\\Engine\\AST -CxServer http://localhost -cxuser admin@cx -cxpassword admin -locationtype folder -locationpath C:\\cx" +

@@ -71,7 +71,7 @@ public class PropertiesManager {
     private void loadProperties(String confPath) {
         try {
             if (confPath != null && loadFromConfigParam(confPath)) {
-                log.info("Config file location: " + confPath);
+                log.info("Config file location: {}", confPath);
                 return;
             }
 
@@ -80,7 +80,7 @@ public class PropertiesManager {
                 loadDefaults();
             }
 
-            log.info("Default configuration file location: " + defaultPath);
+            log.info("Default configuration file location: {}", defaultPath);
         } catch (Exception ex) {
             log.warn("Error occurred during loading configuration file.");
         }
@@ -107,7 +107,7 @@ public class PropertiesManager {
                 log.error("Error occurred during loading CxConsole properties.");
             }
         } else {
-            log.error("The specified configuration path: [" + path + "] does not exist.");
+            log.error("The specified configuration path: [ {} ] does not exist.",path);
         }
         return ret;
     }
@@ -156,7 +156,7 @@ public class PropertiesManager {
             try {
                 intValue = Integer.parseInt(value.toString());
             } catch (NumberFormatException e) {
-                log.warn("Can't parse string to int value: " + e.getMessage());
+                log.warn("Can't parse string to int value: {}", e.getMessage());
             }
         }
         return intValue;
@@ -169,7 +169,7 @@ public class PropertiesManager {
             try {
                 longValue = Long.parseLong(value.toString());
             } catch (NumberFormatException e) {
-                log.warn("Can't parse string to long value: " + e.getMessage());
+                log.warn("Can't parse string to long value: {}", e.getMessage());
             }
         }
         return longValue;

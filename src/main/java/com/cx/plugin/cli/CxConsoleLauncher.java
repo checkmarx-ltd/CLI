@@ -7,13 +7,10 @@ import com.cx.plugin.cli.exceptions.CLIParsingException;
 import com.cx.plugin.cli.utils.CxConfigHelper;
 import com.cx.plugin.cli.utils.ErrorParsingHelper;
 import com.cx.restclient.CxClientDelegator;
-import com.cx.restclient.CxSASTClient;
 import com.cx.restclient.configuration.CxScanConfig;
 import com.cx.restclient.dto.ScanResults;
 import com.cx.restclient.dto.scansummary.ScanSummary;
 import com.cx.restclient.exception.CxClientException;
-import com.cx.restclient.sast.dto.SASTResults;
-import com.cx.restclient.sast.utils.LegacyClient;
 import com.google.common.io.Files;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -32,7 +29,6 @@ import org.slf4j.impl.Log4jLoggerFactory;
 
 import java.io.*;
 import java.util.Arrays;
-import java.util.List;
 
 import static com.cx.plugin.cli.constants.Parameters.*;
 import static com.cx.plugin.cli.errorsconstants.ErrorMessages.INVALID_COMMAND_COUNT;
@@ -45,7 +41,7 @@ public class CxConsoleLauncher {
 
     private static Logger log = LoggerFactory.getLogger(CxConsoleLauncher.class);
 
-    public static void main(String[] args){
+    public static void main(String[] args) {
         int exitCode;
         Command command = null;
 
@@ -59,11 +55,10 @@ public class CxConsoleLauncher {
             exitCode = execute(command, commandLine);
         } catch (CLIParsingException | ParseException e) {
             CxConfigHelper.printHelp(command);
-            log.error(String.format("\n\n[CxConsole] Error parsing command: \n%s\n\n", e));
+            log.error(String.format("%n%n[CxConsole] Error parsing command: %n%s%n%n", e));
             exitCode = ErrorParsingHelper.parseError(e.getMessage());
         } catch (CxClientException | IOException | InterruptedException e) {
-        log.error(e.getMessage());
-        exitCode = ErrorParsingHelper.parseError(e.getMessage());
+            exitCode = ErrorParsingHelper.parseError(e.getMessage());
         }
 
         System.exit(exitCode);
@@ -87,7 +82,7 @@ public class CxConsoleLauncher {
 
         if (propFilePath != null) {
             try {
-                log.info("Overriding properties from file: " + propFilePath);
+                log.info("Overriding properties from file: {}", propFilePath);
                 String argsStr = IOUtils.toString(new FileInputStream(propFilePath), Consts.UTF_8);
                 args = argsStr.split("\\s+");
             } catch (Exception e) {
@@ -107,17 +102,19 @@ public class CxConsoleLauncher {
         CxScanConfig cxScanConfig = configHelper.resolveConfiguration(command, commandLine);
 
         org.slf4j.Logger logger = new Log4jLoggerFactory().getLogger(log.getName());
-        CxSastConnectionProvider connectionProvider = new CxSastConnectionProvider(cxScanConfig,logger);
+        CxSastConnectionProvider connectionProvider = new CxSastConnectionProvider(cxScanConfig, logger);
 
         CxClientDelegator clientDelegator = new CxClientDelegator(cxScanConfig, log);
         clientDelegator.init();
 
         if (command.equals(Command.TEST_CONNECTION)) {
             if (cxScanConfig.getAstScaConfig() != null) {
-                log.info(String.format("Testing connection to: %s", cxScanConfig.getAstScaConfig().getAccessControlUrl()));
+                String accessControlUrl = cxScanConfig.getAstScaConfig().getAccessControlUrl();
+                log.info("Testing connection to: {}", accessControlUrl);
                 clientDelegator.getScaClient().testScaConnection();
             } else {
-                log.info(String.format("Testing connection to: %s", cxScanConfig.getUrl()));
+                String url = cxScanConfig.getUrl();
+                log.info("Testing connection to: {}", url);
                 connectionProvider.login();
             }
             log.info("Login successful");
@@ -125,27 +122,27 @@ public class CxConsoleLauncher {
         }
 
         if (command.equals(Command.REVOKE_TOKEN)) {
-            if(CxTokenExists(commandLine)){
+            if (cxTokenExists(commandLine)) {
                 String token = cxScanConfig.getRefreshToken();
                 token = DigestUtils.sha256Hex(token);
-                log.info(String.format("Revoking access token: %s", token));
+                log.info("Revoking access token: {}", token);
                 connectionProvider.revokeToken(cxScanConfig.getRefreshToken());
                 return exitCode;
-            }else{
+            } else {
                 log.error("-CxToken flag is missing.");
-                exitCode=Errors.GENERAL_ERROR.getCode();
+                exitCode = Errors.GENERAL_ERROR.getCode();
                 return exitCode;
             }
         }
 
         if (command.equals(Command.GENERATE_TOKEN)) {
-            if(UserPasswordProvided(commandLine)) {
+            if (userPasswordProvided(commandLine)) {
                 String token = connectionProvider.getToken();
-                log.info(String.format("The login token is: %s", token));
+                log.info("The login token is: {}", token);
                 return exitCode;
-            }else{
+            } else {
                 log.error("-CxUser and -CxPassword flags are missing.");
-                exitCode=Errors.GENERAL_ERROR.getCode();
+                exitCode = Errors.GENERAL_ERROR.getCode();
                 return exitCode;
             }
         }
@@ -155,15 +152,18 @@ public class CxConsoleLauncher {
 
         if (cxScanConfig.getSynchronous()) {
             final ScanResults scanResults = clientDelegator.waitForScanResults();
+
+            getScanResultExceptionIfExists(scanResults);
+
             ScanSummary scanSummary = new ScanSummary(
                     cxScanConfig,
                     scanResults.getSastResults(),
                     scanResults.getOsaResults(),
                     scanResults.getScaResults()
             );
-
+            String scanSummaryString = scanSummary.toString();
             if (scanSummary.hasErrors()) {
-                log.info(scanSummary.toString());
+                log.info(scanSummaryString);
                 exitCode = ErrorParsingHelper.getErrorType(scanSummary).getCode();
             }
         }
@@ -171,24 +171,34 @@ public class CxConsoleLauncher {
         return exitCode;
     }
 
-    private static CommandLine getCommandLine(String[] args) throws ParseException {
-        CommandLineParser parser = new DefaultParser();
-        CommandLine commandLine = parser.parse(Command.getOptions(), args);
-        return commandLine;
+    private static void getScanResultExceptionIfExists(ScanResults scanResults) {
+        if (scanResults != null && scanResults.getSastResults() != null && scanResults.getSastResults().getWaitException() != null) {
+            throw new CxClientException(scanResults.getSastResults().getWaitException());
+        }
+        if (scanResults != null && scanResults.getOsaResults() != null && scanResults.getOsaResults().getWaitException() != null) {
+            throw new CxClientException(scanResults.getOsaResults().getWaitException());
+        }
+        if (scanResults != null && scanResults.getScaResults() != null && scanResults.getScaResults().getWaitException() != null) {
+            throw new CxClientException(scanResults.getScaResults().getWaitException());
+        }
     }
 
-    private static boolean CxTokenExists(CommandLine commandLine)
-    {
+    private static CommandLine getCommandLine(String[] args) throws ParseException {
+        CommandLineParser parser = new DefaultParser();
+        return parser.parse(Command.getOptions(), args);
+    }
+
+    private static boolean cxTokenExists(CommandLine commandLine) {
         return commandLine.hasOption(TOKEN);
     }
 
-    private static boolean UserPasswordProvided(CommandLine commandLine){
+    private static boolean userPasswordProvided(CommandLine commandLine) {
         return commandLine.hasOption(USER_NAME) && commandLine.hasOption(USER_PASSWORD);
     }
 
     private static Command getCommand(CommandLine commandLine) throws CLIParsingException {
         Command command;
-        if(countCommands(commandLine)<2) {
+        if (countCommands(commandLine) < 2) {
             try {
                 command = Command.getCommandByValue(commandLine.getArgs()[0]);
             } catch (Exception e) {
@@ -197,15 +207,15 @@ public class CxConsoleLauncher {
             if (command == null) {
                 throw new CLIParsingException(String.format(INVALID_COMMAND_ERROR, commandLine.getArgs()[0], Command.getAllValues()));
             }
-        }else{
-            throw new CLIParsingException(String.format(INVALID_COMMAND_COUNT,commandLine.getArgList()));
+        } else {
+            throw new CLIParsingException(String.format(INVALID_COMMAND_COUNT, commandLine.getArgList()));
         }
 
         return command;
     }
 
-    private static int countCommands(CommandLine commandLine){
-        int commandCount=0;
+    private static int countCommands(CommandLine commandLine) {
+        int commandCount = 0;
         commandCount = commandLine.getArgList().size();
         return commandCount;
     }
@@ -233,7 +243,7 @@ public class CxConsoleLauncher {
                 ((RollingFileAppender) faAppender).setThreshold(Level.TRACE);
             }
             ((RollingFileAppender) faAppender).setWriter(writer);
-            log.info("[CxConsole]  Log file location: " + logPath);
+            log.info("[CxConsole] Log file location: {}", logPath);
         } catch (IOException e) {
             throw new CLIParsingException("[CxConsole] error creating log file", e);
         }
