@@ -13,8 +13,8 @@ import com.google.common.base.Strings;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,7 +64,7 @@ public final class CxConfigHelper {
 
         scanConfig.setProxyConfig(genProxyConfig());
 
-        if(command.equals(Command.SCAN) || command.equals(Command.ASYNC_SCAN)){
+        if (command.equals(Command.SCAN) || command.equals(Command.ASYNC_SCAN)) {
             scanConfig.setSastEnabled(true);
             scanConfig.addScannerType(ScannerType.SAST);
 
@@ -99,7 +99,7 @@ public final class CxConfigHelper {
 
         scanConfig.setPublic(!cmd.hasOption(IS_PRIVATE));
         scanConfig.setEnablePolicyViolations(cmd.hasOption(IS_CHECKED_POLICY));
-        if ((command.equals(Command.SCA_SCAN))||(command.equals(Command.ASYNC_SCA_SCAN))) {
+        if ((command.equals(Command.SCA_SCAN)) || (command.equals(Command.ASYNC_SCA_SCAN))) {
             scanConfig.setProjectName(extractProjectName(cmd.getOptionValue(FULL_PROJECT_PATH), true));
         } else {
             scanConfig.setProjectName(extractProjectName(cmd.getOptionValue(FULL_PROJECT_PATH), false));
@@ -107,8 +107,8 @@ public final class CxConfigHelper {
         }
         scanConfig.setPresetName(cmd.getOptionValue(PRESET) == null ? DEFAULT_PRESET_NAME : cmd.getOptionValue(PRESET));
 
-        scanConfig.setSastFolderExclusions(getOptionalParam(LOCATION_PATH_EXCLUDE, KEY_EXCLUDED_FOLDERS));
-        scanConfig.setSastFilterPattern(getOptionalParam(LOCATION_FILES_EXCLUDE, KEY_EXCLUDED_FILES));
+        scanConfig.setSastFolderExclusions(getParamWithDefault(LOCATION_PATH_EXCLUDE, KEY_EXCLUDED_FOLDERS));
+        scanConfig.setSastFilterPattern(getParamWithDefault(LOCATION_FILES_EXCLUDE, KEY_EXCLUDED_FILES));
         scanConfig.setScanComment(cmd.getOptionValue(SCAN_COMMENT));
         setScanReports(scanConfig);
         scanConfig.setIncremental(cmd.hasOption(IS_INCREMENTAL));
@@ -137,7 +137,7 @@ public final class CxConfigHelper {
 
         if (scanConfig.isOsaEnabled()) {
             setOsaSpecificConfig(scanConfig);
-        } else if(scanConfig.isAstScaEnabled()){
+        } else if (scanConfig.isAstScaEnabled()) {
             setScaSpecificConfig(scanConfig);
         }
 
@@ -151,7 +151,7 @@ public final class CxConfigHelper {
         scanConfig.setReportsDir(reportDir != null ? new File(reportDir) : null);
         scanConfig.setOsaGenerateJsonReport(reportDir != null);
 
-        String archiveIncludePatterns = getOptionalParam(OSA_ARCHIVE_TO_EXTRACT, KEY_OSA_EXTRACTABLE_INCLUDE_FILES);
+        String archiveIncludePatterns = getParamWithDefault(OSA_ARCHIVE_TO_EXTRACT, KEY_OSA_EXTRACTABLE_INCLUDE_FILES);
         scanConfig.setOsaArchiveIncludePatterns(archiveIncludePatterns);
 
         String osaScanDepth = getOptionalParam(OSA_SCAN_DEPTH, KEY_OSA_SCAN_DEPTH);
@@ -403,12 +403,12 @@ public final class CxConfigHelper {
             String value;
             if (param.getOpt().equalsIgnoreCase(Parameters.USER_PASSWORD) ||
                     param.getOpt().equalsIgnoreCase(SCA_PASSWORD) ||
-                    param.getOpt().equalsIgnoreCase(LOCATION_PASSWORD)||
+                    param.getOpt().equalsIgnoreCase(LOCATION_PASSWORD) ||
                     param.getOpt().equalsIgnoreCase(TOKEN)) {
                 value = "********";
-            } else if(param.getOpt().equalsIgnoreCase(USER_NAME) ||
+            } else if (param.getOpt().equalsIgnoreCase(USER_NAME) ||
                     param.getOpt().equalsIgnoreCase(SCA_USERNAME) ||
-                    param.getOpt().equalsIgnoreCase(LOCATION_USER)){
+                    param.getOpt().equalsIgnoreCase(LOCATION_USER)) {
                 value = param.getValue();
                 log.debug("{}: {}", name, value);
                 value = DigestUtils.sha256Hex(param.getValue());
@@ -441,8 +441,13 @@ public final class CxConfigHelper {
         return isNotEmpty(commandLineValue) ? commandLineValue : propertyValue;
     }
 
-    private static String getRequiredParam(
-            CommandLine cmdLine, String cmdLineOptionName, @Nullable String fallbackProperty)
+    private String getParamWithDefault(String commandLineKey, String fallbackProperty) {
+        String commandLineValue = commandLine.getOptionValue(commandLineKey);
+        String propertyValue = props.getProperty(fallbackProperty);
+        return isNotEmpty(commandLineValue) ? propertyValue + ", " + commandLineValue : propertyValue;
+    }
+
+    private static String getRequiredParam(CommandLine cmdLine, String cmdLineOptionName, @Nullable String fallbackProperty)
             throws CLIParsingException {
         String result = cmdLine.getOptionValue(cmdLineOptionName);
         if (Strings.isNullOrEmpty(result) && fallbackProperty != null) {
