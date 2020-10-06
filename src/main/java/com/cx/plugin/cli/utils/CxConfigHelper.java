@@ -96,8 +96,8 @@ public final class CxConfigHelper {
         }
         scanConfig.setPresetName(cmd.getOptionValue(PRESET) == null ? DEFAULT_PRESET_NAME : cmd.getOptionValue(PRESET));
 
-        scanConfig.setSastFolderExclusions(getOptionalParam(LOCATION_PATH_EXCLUDE, KEY_EXCLUDED_FOLDERS));
-        scanConfig.setSastFilterPattern(getOptionalParam(LOCATION_FILES_EXCLUDE, KEY_EXCLUDED_FILES));
+        scanConfig.setSastFolderExclusions(getParamWithDefault(LOCATION_PATH_EXCLUDE, KEY_EXCLUDED_FOLDERS));
+        scanConfig.setSastFilterPattern(getParamWithDefault(LOCATION_FILES_EXCLUDE, KEY_EXCLUDED_FILES));
         scanConfig.setScanComment(cmd.getOptionValue(SCAN_COMMENT));
         setScanReports(scanConfig);
         scanConfig.setIncremental(cmd.hasOption(IS_INCREMENTAL));
@@ -140,7 +140,7 @@ public final class CxConfigHelper {
         scanConfig.setReportsDir(reportDir != null ? new File(reportDir) : null);
         scanConfig.setOsaGenerateJsonReport(reportDir != null);
 
-        String archiveIncludePatterns = getOptionalParam(OSA_ARCHIVE_TO_EXTRACT, KEY_OSA_EXTRACTABLE_INCLUDE_FILES);
+        String archiveIncludePatterns = getParamWithDefault(OSA_ARCHIVE_TO_EXTRACT, KEY_OSA_EXTRACTABLE_INCLUDE_FILES);
         scanConfig.setOsaArchiveIncludePatterns(archiveIncludePatterns);
 
         String osaScanDepth = getOptionalParam(OSA_SCAN_DEPTH, KEY_OSA_SCAN_DEPTH);
@@ -415,6 +415,12 @@ public final class CxConfigHelper {
         String commandLineValue = commandLine.getOptionValue(commandLineKey);
         String propertyValue = props.getProperty(fallbackProperty);
         return isNotEmpty(commandLineValue) ? commandLineValue : propertyValue;
+    }
+
+    private String getParamWithDefault(String commandLineKey, String fallbackProperty) {
+        String commandLineValue = commandLine.getOptionValue(commandLineKey);
+        String propertyValue = props.getProperty(fallbackProperty);
+        return isNotEmpty(commandLineValue) ? propertyValue + ", " + commandLineValue : propertyValue;
     }
 
     private static String getRequiredParam(
