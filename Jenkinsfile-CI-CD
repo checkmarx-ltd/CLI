@@ -1,0 +1,183 @@
+#!/groovy
+@Library('cx-jenkins-pipeline-kit') _
+import java.time.*
+
+def workspace
+def vmName = "${BUILD_TAG}-CxSAST"
+def vmTemplate90 = "CxSDLC-Template-CxSAST-9-0"
+def vmTemplate92 = "CxSDLC-Template-CxSAST-9-2"
+def vmTemplate93 = "CxSDLC-Template-CxSAST-9-3"
+def ipAddress90
+def ipAddress92
+def ipAddress93
+def ram = "12000"
+def cpu = "4"
+def provider = "VMWARE"
+def decommissionPeriod = "3 hour"
+def vmwareNetwork = "Lab"
+def automationBranch = "9.0.0"
+
+pipeline {
+    parameters {
+        //string(name: 'sastVersions', defaultValue: '8.9,9.0,9.2', description: 'Nodes to build, deploy and test')
+        //string(name: 'jenkinsVersions', defaultValue: 'jenkins01,jenkins02', description: 'App names')
+        string(name: "vmTemplate90",defaultValue: "${vmTemplate90}", description: "Template for 9.0 VM")
+        string(name: "vmTemplate92",defaultValue: "${vmTemplate92}", description: "Template for 9.2 VM")
+        string(name: "vmTemplate93",defaultValue: "${vmTemplate93}", description: "Template for 9.3 VM")
+        string(name: "ram",defaultValue: "${ram}", description: "Server memory")
+        string(name: "cpu",defaultValue: "${cpu}", description: "")
+        string(name: "provider",defaultValue: "${provider}", description: "IAAS platform to be used")
+        string(name: "decommissionPeriod",defaultValue: "${decommissionPeriod}", description: "Decommission period")
+        string(name: "vmwareNetwork",defaultValue: "${vmwareNetwork}", description: "vmware network for new VMs")
+        choice(name: 'automationBranch', choices: ['9.0.0', 'cd-add-resources'], description: 'automation branch')
+    }
+    agent { node { label 'CxSDLC-Slave-CxCLI' } }
+    options {
+        timestamps()
+        timeout(time: 2, unit: 'HOURS')
+        //skipDefaultCheckout()
+    }
+    stages {
+
+        stage('Pipeline Info') {
+            steps {
+                script {
+                    env.PIPELINE_STATUS = "Success"
+                    env.STAGE_NAME_FAILED = "None"
+                    workspace = pwd()
+                    sh 'printenv'
+                }
+            }
+        }
+
+        /*stage('Build') {
+            steps {
+                script {
+                    sh "docker run --rm --name build-${BUILD_TAG} -v ${workspace}:/usr/src/cx-jenkins -v /root/.gradle:/root/.gradle -w /usr/src/cx-jenkins maven:3.6.1-jdk-8-alpine ./gradlew -x test clean jpi"
+                }
+            }
+            post {
+                failure {
+                    script {
+                        env.PIPELINE_STATUS = "Failure"
+                        env.STAGE_NAME_FAILED = "${STAGE_NAME}"
+                    }
+                }
+            }
+        }
+
+        stage('Unit Tests') {
+            steps {
+                script {
+                    sh "docker run --rm --name test-${BUILD_TAG} -v ${workspace}:/usr/src/cx-jenkins -v /root/.gradle:/root/.gradle -w /usr/src/cx-jenkins maven:3.6.1-jdk-8-alpine ./gradlew test"
+                }
+            }
+            post {
+                failure {
+                    script {
+                        env.PIPELINE_STATUS = "Failure"
+                        env.STAGE_NAME_FAILED = "${STAGE_NAME}"
+                    }
+                }
+            }
+        }
+
+        stage('Create CxSAST VM') {
+            when {
+                expression {
+                    BRANCH_NAME == 'master' || BRANCH_NAME.startsWith("PR-") && CHANGE_TARGET == 'master' || BRANCH_NAME == 'add-ci-cd'
+                }
+            }
+            parallel {
+                stage('8.9') {
+                    steps {
+                        script {
+                            kit.Create_Vm_Terraform(vmName + "-8.9", vmTemplate89, ram, cpu, provider, decommissionPeriod, "Auto", "Plugins-CI", vmwareNetwork)
+                            ipAddress89 = kit.getIpAddress(vmName + "-8.9", provider)
+                            node('install01') {
+                                kit.Create_Jenkins_Slave_On_Master(vmName + "-8.9")
+                                kit.Start_Jenkins_Slave_On_Windows_Pstools(ipAddress89, vmName + "-8.9")
+                            }
+                        }
+                    }
+                }
+                stage('9.0') {
+                    steps {
+                        script {
+                            kit.Create_Vm_Terraform(vmName + "-9.0", vmTemplate90, ram, cpu, provider, decommissionPeriod, "Auto", "Plugins-CI", vmwareNetwork)
+                            ipAddress90 = kit.getIpAddress(vmName + "-9.0", provider)
+                            node('install01') {
+                                kit.Create_Jenkins_Slave_On_Master(vmName + "-9.0")
+                                kit.Start_Jenkins_Slave_On_Windows_Pstools(ipAddress90, vmName + "-9.0")
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('System Tests') {
+            when {
+                expression {
+                    BRANCH_NAME == 'master' || BRANCH_NAME.startsWith("PR-") && CHANGE_TARGET == 'master' || BRANCH_NAME == 'add-ci-cd'
+                }
+            }
+            steps {
+                script {
+                    def parallelTopLevelSteps = [:]
+
+                    parallelTopLevelSteps['8.9'] = {
+                        def parallelNestedSteps = [:]
+
+                        parallelNestedSteps['8.9-lts-jdk8'] = { performParallelStages("8.9", ipAddress89,"lts") }
+                        parallelNestedSteps['8.9-lts-jdk11'] = { performParallelStages("8.9", ipAddress89,"lts-jdk11") }
+
+                        parallel(parallelNestedSteps)
+                    }
+
+                    parallelTopLevelSteps['9.0'] = {
+                        def parallelNestedSteps = [:]
+
+                        parallelNestedSteps['9.0-lts-jdk8'] = { performParallelStages("9.0", ipAddress90,"lts") }
+                        parallelNestedSteps['9.0-lts-jdk11'] = { performParallelStages("9.0", ipAddress90,"lts-jdk11") }
+
+                        parallel(parallelNestedSteps)
+                    }
+
+                    parallel(parallelTopLevelSteps)
+                }
+            }
+        }*/
+    }
+    
+    post {
+        always {
+            archiveArtifacts "*.zip, build/libs/*.hpi, *.log"
+            script {
+                if (ipAddress90 != null) {
+                    /*node(vmName + "-9.0") {
+                                kit.zipStashInstallationLogs("CxSAST-9.0-Logs")
+                            }
+                            unstash "CxSAST-9.0-Logs"*/
+                    deleteVm(provider, ipAddress89, vmName + "-9.0")
+                }
+                if (ipAddress92 != null) {
+                    /*node(vmName + "-9.2") {
+                                kit.zipStashInstallationLogs("CxSAST-9.2-Logs")
+                            }
+                            unstash "CxSAST-9.2-Logs"*/
+                    deleteVm(provider, ipAddress90, vmName + "-9.2")
+                }
+                /*try {
+                    kit.Command_Execution_Sh("jq -n env > env.json")
+                    kit.Command_Execution_Sh("curl -sb -k -v -H \"Content-type: application/json\" -XPOST http://cx-elastic01:9200/cx-client-common/_doc -d @env.json")
+                } catch (Exception e) {
+                    kit.Warning_Msg("The message couldn't be pushed to elastic, error:\n" + e.toString())
+                }*/
+            }
+        }
+        cleanup {
+            cleanWs()
+        }
+    }
+}
