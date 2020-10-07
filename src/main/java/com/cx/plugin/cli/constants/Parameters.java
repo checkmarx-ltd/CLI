@@ -91,4 +91,6 @@ public final class Parameters {
 
     public static final String NTLM = "ntlm";
 
+    public static final String ENV_VARIABLE = "env";
+
 }
