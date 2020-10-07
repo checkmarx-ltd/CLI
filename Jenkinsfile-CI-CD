@@ -152,7 +152,7 @@ pipeline {
     
     post {
         always {
-            archiveArtifacts "*.zip, build/libs/*.hpi, *.log"
+            //archiveArtifacts "*.zip, build/libs/*.hpi, *.log"
             script {
                 if (ipAddress90 != null) {
                     /*node(vmName + "-9.0") {
