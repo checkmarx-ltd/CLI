@@ -21,10 +21,9 @@ import org.apache.commons.io.IOUtils;
 import org.apache.http.Consts;
 import org.apache.log4j.Appender;
 import org.apache.log4j.Level;
-import org.slf4j.Logger;
+import org.apache.log4j.Logger;
 import org.apache.log4j.RollingFileAppender;
 import org.apache.log4j.xml.DOMConfigurator;
-import org.slf4j.LoggerFactory;
 import org.slf4j.impl.Log4jLoggerFactory;
 
 import java.io.*;
@@ -39,7 +38,7 @@ import static com.cx.plugin.cli.errorsconstants.ErrorMessages.INVALID_COMMAND_ER
  */
 public class CxConsoleLauncher {
 
-    private static Logger log = LoggerFactory.getLogger(CxConsoleLauncher.class);
+    private static Logger log = Logger.getLogger(CxConsoleLauncher.class);
 
     public static void main(String[] args) {
         int exitCode;
@@ -82,7 +81,7 @@ public class CxConsoleLauncher {
 
         if (propFilePath != null) {
             try {
-                log.info("Overriding properties from file: {}", propFilePath);
+                log.info("Overriding properties from file: " + propFilePath);
                 String argsStr = IOUtils.toString(new FileInputStream(propFilePath), Consts.UTF_8);
                 args = argsStr.split("\\s+");
             } catch (Exception e) {
@@ -104,17 +103,17 @@ public class CxConsoleLauncher {
         org.slf4j.Logger logger = new Log4jLoggerFactory().getLogger(log.getName());
         CxSastConnectionProvider connectionProvider = new CxSastConnectionProvider(cxScanConfig, logger);
 
-        CxClientDelegator clientDelegator = new CxClientDelegator(cxScanConfig, log);
+        CxClientDelegator clientDelegator = new CxClientDelegator(cxScanConfig, logger);
         clientDelegator.init();
 
         if (command.equals(Command.TEST_CONNECTION)) {
             if (cxScanConfig.getAstScaConfig() != null) {
                 String accessControlUrl = cxScanConfig.getAstScaConfig().getAccessControlUrl();
-                log.info("Testing connection to: {}", accessControlUrl);
+                log.info("Testing connection to: " + accessControlUrl);
                 clientDelegator.getScaClient().testScaConnection();
             } else {
                 String url = cxScanConfig.getUrl();
-                log.info("Testing connection to: {}", url);
+                log.info("Testing connection to: " + url);
                 connectionProvider.login();
             }
             log.info("Login successful");
@@ -125,7 +124,7 @@ public class CxConsoleLauncher {
             if (cxTokenExists(commandLine)) {
                 String token = cxScanConfig.getRefreshToken();
                 token = DigestUtils.sha256Hex(token);
-                log.info("Revoking access token: {}", token);
+                log.info("Revoking access token: " + token);
                 connectionProvider.revokeToken(cxScanConfig.getRefreshToken());
                 return exitCode;
             } else {
@@ -138,7 +137,7 @@ public class CxConsoleLauncher {
         if (command.equals(Command.GENERATE_TOKEN)) {
             if (userPasswordProvided(commandLine)) {
                 String token = connectionProvider.getToken();
-                log.info("The login token is: {}", token);
+                log.info("The login token is: " + token);
                 return exitCode;
             } else {
                 log.error("-CxUser and -CxPassword flags are missing.");
@@ -243,7 +242,7 @@ public class CxConsoleLauncher {
                 ((RollingFileAppender) faAppender).setThreshold(Level.TRACE);
             }
             ((RollingFileAppender) faAppender).setWriter(writer);
-            log.info("[CxConsole] Log file location: {}", logPath);
+            log.info("[CxConsole] Log file location: " + logPath);
         } catch (IOException e) {
             throw new CLIParsingException("[CxConsole] error creating log file", e);
         }
