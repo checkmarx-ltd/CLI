@@ -65,7 +65,7 @@ pipeline {
         stage('Build') {
             steps {
                 script {
-                    sh "docker run --rm --name build-${BUILD_TAG} -v /root/.m2:/root/.m2 -v ${workspace}:/usr/src/cx-cli -w /usr/src/cx-cli maven:3.6.1-jdk-8-alpine mvn clean process-resources install -DskipTests -Dcxcli.version=${env.cxCliVersion}"
+                    sh "docker run --rm --name build-${BUILD_TAG} -v maven-repo:/root/.m2 -v ${workspace}:/usr/src/cx-cli -w /usr/src/cx-cli maven:3.6.1-jdk-8-alpine mvn clean process-resources install -DskipTests -Dcxcli.version=${env.cxCliVersion}"
                 }
             }
             post {
@@ -84,7 +84,7 @@ pipeline {
                 stage('Run Unit & Integration Tests') {
                     steps {
                         script {
-                            sh "docker run --rm --name test-${BUILD_TAG} -v /root/.m2:/root/.m2 -v ${workspace}:/usr/src/cx-cli -w /usr/src/cx-cli maven:3.6.1-jdk-8-alpine mvn test verify -Dcxcli.version=${env.cxCliVersion}"
+                            sh "docker run --rm --name test-${BUILD_TAG} -v maven-repo:/root/.m2 -v ${workspace}:/usr/src/cx-cli -w /usr/src/cx-cli maven:3.6.1-jdk-8-alpine mvn test verify -Dcxcli.version=${env.cxCliVersion}"
                         }
                     }
                     post {
@@ -103,7 +103,7 @@ pipeline {
                     }
                     steps {
                         script {
-                            sh "docker run --rm --name sonar-${BUILD_TAG} -v /root/.m2:/root/.m2 -v ${workspace}:/usr/src/cx-cli -w /usr/src/cx-cli maven:3.6.1-jdk-8-alpine mvn sonar:sonar -Dcxcli.version=${env.cxCliVersion}"
+                            sh "docker run --rm --name sonar-${BUILD_TAG} -v maven-repo:/root/.m2 -v ${workspace}:/usr/src/cx-cli -w /usr/src/cx-cli maven:3.6.1-jdk-8-alpine mvn sonar:sonar -Dcxcli.version=${env.cxCliVersion}"
                             /*def sonarTaskUrl = sh (returnStdout: true, script: "awk '/./{line=\$0} END{print line}' ./target/sonar/report-task.txt | cut -d '=' -f '2,3'").trim()
                             def sonarTaskStatus = sh (returnStdout: true, script: "curl -s -u ${SONAR_CLOUD_TOKEN}: ${sonarTaskUrl} | jq -r '.task.status'").trim()
                             while (sonarTaskStatus == 'PENDING' || sonarTaskStatus == 'IN_PROGRESS') {
