@@ -29,7 +29,7 @@ pipeline {
         string(name: "provider",defaultValue: "${provider}", description: "IAAS platform to be used")
         string(name: "decommissionPeriod",defaultValue: "${decommissionPeriod}", description: "Decommission period")
         string(name: "vmwareNetwork",defaultValue: "${vmwareNetwork}", description: "vmware network for new VMs")
-        choice(name: 'automationBranch', choices: ['9.0.0', 'cd-add-resources'], description: 'automation branch')
+        string(name: "automationBranch", defaultValue: "${automationBranch}", description: "automation branch")
     }
     agent { node { label 'CxSDLC-Slave-CxCLI' } }
     options {
@@ -44,16 +44,28 @@ pipeline {
                 script {
                     env.PIPELINE_STATUS = "Success"
                     env.STAGE_NAME_FAILED = "None"
+                    if (BRANCH_NAME == 'master') {
+                        Calendar cal = Calendar.getInstance(Locale.US)
+                        int quarter = (cal.get(Calendar.MONTH) / 3) + 1
+                        int year = cal.get(Calendar.YEAR)
+                        env.cxCliVersion = "${year}.${quarter}.${BUILD_NUMBER}"
+                        sh "sed -e 's/\${cxcli.version}/${env.cxCliVersion}/g' -i ./pom.xml"
+                    } else {
+                        env.cxCliVersion = "${BUILD_TAG}"
+                    }
                     workspace = pwd()
+                    if (env.automationBranch == null) {
+                        env.automationBranch = automationBranch
+                    }
                     sh 'printenv'
                 }
             }
         }
 
-        /*stage('Build') {
+        stage('Build') {
             steps {
                 script {
-                    sh "docker run --rm --name build-${BUILD_TAG} -v ${workspace}:/usr/src/cx-jenkins -v /root/.gradle:/root/.gradle -w /usr/src/cx-jenkins maven:3.6.1-jdk-8-alpine ./gradlew -x test clean jpi"
+                    sh "docker run --rm --name build-${BUILD_TAG} -v /root/.m2:/root/.m2 -v ${workspace}:/usr/src/cx-cli -w /usr/src/cx-cli maven:3.6.1-jdk-8-alpine mvn clean process-resources install -DskipTests -Dcxcli.version=${env.cxCliVersion}"
                 }
             }
             post {
@@ -66,23 +78,64 @@ pipeline {
             }
         }
 
-        stage('Unit Tests') {
-            steps {
-                script {
-                    sh "docker run --rm --name test-${BUILD_TAG} -v ${workspace}:/usr/src/cx-jenkins -v /root/.gradle:/root/.gradle -w /usr/src/cx-jenkins maven:3.6.1-jdk-8-alpine ./gradlew test"
+        stage('UT-IT & Sonar') {
+            parallel {
+
+                stage('Run Unit & Integration Tests') {
+                    steps {
+                        script {
+                            sh "docker run --rm --name test-${BUILD_TAG} -v /root/.m2:/root/.m2 -v ${workspace}:/usr/src/cx-cli -w /usr/src/cx-cli maven:3.6.1-jdk-8-alpine mvn test verify -Dcxcli.version=${env.cxCliVersion}"
+                        }
+                    }
+                    post {
+                        failure {
+                            script {
+                                env.PIPELINE_STATUS = "Failure"
+                                env.STAGE_NAME_FAILED="${STAGE_NAME}"
+                            }
+                        }
+                    }
                 }
-            }
-            post {
-                failure {
-                    script {
-                        env.PIPELINE_STATUS = "Failure"
-                        env.STAGE_NAME_FAILED = "${STAGE_NAME}"
+
+                stage('Run Code Quality') {
+                    environment {
+                        SONAR_CLOUD_TOKEN = credentials('sonarcloud')
+                    }
+                    steps {
+                        script {
+                            sh "docker run --rm --name sonar-${BUILD_TAG} -v /root/.m2:/root/.m2 -v ${workspace}:/usr/src/cx-cli -w /usr/src/cx-cli maven:3.6.1-jdk-8-alpine mvn sonar:sonar -Dcxcli.version=${env.cxCliVersion}"
+                            /*def sonarTaskUrl = sh (returnStdout: true, script: "awk '/./{line=\$0} END{print line}' ./target/sonar/report-task.txt | cut -d '=' -f '2,3'").trim()
+                            def sonarTaskStatus = sh (returnStdout: true, script: "curl -s -u ${SONAR_CLOUD_TOKEN}: ${sonarTaskUrl} | jq -r '.task.status'").trim()
+                            while (sonarTaskStatus == 'PENDING' || sonarTaskStatus == 'IN_PROGRESS') {
+                                echo "Sonar task status is: ${sonarTaskStatus}. Waiting for 5 seconds..."
+                                sleep(5)
+                                sonarTaskStatus = sh (returnStdout: true, script: "curl -s -u ${SONAR_CLOUD_TOKEN}: ${sonarTaskUrl} | jq -r '.task.status'").trim()
+                            }
+                            if (sonarTaskStatus == "FAILED" || sonarTaskStatus == "CANCELED") {
+                                Error_Msg("Sonar scan ${sonarTaskStatus}. You can find more details at https://sonarcloud.io/dashboard?id=checkmarx-ltd_Cx-Client-Common")
+                                error "Sonar scan ${sonarTaskStatus}. You can find more details at https://sonarcloud.io/dashboard?id=checkmarx-ltd_Cx-Client-Common"
+                            }
+                            def sonarAnalysisId = sh (returnStdout: true, script: "curl -s -u ${SONAR_CLOUD_TOKEN}: ${sonarTaskUrl} | jq -r '.task.analysisId'").trim()
+                            def sonarResultsStatus = sh (returnStdout: true, script: "curl -s -u ${SONAR_CLOUD_TOKEN}: https://sonarcloud.io/api/qualitygates/project_status?analysisId=${sonarAnalysisId} | jq -r '.projectStatus.status'").trim()
+                            if (sonarResultsStatus == "ERROR") {
+                                kit.Error_Msg("Sonar scan FAILED. You can find more details at https://sonarcloud.io/dashboard?id=checkmarx-ltd_Cx-Client-Common")
+                                error "Sonar scan FAILED. You can find more details at https://sonarcloud.io/dashboard?id=checkmarx-ltd_Cx-Client-Common"
+                            }*/
+                        }
+                    }
+                    post {
+                        failure {
+                            script {
+                                env.PIPELINE_STATUS = "Failure"
+                                env.STAGE_NAME_FAILED="${STAGE_NAME}"
+                            }
+                        }
                     }
                 }
             }
         }
 
-        stage('Create CxSAST VM') {
+        /*stage('Create CxSAST VM') {
             when {
                 expression {
                     BRANCH_NAME == 'master' || BRANCH_NAME.startsWith("PR-") && CHANGE_TARGET == 'master' || BRANCH_NAME == 'add-ci-cd'
