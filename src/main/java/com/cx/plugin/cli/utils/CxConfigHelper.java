@@ -525,15 +525,15 @@ public final class CxConfigHelper {
     private HashMap<String, String> convertStringToKeyValueMap(String envString) {
 
         HashMap<String, String> envMap = new HashMap<>();
-        //"Key1=Val1;Key2=Val2"
+        //"Key1:Val1,Key2:Val2"
         String trimmedString = envString.replace("\"","");
-        List<String> envlist = Arrays.asList(trimmedString.split(";"));
+        List<String> envlist = Arrays.asList(trimmedString.split(","));
 
         for( String variable : envlist)
         {
-            String[] splitFromEqual = variable.split("=");
-            String key = splitFromEqual[0];
-            String value = splitFromEqual[1];
+            String[] splitFromEqual = variable.split(":");
+            String key = (splitFromEqual[0]).trim();
+            String value = (splitFromEqual[1]).trim();
 
             envMap.put(key, value);
         }
