@@ -243,7 +243,7 @@ public final class CxConfigHelper {
     }
 
     private String validatePassword(String password) {
-        return (StringUtils.isNotEmpty(password) && password.startsWith("''")) ? password.substring(2) : password;
+        return (StringUtils.isNotEmpty(password) && password.startsWith("'")) ? password.substring(1,password.length()-1) : password;
     }
 
     private String getSastOrOsaServerUrl() throws CLIParsingException {
