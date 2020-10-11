@@ -135,25 +135,13 @@ pipeline {
             }
         }
 
-        /*stage('Create CxSAST VM') {
+        stage('Create CxSAST VM') {
             when {
                 expression {
                     BRANCH_NAME == 'master' || BRANCH_NAME.startsWith("PR-") && CHANGE_TARGET == 'master' || BRANCH_NAME == 'add-ci-cd'
                 }
             }
             parallel {
-                stage('8.9') {
-                    steps {
-                        script {
-                            kit.Create_Vm_Terraform(vmName + "-8.9", vmTemplate89, ram, cpu, provider, decommissionPeriod, "Auto", "Plugins-CI", vmwareNetwork)
-                            ipAddress89 = kit.getIpAddress(vmName + "-8.9", provider)
-                            node('install01') {
-                                kit.Create_Jenkins_Slave_On_Master(vmName + "-8.9")
-                                kit.Start_Jenkins_Slave_On_Windows_Pstools(ipAddress89, vmName + "-8.9")
-                            }
-                        }
-                    }
-                }
                 stage('9.0') {
                     steps {
                         script {
@@ -166,10 +154,34 @@ pipeline {
                         }
                     }
                 }
+                stage('9.2') {
+                    steps {
+                        script {
+                            kit.Create_Vm_Terraform(vmName + "-9.2", vmTemplate92, ram, cpu, provider, decommissionPeriod, "Auto", "Plugins-CI", vmwareNetwork)
+                            ipAddress92 = kit.getIpAddress(vmName + "-9.2", provider)
+                            node('install01') {
+                                kit.Create_Jenkins_Slave_On_Master(vmName + "-9.2")
+                                kit.Start_Jenkins_Slave_On_Windows_Pstools(ipAddress92, vmName + "-9.2")
+                            }
+                        }
+                    }
+                }
+                stage('9.3') {
+                    steps {
+                        script {
+                            kit.Create_Vm_Terraform(vmName + "-9.3", vmTemplate93, ram, cpu, provider, decommissionPeriod, "Auto", "Plugins-CI", vmwareNetwork)
+                            ipAddress93 = kit.getIpAddress(vmName + "-9.3", provider)
+                            node('install01') {
+                                kit.Create_Jenkins_Slave_On_Master(vmName + "-9.3")
+                                kit.Start_Jenkins_Slave_On_Windows_Pstools(ipAddress93, vmName + "-9.3")
+                            }
+                        }
+                    }
+                }
             }
         }
 
-        stage('System Tests') {
+        /*stage('System Tests') {
             when {
                 expression {
                     BRANCH_NAME == 'master' || BRANCH_NAME.startsWith("PR-") && CHANGE_TARGET == 'master' || BRANCH_NAME == 'add-ci-cd'
@@ -212,14 +224,21 @@ pipeline {
                                 kit.zipStashInstallationLogs("CxSAST-9.0-Logs")
                             }
                             unstash "CxSAST-9.0-Logs"*/
-                    deleteVm(provider, ipAddress89, vmName + "-9.0")
+                    deleteVm(provider, ipAddress90, vmName + "-9.0")
                 }
                 if (ipAddress92 != null) {
                     /*node(vmName + "-9.2") {
                                 kit.zipStashInstallationLogs("CxSAST-9.2-Logs")
                             }
                             unstash "CxSAST-9.2-Logs"*/
-                    deleteVm(provider, ipAddress90, vmName + "-9.2")
+                    deleteVm(provider, ipAddress92, vmName + "-9.2")
+                }
+                if (ipAddress93 != null) {
+                    /*node(vmName + "-9.3") {
+                                kit.zipStashInstallationLogs("CxSAST-9.3-Logs")
+                            }
+                            unstash "CxSAST-9.3-Logs"*/
+                    deleteVm(provider, ipAddress93, vmName + "-9.3")
                 }
                 /*try {
                     kit.Command_Execution_Sh("jq -n env > env.json")
