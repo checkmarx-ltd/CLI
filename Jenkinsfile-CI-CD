@@ -138,7 +138,7 @@ pipeline {
         stage('Create CxSAST VM') {
             when {
                 expression {
-                    BRANCH_NAME == 'master' || BRANCH_NAME.startsWith("PR-") && CHANGE_TARGET == 'master' || BRANCH_NAME == 'add-ci-cd'
+                    BRANCH_NAME == 'master' || BRANCH_NAME == 'develop' || BRANCH_NAME.startsWith("PR-") && CHANGE_TARGET == 'master' || BRANCH_NAME.startsWith("PR-") && CHANGE_TARGET == 'develop'
                 }
             }
             parallel {
