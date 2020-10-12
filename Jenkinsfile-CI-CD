@@ -31,7 +31,7 @@ def performParallelStages(String sastVer, String sastIP) {
             dir("${workspace}/sast-${sastVer}/Checkmarx-System-Test") {
                 git branch: automationBranch, credentialsId: '15f8e7b7-6ce7-44c0-b151-84f99ffa7aed', poll: false, url: 'http://tfs2013:8080/tfs/DefaultCollection/Automation/_git/Checkmarx-System-Test'
                 sh "cp -r /var/jenkins/workspace/env ."
-                sh "cp ${workspace}/CLI-4-automation ."
+                sh "cp -r ${workspace}/CLI-4-automation ."
                 sh "find ."
                 sh "sed -e 's/<CxSastIpAddress>/${sastIP}/g' -i ./env/topology.xml"
             }
@@ -257,9 +257,7 @@ pipeline {
             steps {
                 script {
                     unzip dir: "${workspace}/CLI-4-automation", glob: '', zipFile: "${workspace}/target/CxConsolePlugin-${env.cxCliVersion}.zip"
-                    sh "find ."
                     sh "mv ${workspace}/CLI-4-automation/CxConsolePlugin-CLI-${env.cxCliVersion}.jar ${workspace}/CLI-4-automation/cx_console.jar"
-                    sh "find ."
 
                     def parallelTopLevelSteps = [:]
                     parallelTopLevelSteps['9.0'] = { performParallelStages("9.0", ipAddress90) }
