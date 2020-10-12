@@ -8,7 +8,9 @@ import com.cx.plugin.cli.utils.CxConfigHelper;
 import com.cx.plugin.cli.utils.ErrorParsingHelper;
 import com.cx.restclient.CxClientDelegator;
 import com.cx.restclient.configuration.CxScanConfig;
+import com.cx.restclient.dto.Results;
 import com.cx.restclient.dto.ScanResults;
+import com.cx.restclient.dto.ScannerType;
 import com.cx.restclient.dto.scansummary.ScanSummary;
 import com.cx.restclient.exception.CxClientException;
 import com.google.common.io.Files;
@@ -27,7 +29,10 @@ import org.apache.log4j.xml.DOMConfigurator;
 import org.slf4j.impl.Log4jLoggerFactory;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 import static com.cx.plugin.cli.constants.Parameters.*;
 import static com.cx.plugin.cli.errorsconstants.ErrorMessages.INVALID_COMMAND_COUNT;
@@ -94,6 +99,7 @@ public class CxConsoleLauncher {
 
     private static int execute(Command command, CommandLine commandLine)
             throws CLIParsingException, IOException, CxClientException, InterruptedException {
+        List<ScanResults> results = new ArrayList<>();
         int exitCode = Errors.SCAN_SUCCEEDED.getCode();
         CxConfigHelper.printConfig(commandLine);
 
@@ -104,7 +110,8 @@ public class CxConsoleLauncher {
         CxSastConnectionProvider connectionProvider = new CxSastConnectionProvider(cxScanConfig, logger);
 
         CxClientDelegator clientDelegator = new CxClientDelegator(cxScanConfig, logger);
-        clientDelegator.init();
+        ScanResults initScanResults = clientDelegator.init();
+        results.add(initScanResults);
 
         if (command.equals(Command.TEST_CONNECTION)) {
             if (cxScanConfig.getAstScaConfig() != null) {
@@ -146,13 +153,14 @@ public class CxConsoleLauncher {
             }
         }
 
-        clientDelegator.initiateScan();
-
+        ScanResults createScanResults = clientDelegator.initiateScan();
+        results.add(createScanResults);
 
         if (cxScanConfig.getSynchronous()) {
             final ScanResults scanResults = clientDelegator.waitForScanResults();
+            results.add(scanResults);
 
-            getScanResultExceptionIfExists(scanResults);
+            getScanResultExceptionIfExists(results);
 
             ScanSummary scanSummary = new ScanSummary(
                     cxScanConfig,
@@ -165,21 +173,24 @@ public class CxConsoleLauncher {
                 log.info(scanSummaryString);
                 exitCode = ErrorParsingHelper.getErrorType(scanSummary).getCode();
             }
+        } else {
+            getScanResultExceptionIfExists(results);
         }
 
         return exitCode;
     }
 
-    private static void getScanResultExceptionIfExists(ScanResults scanResults) {
-        if (scanResults != null && scanResults.getSastResults() != null && scanResults.getSastResults().getWaitException() != null) {
-            throw new CxClientException(scanResults.getSastResults().getWaitException());
-        }
-        if (scanResults != null && scanResults.getOsaResults() != null && scanResults.getOsaResults().getWaitException() != null) {
-            throw new CxClientException(scanResults.getOsaResults().getWaitException());
-        }
-        if (scanResults != null && scanResults.getScaResults() != null && scanResults.getScaResults().getWaitException() != null) {
-            throw new CxClientException(scanResults.getScaResults().getWaitException());
-        }
+    private static void getScanResultExceptionIfExists(List<ScanResults> scanResults) {
+        scanResults.forEach(scanResult -> {
+            if (scanResult != null) {
+                Map<ScannerType, Results> resultsMap = scanResult.getResults();
+                for (Results value : resultsMap.values()) {
+                    if (value != null && value.getException() != null) {
+                        throw value.getException();
+                    }
+                }
+            }
+        });
     }
 
     private static CommandLine getCommandLine(String[] args) throws ParseException {
