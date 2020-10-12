@@ -17,6 +17,78 @@ def decommissionPeriod = "3 hour"
 def vmwareNetwork = "Lab"
 def automationBranch = "9.0.0"
 
+def performParallelStages(String sastVer, String sastIP) {
+    workspace = pwd()
+    /*def dockerHostIP = sh(returnStdout: true, script: "hostname -I | awk '{print \$1}'").trim()
+    def jenkinsContainerName = "deploy-jenkins-${jenkinsVer}-sast-${sastVer}-${BUILD_TAG}"
+    def jenkinsContainerPort*/
+
+    try {
+
+        stage("Pull Automation for CxSAST-${sastVer}") {
+            echo "Pulling automation code for CxSAST-${sastVer}"
+
+            dir("${workspace}/sast-${sastVer}/Checkmarx-System-Test") {
+                git branch: automationBranch, credentialsId: '15f8e7b7-6ce7-44c0-b151-84f99ffa7aed', poll: false, url: 'http://tfs2013:8080/tfs/DefaultCollection/Automation/_git/Checkmarx-System-Test'
+                sh "cp -r /var/jenkins/workspace/env ."
+                sh "sed -e 's/<CxSastIpAddress>/${sastIP}/g' -i ./env/topology.xml"
+                sh "ls -l"
+                /*sh "sed -e 's/<CxJenkinsIp>/${dockerHostIP}/g' -i ./env/topology.xml"
+                sh "sed -e 's/<CxJenkinsPort>/${jenkinsContainerPort}/g' -i ./env/topology.xml"
+                sh "sed -e 's/<CxJenkinsIp>/${dockerHostIP}/g' -i ./env/env.properties"
+                sh "sed -e 's/<CxJenkinsPort>/${jenkinsContainerPort}/g' -i ./env/env.properties"*/
+                //sh "cat ./env/topology.xml"
+                //sh "cat ./env/env.properties"
+            }
+        }
+
+        /*stage("Problematic Global tests for Jenkins-${jenkinsVer}-CxSAST-${sastVer}") {
+            echo "Running Problematic Global tests for Jenkins-${jenkinsVer}-CxSAST-${sastVer}"
+            //todo: change -Dmaven.test.failure.ignore=true to false
+            sh "docker run --rm --privileged --name problematic-tests-jenkins-${jenkinsVer}-sast-${sastVer}-${BUILD_TAG} -v maven-repo:/root/.m2 -v ${workspace}/jenkins-${jenkinsVer}/sast-${sastVer}/Checkmarx-Plugin-System-Test:/usr/src/automation -v ${workspace}/jenkins-${jenkinsVer}/sast-${sastVer}/Checkmarx-Plugin-System-Test/env/chromedriver:/usr/local/bin/chromedriver -w /usr/src/automation maven:3.6.1-jdk-8-alpine \
+            mvn -q clean test -Dtest=com.cx.automation.plugin.jenkins.sca.problematicGlobal.tests.**.* -Dtopology.xml.ref=/usr/src/automation/env/topology.xml -Denv=hardening_env -DfailIfNoTests=false -Dmaven.test.failure.ignore=true -DskipTests=false -Ddriver.browser=CHROME -Dheadless=true surefire-report:report"
+        }
+
+        stage("Sanity tests for Jenkins-${jenkinsVer}-CxSAST-${sastVer}") {
+            echo "Running Sanity tests for Jenkins-${jenkinsVer}-CxSAST-${sastVer}"
+            //todo: change -Dmaven.test.failure.ignore=true to false
+            sh "docker run --rm --privileged --name sanity-tests-jenkins-${jenkinsVer}-sast-${sastVer}-${BUILD_TAG} -v maven-repo:/root/.m2 -v ${workspace}/jenkins-${jenkinsVer}/sast-${sastVer}/Checkmarx-Plugin-System-Test:/usr/src/automation -v ${workspace}/jenkins-${jenkinsVer}/sast-${sastVer}/Checkmarx-Plugin-System-Test/env/chromedriver:/usr/local/bin/chromedriver -w /usr/src/automation maven:3.6.1-jdk-8-alpine \
+            mvn -q test -Dtest=com.cx.automation.plugin.jenkins.sca.sanity.tests.**.* -Dtopology.xml.ref=/usr/src/automation/env/topology.xml -Denv=hardening_env -DfailIfNoTests=false -Dmaven.test.failure.ignore=true -DskipTests=false -Ddriver.browser=CHROME -Dheadless=true surefire-report:report"
+        }
+
+        stage("Regressions tests for Jenkins-${jenkinsVer}-CxSAST-${sastVer}") {
+            echo "Running Regressions tests for Jenkins-${jenkinsVer}-CxSAST-${sastVer}"
+            //todo: change -Dmaven.test.failure.ignore=true to false
+            sh "docker run --rm --privileged --name regressions-tests-jenkins-${jenkinsVer}-sast-${sastVer}-${BUILD_TAG} -v maven-repo:/root/.m2 -v ${workspace}/jenkins-${jenkinsVer}/sast-${sastVer}/Checkmarx-Plugin-System-Test:/usr/src/automation -v ${workspace}/jenkins-${jenkinsVer}/sast-${sastVer}/Checkmarx-Plugin-System-Test/env/chromedriver:/usr/local/bin/chromedriver -w /usr/src/automation maven:3.6.1-jdk-8-alpine \
+            mvn -q test -Dtest=com.cx.automation.plugin.jenkins.sca.regressions.tests.**.* -Dtopology.xml.ref=/usr/src/automation/env/topology.xml -Denv=hardening_env -DfailIfNoTests=false -Dmaven.test.failure.ignore=true -DskipTests=false -Ddriver.browser=CHROME -Dheadless=true surefire-report:report"
+        }
+
+        stage("Global Config tests for Jenkins-${jenkinsVer}-CxSAST-${sastVer}") {
+            echo "Running Global Config tests for Jenkins-${jenkinsVer}-CxSAST-${sastVer}"
+            //todo: change -Dmaven.test.failure.ignore=true to false
+            sh "docker run --rm --privileged --name global-config-tests-jenkins-${jenkinsVer}-sast-${sastVer}-${BUILD_TAG} -v maven-repo:/root/.m2 -v ${workspace}/jenkins-${jenkinsVer}/sast-${sastVer}/Checkmarx-Plugin-System-Test:/usr/src/automation -v ${workspace}/jenkins-${jenkinsVer}/sast-${sastVer}/Checkmarx-Plugin-System-Test/env/chromedriver:/usr/local/bin/chromedriver -w /usr/src/automation maven:3.6.1-jdk-8-alpine \
+            mvn -q test -Dtest=com.cx.automation.plugin.jenkins.sca.globalConfiguration.**.* -Dtopology.xml.ref=/usr/src/automation/env/topology.xml -Denv=hardening_env -DfailIfNoTests=false -Dmaven.test.failure.ignore=false -DskipTests=false -Ddriver.browser=CHROME -Dheadless=true surefire-report:report"
+        }*/
+    } catch (e) {
+        throw e
+    } /*finally {
+        sh "docker logs ${jenkinsContainerName} &> deploy-jenkins-${jenkinsVer}-sast-${sastVer}.log"
+        sh "docker stop ${jenkinsContainerName}"
+        //sh "cp ${workspace}/jenkins-${jenkinsVer}/sast-${sastVer}/Checkmarx-Plugin-System-Test/cxBaseDataModelAuto.log ./problematic-tests-jenkins-${jenkinsVer}-sast-${sastVer}.log"
+        junit "jenkins-${jenkinsVer}/sast-${sastVer}/Checkmarx-Plugin-System-Test/JenkinsTests/target/surefire-reports/TEST-*.xml"
+        sh "docker run --rm --privileged --name html-reports-jenkins-${jenkinsVer}-sast-${sastVer}-${BUILD_TAG} -v maven-repo:/root/.m2 -v ${workspace}/jenkins-${jenkinsVer}/sast-${sastVer}/Checkmarx-Plugin-System-Test:/usr/src/automation -w /usr/src/automation maven:3.6.1-jdk-8-alpine \
+            mvn -q site -DgenerateReports=false"
+        publishHTML(target: [
+                allowMissing         : false,
+                alwaysLinkToLastBuild: false,
+                keepAll              : true,
+                reportDir            : "jenkins-${jenkinsVer}/sast-${sastVer}/Checkmarx-Plugin-System-Test/JenkinsTests/target/site",
+                reportFiles          : "surefire-report.html",
+                reportName           : "Test Results-Jenkins ${jenkinsVer} CxSAST ${sastVer}"
+        ])
+    }*/
+}
+
 pipeline {
     parameters {
         //string(name: 'sastVersions', defaultValue: '8.9,9.0,9.2', description: 'Nodes to build, deploy and test')
@@ -181,38 +253,24 @@ pipeline {
             }
         }
 
-        /*stage('System Tests') {
+        stage('System Tests') {
             when {
                 expression {
-                    BRANCH_NAME == 'master' || BRANCH_NAME.startsWith("PR-") && CHANGE_TARGET == 'master' || BRANCH_NAME == 'add-ci-cd'
+                    BRANCH_NAME == 'master' || BRANCH_NAME == 'develop' || BRANCH_NAME.startsWith("PR-") && CHANGE_TARGET == 'master' || BRANCH_NAME.startsWith("PR-") && CHANGE_TARGET == 'develop'
                 }
             }
             steps {
                 script {
                     def parallelTopLevelSteps = [:]
 
-                    parallelTopLevelSteps['8.9'] = {
-                        def parallelNestedSteps = [:]
-
-                        parallelNestedSteps['8.9-lts-jdk8'] = { performParallelStages("8.9", ipAddress89,"lts") }
-                        parallelNestedSteps['8.9-lts-jdk11'] = { performParallelStages("8.9", ipAddress89,"lts-jdk11") }
-
-                        parallel(parallelNestedSteps)
-                    }
-
-                    parallelTopLevelSteps['9.0'] = {
-                        def parallelNestedSteps = [:]
-
-                        parallelNestedSteps['9.0-lts-jdk8'] = { performParallelStages("9.0", ipAddress90,"lts") }
-                        parallelNestedSteps['9.0-lts-jdk11'] = { performParallelStages("9.0", ipAddress90,"lts-jdk11") }
-
-                        parallel(parallelNestedSteps)
-                    }
+                    parallelTopLevelSteps['9.0'] = { performParallelStages("9.0", ipAddress90) }
+                    parallelTopLevelSteps['9.2'] = { performParallelStages("9.2", ipAddress92) }
+                    parallelTopLevelSteps['9.3'] = { performParallelStages("9.3", ipAddress93) }
 
                     parallel(parallelTopLevelSteps)
                 }
             }
-        }*/
+        }
     }
     
     post {
