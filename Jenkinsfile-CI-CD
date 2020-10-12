@@ -32,19 +32,17 @@ def performParallelStages(String sastVer, String sastIP) {
                 git branch: automationBranch, credentialsId: '15f8e7b7-6ce7-44c0-b151-84f99ffa7aed', poll: false, url: 'http://tfs2013:8080/tfs/DefaultCollection/Automation/_git/Checkmarx-System-Test'
                 sh "cp -r /var/jenkins/workspace/env ."
                 sh "cp -r ${workspace}/CLI-4-automation ."
-                sh "find ."
                 sh "sed -e 's/<CxSastIpAddress>/${sastIP}/g' -i ./env/topology.xml"
             }
         }
 
-        /*stage("Problematic Global tests for Jenkins-${jenkinsVer}-CxSAST-${sastVer}") {
-            echo "Running Problematic Global tests for Jenkins-${jenkinsVer}-CxSAST-${sastVer}"
-            //todo: change -Dmaven.test.failure.ignore=true to false
-            sh "docker run --rm --privileged --name problematic-tests-jenkins-${jenkinsVer}-sast-${sastVer}-${BUILD_TAG} -v maven-repo:/root/.m2 -v ${workspace}/jenkins-${jenkinsVer}/sast-${sastVer}/Checkmarx-Plugin-System-Test:/usr/src/automation -v ${workspace}/jenkins-${jenkinsVer}/sast-${sastVer}/Checkmarx-Plugin-System-Test/env/chromedriver:/usr/local/bin/chromedriver -w /usr/src/automation maven:3.6.1-jdk-8-alpine \
-            mvn -q clean test -Dtest=com.cx.automation.plugin.jenkins.sca.problematicGlobal.tests.**.* -Dtopology.xml.ref=/usr/src/automation/env/topology.xml -Denv=hardening_env -DfailIfNoTests=false -Dmaven.test.failure.ignore=true -DskipTests=false -Ddriver.browser=CHROME -Dheadless=true surefire-report:report"
+        stage("Sanity tests for CxSAST-${sastVer}") {
+            echo "Running Sanity tests for CxSAST-${sastVer}"
+            sh "docker run --rm --privileged --name sanity-tests-sast-${sastVer}-${BUILD_TAG} -v maven-repo:/root/.m2 -v ${workspace}/sast-${sastVer}/Checkmarx-System-Test:/usr/src/automation -w /usr/src/automation maven:3.6.1-jdk-8-alpine \
+            mvn -q clean test -Dtest=com.cx.automation.cli.sanity.test.* -Dtopology.xml.ref=/usr/src/automation/env/topology.xml -Denv=external_env -DfailIfNoTests=false -Dmaven.test.failure.ignore=false -DskipTests=false -Ddriver.browser=CHROME -Dheadless=true -Dcli_plugin_location=/usr/src/automation/CLI-4-automation surefire-report:report"
         }
 
-        stage("Sanity tests for Jenkins-${jenkinsVer}-CxSAST-${sastVer}") {
+        /*stage("Sanity tests for Jenkins-${jenkinsVer}-CxSAST-${sastVer}") {
             echo "Running Sanity tests for Jenkins-${jenkinsVer}-CxSAST-${sastVer}"
             //todo: change -Dmaven.test.failure.ignore=true to false
             sh "docker run --rm --privileged --name sanity-tests-jenkins-${jenkinsVer}-sast-${sastVer}-${BUILD_TAG} -v maven-repo:/root/.m2 -v ${workspace}/jenkins-${jenkinsVer}/sast-${sastVer}/Checkmarx-Plugin-System-Test:/usr/src/automation -v ${workspace}/jenkins-${jenkinsVer}/sast-${sastVer}/Checkmarx-Plugin-System-Test/env/chromedriver:/usr/local/bin/chromedriver -w /usr/src/automation maven:3.6.1-jdk-8-alpine \
