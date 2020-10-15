@@ -33,6 +33,7 @@ def performParallelStages(String sastVer, String sastIP) {
                 sh "cp -r /var/jenkins/workspace/env ."
                 sh "cp -r ${workspace}/CLI-4-automation ."
                 sh "sed -e 's/<CxSastIpAddress>/${sastIP}/g' -i ./env/topology.xml"
+                sh "cat ${workspace}/sast-${sastVer}/Checkmarx-System-Test/env/env.properties"
             }
         }
 
