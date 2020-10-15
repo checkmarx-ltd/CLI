@@ -490,9 +490,16 @@ public final class CxConfigHelper {
         String webAppUrl = normalizeUrl(getRequiredParam(commandLine, SCA_WEB_APP_URL, KEY_SCA_WEB_APP_URL));
         sca.setWebAppUrl(webAppUrl);
 
-        String envVariables = getRequiredParam(commandLine, ENV_VARIABLE, "");
-        sca.setEnvVariables(convertStringToKeyValueMap(envVariables));
+        String envVariables = getOptionalParam(ENV_VARIABLE, "");
+        if(StringUtils.isNotEmpty(envVariables))
+        {
+            sca.setEnvVariables(convertStringToKeyValueMap(envVariables));
+        }
 
+        sca.setSastProjectId(getOptionalParam(SAST_PROJECT_ID, ""));
+        sca.setSastServerUrl(getOptionalParam(SERVER_URL, ""));
+        sca.setSastUsername(getOptionalParam(USER_NAME, ""));
+        sca.setSastPassword(getOptionalParam(USER_PASSWORD, ""));
 
         sca.setUsername(getRequiredParam(commandLine, SCA_USERNAME, null));
         sca.setPassword(getRequiredParam(commandLine, SCA_PASSWORD, null));
@@ -525,13 +532,13 @@ public final class CxConfigHelper {
     private HashMap<String, String> convertStringToKeyValueMap(String envString) {
 
         HashMap<String, String> envMap = new HashMap<>();
-        //"Key1:Val1,Key2:Val2"
+        //"Key1=Val1,Key2=Val2"
         String trimmedString = envString.replace("\"","");
         List<String> envlist = Arrays.asList(trimmedString.split(","));
 
         for( String variable : envlist)
         {
-            String[] splitFromEqual = variable.split(":");
+            String[] splitFromEqual = variable.split("=");
             String key = (splitFromEqual[0]).trim();
             String value = (splitFromEqual[1]).trim();
 
