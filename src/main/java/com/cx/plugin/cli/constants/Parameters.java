@@ -89,5 +89,6 @@ public final class Parameters {
     public static final String CONFIGURATION = "configuration";
 
     public static final String ENV_VARIABLE = "env";
+    public static final String SAST_PROJECT_ID = "cxprojectid";
 
 }

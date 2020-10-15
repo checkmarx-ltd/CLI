@@ -151,6 +151,7 @@ public enum Command {
         options.addOption(CONFIGURATION, true, ArgDescriptions.CONFIGURATION);
 
         options.addOption(ENV_VARIABLE, true, ArgDescriptions.ENV_VARIABLE);
+        options.addOption(SAST_PROJECT_ID, true, ArgDescriptions.SAST_PROJECT_ID);
 
         return options;
     }
