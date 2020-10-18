@@ -33,7 +33,6 @@ def performParallelStages(String sastVer, String sastIP) {
                 sh "cp -r /var/jenkins/workspace/env ."
                 sh "cp -r ${workspace}/CLI-4-automation ."
                 sh "sed -e 's/<CxSastIpAddress>/${sastIP}/g' -i ./env/topology.xml"
-                sh "cat ${workspace}/sast-${sastVer}/Checkmarx-System-Test/env/env.properties"
             }
         }
 
@@ -45,10 +44,11 @@ def performParallelStages(String sastVer, String sastIP) {
     } catch (e) {
         throw e
     } finally {
+        echo "finally"
         //sh "docker logs ${jenkinsContainerName} &> deploy-jenkins-${jenkinsVer}-sast-${sastVer}.log"
         //sh "docker stop ${jenkinsContainerName}"
         //sh "cp ${workspace}/jenkins-${jenkinsVer}/sast-${sastVer}/Checkmarx-Plugin-System-Test/cxBaseDataModelAuto.log ./problematic-tests-jenkins-${jenkinsVer}-sast-${sastVer}.log"
-        junit "sast-${sastVer}/Checkmarx-System-Test/CX-CLI-Test/target/surefire-reports/**/*.xml"
+        //junit "sast-${sastVer}/Checkmarx-System-Test/CX-CLI-Test/target/surefire-reports/**/*.xml"
         //junit "sast-${sastVer}/Checkmarx-System-Test/CX-CLI-Test/target/surefire-reports/TEST-*.xml"
         /*sh "docker run --rm --privileged --name html-reports-jenkins-${jenkinsVer}-sast-${sastVer}-${BUILD_TAG} -v maven-repo:/root/.m2 -v ${workspace}/jenkins-${jenkinsVer}/sast-${sastVer}/Checkmarx-Plugin-System-Test:/usr/src/automation -w /usr/src/automation maven:3.6.1-jdk-8-alpine \
             mvn -q site -DgenerateReports=false"
@@ -257,7 +257,7 @@ pipeline {
                 }
             }
             environment {
-                GITHUB_TOKEN = credentials('github-cxflowtestuser')
+                GITHUB_TOKEN = credentials('cxsdlc-ci-credentials')
             }
             steps {
                 script {
