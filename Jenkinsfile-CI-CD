@@ -257,7 +257,7 @@ pipeline {
                 }
             }
             environment {
-                GITHUB_TOKEN = credentials('cxsdlc-ci-credentials')
+                GITHUB_TOKEN = credentials('github-cxsdlc-ci')
             }
             steps {
                 script {
