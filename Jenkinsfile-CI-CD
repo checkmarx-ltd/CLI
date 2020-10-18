@@ -39,8 +39,8 @@ def performParallelStages(String sastVer, String sastIP) {
 
         stage("CLI tests for CxSAST-${sastVer}") {
             echo "Running CLI tests for CxSAST-${sastVer}"
-            sh "docker run --rm --privileged --name cli-tests-sast-${sastVer}-${BUILD_TAG} -v maven-repo:/root/.m2 -v ${workspace}/sast-${sastVer}/Checkmarx-System-Test:/usr/src/automation -w /usr/src/automation maven:3.6.1-jdk-8-alpine \
-            mvn -q clean test -Dtest=com.cx.automation.test.cli.**.* -Dtopology.xml.ref=/usr/src/automation/env/topology.xml -Denv=external_env -DfailIfNoTests=false -Dmaven.test.failure.ignore=false -DskipTests=false -Ddriver.browser=CHROME -Dheadless=true -Dcli_plugin_location=/usr/src/automation/CLI-4-automation surefire-report:report"
+            /*sh "docker run --rm --privileged --name cli-tests-sast-${sastVer}-${BUILD_TAG} -v maven-repo:/root/.m2 -v ${workspace}/sast-${sastVer}/Checkmarx-System-Test:/usr/src/automation -w /usr/src/automation maven:3.6.1-jdk-8-alpine \
+            mvn -q clean test -Dtest=com.cx.automation.test.cli.**.* -Dtopology.xml.ref=/usr/src/automation/env/topology.xml -Denv=external_env -DfailIfNoTests=false -Dmaven.test.failure.ignore=false -DskipTests=false -Ddriver.browser=CHROME -Dheadless=true -Dcli_plugin_location=/usr/src/automation/CLI-4-automation surefire-report:report"*/
         }
     } catch (e) {
         throw e
@@ -249,11 +249,38 @@ pipeline {
                 }
             }
         }
+
+        stage('Publish to GitHub Release') {
+            when {
+                expression {
+                    BRANCH_NAME == 'master' || BRANCH_NAME == 'develop'
+                }
+            }
+            environment {
+                GITHUB_TOKEN = credentials('github-cxflowtestuser')
+            }
+            steps {
+                script {
+                    def preRelease = ""
+                    if (BRANCH_NAME == 'develop') {
+                        preRelease = " -prerelease"
+                    }
+                    sh "ghr -t ${GITHUB_TOKEN} -u checkmarx-ltd -n ${env.cxCliVersion} -r CLI -c ${GIT_COMMIT}${preRelease} -delete ${env.cxCliVersion} ./target/CxConsolePlugin-${env.cxCliVersion}.zip"
+                }
+            }
+            post {
+                failure {
+                    script {
+                        env.PIPELINE_STATUS = "Failure"
+                        env.STAGE_NAME_FAILED="${STAGE_NAME}"
+                    }
+                }
+            }
+        }
     }
     
     post {
         always {
-            //archiveArtifacts "*.zip, build/libs/*.hpi, *.log"
             script {
                 if (ipAddress90 != null) {
                     /*node(vmName + "-9.0") {
@@ -276,6 +303,7 @@ pipeline {
                             unstash "CxSAST-9.3-Logs"*/
                     deleteVm(provider, ipAddress93, vmName + "-9.3")
                 }
+                //archiveArtifacts "*.zip, build/libs/*.hpi, *.log"
                 /*try {
                     kit.Command_Execution_Sh("jq -n env > env.json")
                     kit.Command_Execution_Sh("curl -sb -k -v -H \"Content-type: application/json\" -XPOST http://cx-elastic01:9200/cx-client-common/_doc -d @env.json")
