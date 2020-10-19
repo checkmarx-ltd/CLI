@@ -292,7 +292,7 @@ pipeline {
                     unstash "CxSAST-9.3-Logs"
                     deleteVm(provider, ipAddress93, vmName + "-9.3")
                 }
-                archiveArtifacts "*.zip, target/CxConsolePlugin-${env.cxCliVersion}.zip, *.log"
+                archiveArtifacts "*.zip, target/CxConsolePlugin-${env.cxCliVersion}.zip, **/CX-CLI-Test/target/site/surefire-report.html"
                 try {
                     kit.Command_Execution_Sh("jq -n env > env.json")
                     kit.Command_Execution_Sh("curl -sb -k -v -H \"Content-type: application/json\" -XPOST http://cx-elastic01:9200/cx-cli/_doc -d @env.json")
