@@ -71,7 +71,7 @@ class ArgDescriptions {
     static final String OSA_ENABLED = "Enable open source analysis (CxOSA). -osaLocationPath should be specified or the -LocationType parameter needs to be defined as 'folder' or 'shared' (if -osaLocationPath doesn't exist, use -locationPath). Optional.";
     static final String SCA_ENABLED = String.format("Enable software composition analysis (SCA). SCA is the successor of CxOSA. Normally either -%1$s or -%2$s should be specified. If both are specified, -%2$s will be used. -osaLocationPath should be specified or the -LocationType parameter needs to be defined as 'folder' or 'shared' (if -osaLocationPath doesn't exist, use -locationPath). Optional.", Parameters.OSA_ENABLED, Parameters.SCA_ENABLED);
     static final String OSA_JSON_REPORT = "Generate CxOSA JSON report. Optional, not supported in AsyncScan mode";
-    static final String SCA_JSON_REPORT = "Generate CxSCA JSON reports. Optional, not supported in AsyncScan mode";
+    static final String SCA_JSON_REPORT = "Generates three CxSCA JSON reports. Saves the reports in the specified folder path, Optional. Not supported in AsyncScaScan/AsyncScan mode";
     static final String INSTALL_PACKAGE_MANAGER = "Retrieve all supported package dependencies before performing OSA scan (see Remarks section). Optional.";
     static final String DOCKER_IMAGE_PATTERN = "The docker images to be selected for scan";
     static final String DOCKER_EXCLUDE = "Set the GLOB pattern property for excluding docker files to scan. Optional.";
