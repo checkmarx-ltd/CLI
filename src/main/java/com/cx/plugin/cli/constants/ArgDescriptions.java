@@ -124,4 +124,5 @@ class ArgDescriptions {
     static final String NTLM = "Use NTLM for proxy authentication";
     static final String ENV_VARIABLE = "Optional Environment Variables that could be used during the SCA scan process.";
     static final String SAST_PROJECT_ID = "Project Id from Checkmarx SAST used during SCA scan process.";
+    static final String SCA_CONFIG_FILE = "Configuration files from package managers (maven,npm etc) needed for the SCA scan.";
 }
