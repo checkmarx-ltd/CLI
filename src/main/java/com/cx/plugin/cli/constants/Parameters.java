@@ -90,5 +90,6 @@ public final class Parameters {
 
     public static final String ENV_VARIABLE = "env";
     public static final String SAST_PROJECT_ID = "cxprojectid";
+    public static final String SCA_CONFIG_FILE = "scaconfigfile";
 
 }

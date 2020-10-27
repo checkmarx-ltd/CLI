@@ -9,11 +9,13 @@ import com.cx.restclient.configuration.CxScanConfig;
 import com.cx.restclient.dto.ProxyConfig;
 import com.cx.restclient.dto.ScannerType;
 import com.cx.restclient.dto.SourceLocationType;
+import com.cx.restclient.sca.utils.CxSCAFileSystemUtils;
 import com.google.common.base.Strings;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,8 +23,6 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nullable;
 import java.io.File;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
 
 import static com.cx.plugin.cli.constants.Parameters.*;
 import static com.cx.plugin.cli.utils.PropertiesManager.*;
@@ -177,9 +177,10 @@ public final class CxConfigHelper {
         String envVariables = getOptionalParam(ENV_VARIABLE, "");
         if(StringUtils.isNotEmpty(envVariables))
         {
-            sca.setEnvVariables(convertStringToKeyValueMap(envVariables));
+            sca.setEnvVariables(CxSCAFileSystemUtils.convertStringToKeyValueMap(envVariables));
         }
 
+        sca.setConfigFilePaths(Arrays.asList(getOptionalParams(SCA_CONFIG_FILE, "")));
         sca.setSastProjectId(getOptionalParam(SAST_PROJECT_ID, ""));
         sca.setSastServerUrl(getOptionalParam(SERVER_URL, ""));
         sca.setSastUsername(getOptionalParam(USER_NAME, ""));
@@ -199,25 +200,6 @@ public final class CxConfigHelper {
         scanConfig.setScaJsonReport(reportDir);
 
         scanConfig.setAstScaConfig(sca);
-    }
-
-    private HashMap<String, String> convertStringToKeyValueMap(String envString) {
-
-        HashMap<String, String> envMap = new HashMap<>();
-        //"Key1=Val1,Key2=Val2"
-        String trimmedString = envString.replace("\"","");
-        List<String> envlist = Arrays.asList(trimmedString.split(","));
-
-        for( String variable : envlist)
-        {
-            String[] splitFromEqual = variable.split("=");
-            String key = (splitFromEqual[0]).trim();
-            String value = (splitFromEqual[1]).trim();
-
-            envMap.put(key, value);
-        }
-        return envMap;
-
     }
 
     private void setSharedDependencyScanConfig(CxScanConfig scanConfig) {
@@ -472,6 +454,12 @@ public final class CxConfigHelper {
         String commandLineValue = commandLine.getOptionValue(commandLineKey);
         String propertyValue = props.getProperty(fallbackProperty);
         return isNotEmpty(commandLineValue) ? commandLineValue : propertyValue;
+    }
+
+    private String[] getOptionalParams(String commandLineKey, String fallbackProperty) {
+        String[] commandLineValue = commandLine.getOptionValues(commandLineKey);
+        String[] propertyValue = {props.getProperty(fallbackProperty)};
+        return ArrayUtils.isEmpty(commandLineValue) ? propertyValue : commandLineValue;
     }
 
     private String getParamWithDefault(String commandLineKey, String fallbackProperty) {
