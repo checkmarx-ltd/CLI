@@ -67,6 +67,7 @@ public final class CxConfigHelper {
         }
 
         scanConfig.setProxyConfig(genProxyConfig());
+        scanConfig.setNTLM(cmd.hasOption(NTLM));
 
         if (command.equals(Command.SCAN) || command.equals(Command.ASYNC_SCAN)) {
             scanConfig.setSastEnabled(true);

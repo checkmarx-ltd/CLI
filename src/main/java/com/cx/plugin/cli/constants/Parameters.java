@@ -88,4 +88,6 @@ public final class Parameters {
 
     public static final String CONFIGURATION = "configuration";
 
+    public static final String NTLM = "ntlm";
+
 }
