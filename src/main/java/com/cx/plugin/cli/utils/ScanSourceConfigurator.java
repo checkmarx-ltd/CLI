@@ -17,6 +17,7 @@ import static com.cx.plugin.cli.constants.Parameters.*;
 import static com.cx.plugin.cli.utils.PropertiesManager.KEY_MAX_ZIP_SIZE;
 
 class ScanSourceConfigurator {
+
     private static final String SVN_DEFAULT_PORT = "80";
     private static final String PERFORCE_DEFAULT_PORT = "1666";
     private static final String TFS_DEFAULT_PORT = "8080";
