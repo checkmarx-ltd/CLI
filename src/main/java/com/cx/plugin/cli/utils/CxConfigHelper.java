@@ -195,10 +195,6 @@ public final class CxConfigHelper {
                 throw new CLIParsingException("There is no write access for: " + reportDir);
             }
         }else{
-            scanConfig.setReportsDir(null);
-            //use setOsaGenerateJsonReport instead of creating one for sca, because there is no case of using osa and sca simultaneously.
-            scanConfig.setOsaGenerateJsonReport(false);
-            scanConfig.setScaJsonReport(null);
             throw new CLIParsingException(reportDir + " directory doesn't exist.");
         }
 
