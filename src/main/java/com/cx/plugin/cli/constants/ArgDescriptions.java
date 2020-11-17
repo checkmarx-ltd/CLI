@@ -119,4 +119,6 @@ class ArgDescriptions {
     static final String CONFIGURATION = "Code language configuration. Possible values are : Default Configuration, Japanese (Shift-JIS), Korean and Multi-language Scan. If configuration is not set, 'Default Configuration' is used.";
 
     static final String TEST_CONNECTION = "\nThe \"TestConnection\" command checks if login was successful or not.";
+
+    static final String NTLM = "Use NTLM for proxy authentication";
 }
