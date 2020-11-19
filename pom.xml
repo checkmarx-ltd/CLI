@@ -133,12 +133,7 @@
         <dependency>
             <groupId>com.checkmarx</groupId>
             <artifactId>cx-client-common</artifactId>
-            <version>2020.4.200</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-core</artifactId>
-            <version>2.13.3</version>
+            <version>2020.4.96</version>
         </dependency>
         <!-- those dependencies were implemented in the common, to solve a log4j warning -->
 <!--        <dependency>
