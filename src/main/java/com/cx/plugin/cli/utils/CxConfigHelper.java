@@ -20,7 +20,12 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.io.File;
-import java.util.Optional;
+
+import java.io.FileReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 
 import static com.cx.plugin.cli.constants.Parameters.*;
 import static com.cx.plugin.cli.utils.PropertiesManager.*;
@@ -64,6 +69,7 @@ public final class CxConfigHelper {
         }
 
         scanConfig.setProxyConfig(genProxyConfig());
+        scanConfig.setNTLM(cmd.hasOption(NTLM));
 
         if (command.equals(Command.SCAN) || command.equals(Command.ASYNC_SCAN)) {
             scanConfig.setSastEnabled(true);
@@ -202,10 +208,20 @@ public final class CxConfigHelper {
         sca.setSourceLocationType(SourceLocationType.LOCAL_DIRECTORY);
 
         String reportDir = commandLine.getOptionValue(SCA_JSON_REPORT);
-        scanConfig.setReportsDir(reportDir != null ? new File(reportDir) : null);
-        //use setOsaGenerateJsonReport instead of creating one for sca, because there is no case of using osa and sca simultaneously.
-        scanConfig.setOsaGenerateJsonReport(reportDir != null);
-        scanConfig.setScaJsonReport(reportDir);
+        File reportFolder = new File(reportDir);
+        Path reportPath = Paths.get(reportDir);
+        if(reportFolder.isDirectory() && reportFolder.canWrite()) {
+            if(Files.isWritable(reportPath)){
+            scanConfig.setReportsDir(reportDir != null ? reportFolder : null);
+            //use setOsaGenerateJsonReport instead of creating one for sca, because there is no case of using osa and sca simultaneously.
+            scanConfig.setOsaGenerateJsonReport(reportDir != null);
+            scanConfig.setScaJsonReport(reportDir);
+            }else{
+                throw new CLIParsingException("There is no write access for: " + reportDir);
+            }
+        }else{
+            throw new CLIParsingException(reportDir + " directory doesn't exist.");
+        }
 
         scanConfig.setAstScaConfig(sca);
     }

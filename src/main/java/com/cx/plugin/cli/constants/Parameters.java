@@ -45,7 +45,7 @@ public final class Parameters {
     public static final String OSA_ENABLED = "enableosa";
     public static final String SCA_ENABLED = "enablesca";
     public static final String OSA_JSON_REPORT = "osajson";
-    public static final String SCA_JSON_REPORT = "scajson";
+    public static final String SCA_JSON_REPORT = "scajsondirpath";
     public static final String INSTALL_PACKAGE_MANAGER = "executepackagedependency";
     public static final String DOCKER_IMAGE_PATTERN = "dockerscan";
     public static final String DOCKER_EXCLUDE = "dockerexcludescan";
@@ -88,5 +88,7 @@ public final class Parameters {
     public static final String SCA_LOCATION_PATH = "scalocationpath";
 
     public static final String CONFIGURATION = "configuration";
+
+    public static final String NTLM = "ntlm";
 
 }

@@ -151,6 +151,8 @@ public enum Command {
         options.addOption(TRUSTED_CERTIFICATES, false, ArgDescriptions.TRUSTED_CERTIFICATES);
         options.addOption(CONFIGURATION, true, ArgDescriptions.CONFIGURATION);
 
+        options.addOption(NTLM, false, ArgDescriptions.NTLM);
+
         return options;
     }
 
