@@ -34,6 +34,7 @@ public final class Parameters {
     public static final String LOCATION_PASSWORD = "locationpassword";
     public static final String LOCATION_PATH_EXCLUDE = "locationpathexclude";
     public static final String LOCATION_FILES_EXCLUDE = "locationfilesexclude";
+    public static final String INCLUDE_EXCLUDE_PATTERN = "includeexcludepattern";
     public static final String PRIVATE_KEY = "locationprivatekey";
     public static final String OSA_LOCATION_PATH = "osalocationpath";
     public static final String OSA_FILES_INCLUDE = "osafilesinclude";

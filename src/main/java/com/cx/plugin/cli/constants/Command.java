@@ -99,6 +99,7 @@ public enum Command {
         options.addOption(LOCATION_PASSWORD, true, ArgDescriptions.LOCATION_PASSWORD);
         options.addOption(LOCATION_PATH_EXCLUDE, true, ArgDescriptions.LOCATION_PATH_EXCLUDE);
         options.addOption(LOCATION_FILES_EXCLUDE, true, ArgDescriptions.LOCATION_FILES_EXCLUDE);
+        options.addOption(INCLUDE_EXCLUDE_PATTERN, true, ArgDescriptions.INCLUDE_EXCLUDE_PATTERN);
 
         options.addOption(OSA_LOCATION_PATH, true, ArgDescriptions.OSA_LOCATION_PATH);
         options.addOption(OSA_FILES_INCLUDE, true, ArgDescriptions.OSA_FILES_INCLUDE);

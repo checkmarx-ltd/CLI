@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.io.File;
+import java.util.Optional;
 
 import static com.cx.plugin.cli.constants.Parameters.*;
 import static com.cx.plugin.cli.utils.PropertiesManager.*;
@@ -108,7 +109,9 @@ public final class CxConfigHelper {
         scanConfig.setPresetName(cmd.getOptionValue(PRESET) == null ? DEFAULT_PRESET_NAME : cmd.getOptionValue(PRESET));
 
         scanConfig.setSastFolderExclusions(getParamWithDefault(LOCATION_PATH_EXCLUDE, KEY_EXCLUDED_FOLDERS));
-        scanConfig.setSastFilterPattern(getParamWithDefault(LOCATION_FILES_EXCLUDE, KEY_EXCLUDED_FILES));
+        String includeExcludeCommand=getRelivatCommand();
+        scanConfig.setSastFilterPattern(getParamWithDefault(includeExcludeCommand, KEY_EXCLUDED_FILES));
+
         scanConfig.setScanComment(cmd.getOptionValue(SCAN_COMMENT));
         setScanReports(scanConfig);
         scanConfig.setIncremental(cmd.hasOption(IS_INCREMENTAL));
@@ -129,6 +132,26 @@ public final class CxConfigHelper {
 
         return scanConfig;
     }
+
+    private String getRelivatCommand()
+    {
+        String commandValue="";
+        String oldCommandLineValue = commandLine.getOptionValue(LOCATION_FILES_EXCLUDE);
+        String newCommandLineValue = commandLine.getOptionValue(INCLUDE_EXCLUDE_PATTERN);
+        if((oldCommandLineValue!=null) && newCommandLineValue!=null)
+        {
+            commandValue=INCLUDE_EXCLUDE_PATTERN;
+        }else if(oldCommandLineValue!=null)
+        {
+            commandValue=LOCATION_FILES_EXCLUDE;
+        }else if(newCommandLineValue!=null)
+        {
+            commandValue =INCLUDE_EXCLUDE_PATTERN;
+        }
+        return commandValue;
+    }
+
+
 
     private void configureDependencyScan(CxScanConfig scanConfig) throws CLIParsingException {
         if (!scanConfig.isAstScaEnabled() && !scanConfig.isOsaEnabled()) {
