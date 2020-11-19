@@ -115,7 +115,7 @@ public final class CxConfigHelper {
         scanConfig.setPresetName(cmd.getOptionValue(PRESET) == null ? DEFAULT_PRESET_NAME : cmd.getOptionValue(PRESET));
 
         scanConfig.setSastFolderExclusions(getParamWithDefault(LOCATION_PATH_EXCLUDE, KEY_EXCLUDED_FOLDERS));
-        String includeExcludeCommand=getRelivatCommand();
+        String includeExcludeCommand=getRelevantCommand();
         scanConfig.setSastFilterPattern(getParamWithDefault(includeExcludeCommand, KEY_EXCLUDED_FILES));
 
         scanConfig.setScanComment(cmd.getOptionValue(SCAN_COMMENT));
@@ -139,7 +139,7 @@ public final class CxConfigHelper {
         return scanConfig;
     }
 
-    private String getRelivatCommand()
+    private String getRelevantCommand()
     {
         String commandValue="";
         String oldCommandLineValue = commandLine.getOptionValue(LOCATION_FILES_EXCLUDE);
