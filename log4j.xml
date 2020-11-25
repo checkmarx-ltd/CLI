@@ -14,7 +14,7 @@
         <param name="maxBackupIndex" value="10"/>
         <param name="maxFileSize" value="10MB"/>
         <param name="append" value="true"/>
-        <param name="file" value="${cliLogPath}.log"/>
+        <param name="file" value="./logs/cx_console.log"/>
         <layout class="org.apache.log4j.PatternLayout">
             <param name="ConversionPattern" value="%d{ISO8601} [%t] (%F:%L) %-5p - %m%n"/>
         </layout>

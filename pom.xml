@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.cx.plugin</groupId>
     <artifactId>CxConsolePlugin</artifactId>
-    <version>2020.4.4-MC</version>
+    <version>2020.4.6-MC</version>
     <packaging>jar</packaging>
 
     <repositories>
@@ -136,7 +136,7 @@
         <dependency>
             <groupId>com.checkmarx</groupId>
             <artifactId>cx-client-common</artifactId>
-            <version>2020.4.97-MC</version>
+            <version>2020.4.99-MC</version>
         </dependency>
         <!-- Logger -->
         <dependency>
