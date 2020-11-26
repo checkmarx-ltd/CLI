@@ -14,10 +14,7 @@ import com.cx.restclient.dto.ScannerType;
 import com.cx.restclient.dto.scansummary.ScanSummary;
 import com.cx.restclient.exception.CxClientException;
 import com.google.common.io.Files;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.*;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.Consts;
@@ -113,14 +110,15 @@ public class CxConsoleLauncher {
             throws CLIParsingException, IOException, CxClientException, InterruptedException {
         List<ScanResults> results = new ArrayList<>();
         int exitCode = Errors.SCAN_SUCCEEDED.getCode();
-        CxConfigHelper.printConfig(commandLine);
+
+
 
         CxConfigHelper configHelper = new CxConfigHelper(commandLine.getOptionValue(Parameters.CLI_CONFIG));
         CxScanConfig cxScanConfig = configHelper.resolveConfiguration(command, commandLine);
 
         org.slf4j.Logger logger = new Log4jLoggerFactory().getLogger(log.getName());
         CxSastConnectionProvider connectionProvider = new CxSastConnectionProvider(cxScanConfig,logger);
-
+        printConfig(logger,commandLine);
         CxClientDelegator clientDelegator = new CxClientDelegator(cxScanConfig,logger);
         ScanResults initScanResults = clientDelegator.init();
         results.add(initScanResults);
@@ -249,6 +247,33 @@ public class CxConsoleLauncher {
                 .toArray(String[]::new);
     }
 
+    public static void printConfig(Logger logger,CommandLine commandLine) {
+        logger.info("-----------------------------------------------------------------------------------------");
+        logger.info("CxConsole Configuration: ");
+        logger.info("--------------------");
+        for (Option param : commandLine.getOptions()) {
+            String name = param.getLongOpt() != null ? param.getLongOpt() : param.getOpt();
+            String value;
+            if (param.getOpt().equalsIgnoreCase(Parameters.USER_PASSWORD) ||
+                    param.getOpt().equalsIgnoreCase(SCA_PASSWORD) ||
+                    param.getOpt().equalsIgnoreCase(LOCATION_PASSWORD) ||
+                    param.getOpt().equalsIgnoreCase(TOKEN)) {
+                value = "********";
+            } else if (param.getOpt().equalsIgnoreCase(USER_NAME) ||
+                    param.getOpt().equalsIgnoreCase(SCA_USERNAME) ||
+                    param.getOpt().equalsIgnoreCase(LOCATION_USER)) {
+                value = param.getValue();
+                logger.debug("{}: {}", name, value);
+                value = DigestUtils.sha256Hex(param.getValue());
+            } else if (param.hasArg()) {
+                value = param.getValue();
+            } else {
+                value = "true";
+            }
+            logger.info("{}: {}", name, value);
+        }
+        logger.info("--------------------\n\n");
+    }
    /* private static void initLogging(CommandLine commandLine) throws CLIParsingException {
         String logPath = commandLine.getOptionValue(LOG_PATH, "." + File.separator + "logs" + File.separator + "cx_console.log");
         File logFile = new File(logPath);

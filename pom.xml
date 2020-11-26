@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.cx.plugin</groupId>
     <artifactId>CxConsolePlugin</artifactId>
-    <version>2020.4.17.temp</version>
+    <version>2020.4.18.temp</version>
     <packaging>jar</packaging>
 
     <repositories>
@@ -136,51 +136,7 @@
             <version>2020.4.203</version>
         </dependency>
 
-      <!--  <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-            <version>1.7.30</version>
-        </dependency>-->
-       <!-- <dependency>
-            <groupId>org.slf4j.impl</groupId>
-            <artifactId>log4j12</artifactId>
-            <version>1.7.2</version>
-        </dependency>-->
-     <!--   <dependency>
-            <groupId>org.slf4j</groupId>/need to be in common
-            <artifactId>slf4j-api</artifactId>
-            <version>1.7.2</version>
-        </dependency>-->
-   <!--     <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-            <version>1.7.2</version>
-        </dependency>
--->
 
-        <!--log4j2 dependencies -->
-
-  <!--      <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-api</artifactId>
-            <version>2.13.3</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-core</artifactId>
-            <version>2.13.3</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-slf4j-impl</artifactId>
-            <version>2.13.3</version>
-        </dependency>
--->
-<!--        <dependency>
-        <groupId>log4j</groupId>
-        <artifactId>log4j</artifactId>
-        <version>1.2.17</version>
-        </dependency>-->
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-api</artifactId>
