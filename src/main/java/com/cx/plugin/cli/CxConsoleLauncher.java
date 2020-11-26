@@ -21,19 +21,30 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.Consts;
-import org.apache.log4j.Appender;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Map;
+
+/*import org.apache.log4j.Appender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.apache.log4j.RollingFileAppender;
+import org.apache.logging.log4j.core.RollingFileAppender;
 import org.apache.log4j.xml.DOMConfigurator;
 import org.slf4j.impl.Log4jLoggerFactory;
-
+*/
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.logging.slf4j.Log4jLoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import static com.cx.plugin.cli.constants.Parameters.*;
 import static com.cx.plugin.cli.errorsconstants.ErrorMessages.INVALID_COMMAND_COUNT;
 import static com.cx.plugin.cli.errorsconstants.ErrorMessages.INVALID_COMMAND_ERROR;
@@ -43,11 +54,12 @@ import static com.cx.plugin.cli.errorsconstants.ErrorMessages.INVALID_COMMAND_ER
  */
 public class CxConsoleLauncher {
 
-    private static Logger log = Logger.getLogger(CxConsoleLauncher.class);
+    private static Logger log = LoggerFactory.getLogger(CxConsoleLauncher.class);
 
     public static void main(String[] args) {
         int exitCode;
         Command command = null;
+        System.setProperty("log4j.configurationFile","." + File.separator + "log4j2.xml");
 
         try {
             verifyArgsCount(args);
@@ -55,7 +67,7 @@ public class CxConsoleLauncher {
             args = convertParamToLowerCase(args);
             CommandLine commandLine = getCommandLine(args);
             command = getCommand(commandLine);
-            initLogging(commandLine);
+          //  initLogging(commandLine);
             exitCode = execute(command, commandLine);
         } catch (CLIParsingException | ParseException e) {
             CxConfigHelper.printHelp(command);
@@ -107,9 +119,9 @@ public class CxConsoleLauncher {
         CxScanConfig cxScanConfig = configHelper.resolveConfiguration(command, commandLine);
 
         org.slf4j.Logger logger = new Log4jLoggerFactory().getLogger(log.getName());
-        CxSastConnectionProvider connectionProvider = new CxSastConnectionProvider(cxScanConfig, logger);
+        CxSastConnectionProvider connectionProvider = new CxSastConnectionProvider(cxScanConfig,logger);
 
-        CxClientDelegator clientDelegator = new CxClientDelegator(cxScanConfig, logger);
+        CxClientDelegator clientDelegator = new CxClientDelegator(cxScanConfig,logger);
         ScanResults initScanResults = clientDelegator.init();
         results.add(initScanResults);
 
@@ -237,7 +249,7 @@ public class CxConsoleLauncher {
                 .toArray(String[]::new);
     }
 
-    private static void initLogging(CommandLine commandLine) throws CLIParsingException {
+   /* private static void initLogging(CommandLine commandLine) throws CLIParsingException {
         String logPath = commandLine.getOptionValue(LOG_PATH, "." + File.separator + "logs" + File.separator + "cx_console.log");
         File logFile = new File(logPath);
         DOMConfigurator.configure("." + File.separator + "log4j.xml");
@@ -257,6 +269,6 @@ public class CxConsoleLauncher {
         } catch (IOException e) {
             throw new CLIParsingException("[CxConsole] error creating log file", e);
         }
-    }
+    }*/
 
 }
