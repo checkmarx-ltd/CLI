@@ -46,7 +46,10 @@ public final class CxConfigHelper {
     public CxConfigHelper(String configFilePath) {
         props = PropertiesManager.getProps(configFilePath);
     }
-
+    public CxConfigHelper(String configFilePath,Logger logger) {
+        this.log=logger;
+        props = PropertiesManager.getProps(configFilePath,logger);
+    }
     /**
      * Resolves configuration from the config file and the console parameters
      *
@@ -523,6 +526,33 @@ public final class CxConfigHelper {
         }
 
         return proxyConfig;
+    }
+    public static void printConfig(Logger logger,CommandLine commandLine) {
+        logger.info("-----------------------------------------------------------------------------------------");
+        logger.info("CxConsole Configuration: ");
+        logger.info("--------------------");
+        for (Option param : commandLine.getOptions()) {
+            String name = param.getLongOpt() != null ? param.getLongOpt() : param.getOpt();
+            String value;
+            if (param.getOpt().equalsIgnoreCase(Parameters.USER_PASSWORD) ||
+                    param.getOpt().equalsIgnoreCase(SCA_PASSWORD) ||
+                    param.getOpt().equalsIgnoreCase(LOCATION_PASSWORD) ||
+                    param.getOpt().equalsIgnoreCase(TOKEN)) {
+                value = "********";
+            } else if (param.getOpt().equalsIgnoreCase(USER_NAME) ||
+                    param.getOpt().equalsIgnoreCase(SCA_USERNAME) ||
+                    param.getOpt().equalsIgnoreCase(LOCATION_USER)) {
+                value = param.getValue();
+                logger.debug("{}: {}", name, value);
+                value = DigestUtils.sha256Hex(param.getValue());
+            } else if (param.hasArg()) {
+                value = param.getValue();
+            } else {
+                value = "true";
+            }
+            logger.info("{}: {}", name, value);
+        }
+        logger.info("--------------------\n\n");
     }
 
     private boolean testConnection(CxScanConfig scanConfig) throws CLIParsingException {

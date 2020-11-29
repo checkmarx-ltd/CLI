@@ -59,12 +59,16 @@ public class PropertiesManager {
     private PropertiesManager() {
     }
 
-    private PropertiesManager(String defConfig) {
+    private PropertiesManager(String defConfig ){
         applicationProperties = new Properties();
         loadProperties(defConfig);
     }
-
     public static PropertiesManager getProps(String configFilePath) {
+        return props == null ? new PropertiesManager(configFilePath) : props;
+    }
+
+    public static PropertiesManager getProps(String configFilePath,Logger logger) {
+        log=logger;
         return props == null ? new PropertiesManager(configFilePath) : props;
     }
 

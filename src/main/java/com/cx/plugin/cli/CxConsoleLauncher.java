@@ -17,6 +17,7 @@ import com.google.common.io.Files;
 import org.apache.commons.cli.*;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Consts;
 
 import java.io.File;
@@ -39,6 +40,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.appender.RollingFileAppender;
 import org.apache.logging.slf4j.Log4jLoggerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,7 +55,7 @@ import static com.cx.plugin.cli.errorsconstants.ErrorMessages.INVALID_COMMAND_ER
 public class CxConsoleLauncher {
 
     private static Logger log = LoggerFactory.getLogger(CxConsoleLauncher.class);
-
+    private static final String DEFAULT_LOG_PATH = "./logs/cx_console.log";
     public static void main(String[] args) {
         int exitCode;
         Command command = null;
@@ -64,7 +67,7 @@ public class CxConsoleLauncher {
             args = convertParamToLowerCase(args);
             CommandLine commandLine = getCommandLine(args);
             command = getCommand(commandLine);
-          //  initLogging(commandLine);
+
             exitCode = execute(command, commandLine);
         } catch (CLIParsingException | ParseException e) {
             CxConfigHelper.printHelp(command);
@@ -112,13 +115,13 @@ public class CxConsoleLauncher {
         int exitCode = Errors.SCAN_SUCCEEDED.getCode();
 
 
+        org.slf4j.Logger logger = new Log4jLoggerFactory().getLogger(log.getName());
 
-        CxConfigHelper configHelper = new CxConfigHelper(commandLine.getOptionValue(Parameters.CLI_CONFIG));
+        CxConfigHelper configHelper = new CxConfigHelper(commandLine.getOptionValue(Parameters.CLI_CONFIG),logger);
         CxScanConfig cxScanConfig = configHelper.resolveConfiguration(command, commandLine);
 
-        org.slf4j.Logger logger = new Log4jLoggerFactory().getLogger(log.getName());
         CxSastConnectionProvider connectionProvider = new CxSastConnectionProvider(cxScanConfig,logger);
-        printConfig(logger,commandLine);
+        CxConfigHelper.printConfig(logger,commandLine);
         CxClientDelegator clientDelegator = new CxClientDelegator(cxScanConfig,logger);
         ScanResults initScanResults = clientDelegator.init();
         results.add(initScanResults);
@@ -247,33 +250,7 @@ public class CxConsoleLauncher {
                 .toArray(String[]::new);
     }
 
-    public static void printConfig(Logger logger,CommandLine commandLine) {
-        logger.info("-----------------------------------------------------------------------------------------");
-        logger.info("CxConsole Configuration: ");
-        logger.info("--------------------");
-        for (Option param : commandLine.getOptions()) {
-            String name = param.getLongOpt() != null ? param.getLongOpt() : param.getOpt();
-            String value;
-            if (param.getOpt().equalsIgnoreCase(Parameters.USER_PASSWORD) ||
-                    param.getOpt().equalsIgnoreCase(SCA_PASSWORD) ||
-                    param.getOpt().equalsIgnoreCase(LOCATION_PASSWORD) ||
-                    param.getOpt().equalsIgnoreCase(TOKEN)) {
-                value = "********";
-            } else if (param.getOpt().equalsIgnoreCase(USER_NAME) ||
-                    param.getOpt().equalsIgnoreCase(SCA_USERNAME) ||
-                    param.getOpt().equalsIgnoreCase(LOCATION_USER)) {
-                value = param.getValue();
-                logger.debug("{}: {}", name, value);
-                value = DigestUtils.sha256Hex(param.getValue());
-            } else if (param.hasArg()) {
-                value = param.getValue();
-            } else {
-                value = "true";
-            }
-            logger.info("{}: {}", name, value);
-        }
-        logger.info("--------------------\n\n");
-    }
+
    /* private static void initLogging(CommandLine commandLine) throws CLIParsingException {
         String logPath = commandLine.getOptionValue(LOG_PATH, "." + File.separator + "logs" + File.separator + "cx_console.log");
         File logFile = new File(logPath);
