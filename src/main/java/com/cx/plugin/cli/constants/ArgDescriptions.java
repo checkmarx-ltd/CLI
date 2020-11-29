@@ -54,6 +54,7 @@ class ArgDescriptions {
     static final String LOCATION_PASSWORD = "Source control/network credentials. Mandatory if locationtype is TFS/Perforce/shared";
     static final String LOCATION_PATH_EXCLUDE = "Comma separated list of folder name patterns to exclude from scan. For example, exclude all test and log folders: -locationPathExclude test* log_* Optional";
     static final String LOCATION_FILES_EXCLUDE = "Comma separated list of file name patterns to exclude from scan. For example, exclude all files with '.class' extension: -LocationFilesExclude *.class Optional";
+    static final String INCLUDE_EXCLUDE_PATTERN = "Comma separated list of file name patterns to exclude/include from/to scan. For example, exclude all files with '.class' extension: -includeexcludepattern \"!*.class\". Optional";
     static final String LOCATION_PRIVATE_KEY = "GIT SSH key locations, Mandatory if location type is GIT using SSH";
 
     static final String CX_SAST = "CxSAST";
