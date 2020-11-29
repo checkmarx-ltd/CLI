@@ -67,7 +67,10 @@ public class PropertiesManager {
     public static PropertiesManager getProps(String configFilePath) {
         return props == null ? new PropertiesManager(configFilePath) : props;
     }
-
+    public static PropertiesManager getProps(String configFilePath,Logger logger) {
+        log=logger;
+        return props == null ? new PropertiesManager(configFilePath) : props;
+    }
     private void loadProperties(String confPath) {
         try {
             if (confPath != null && loadFromConfigParam(confPath)) {

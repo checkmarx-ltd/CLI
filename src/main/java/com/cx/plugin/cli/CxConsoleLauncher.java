@@ -21,9 +21,8 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.Consts;
+
 import org.apache.log4j.Appender;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.apache.log4j.RollingFileAppender;
 import org.apache.log4j.xml.DOMConfigurator;
 import org.slf4j.impl.Log4jLoggerFactory;
@@ -33,7 +32,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import static com.cx.plugin.cli.constants.Parameters.*;
 import static com.cx.plugin.cli.errorsconstants.ErrorMessages.INVALID_COMMAND_COUNT;
 import static com.cx.plugin.cli.errorsconstants.ErrorMessages.INVALID_COMMAND_ERROR;
@@ -43,7 +43,7 @@ import static com.cx.plugin.cli.errorsconstants.ErrorMessages.INVALID_COMMAND_ER
  */
 public class CxConsoleLauncher {
 
-    private static Logger log = Logger.getLogger(CxConsoleLauncher.class);
+    private static Logger log = LoggerFactory.getLogger(CxConsoleLauncher.class);
 
     public static void main(String[] args) {
         int exitCode;
@@ -55,7 +55,6 @@ public class CxConsoleLauncher {
             args = convertParamToLowerCase(args);
             CommandLine commandLine = getCommandLine(args);
             command = getCommand(commandLine);
-            initLogging(commandLine);
             exitCode = execute(command, commandLine);
         } catch (CLIParsingException | ParseException e) {
             CxConfigHelper.printHelp(command);
@@ -101,12 +100,12 @@ public class CxConsoleLauncher {
             throws CLIParsingException, IOException, CxClientException, InterruptedException {
         List<ScanResults> results = new ArrayList<>();
         int exitCode = Errors.SCAN_SUCCEEDED.getCode();
-        CxConfigHelper.printConfig(commandLine);
 
-        CxConfigHelper configHelper = new CxConfigHelper(commandLine.getOptionValue(Parameters.CLI_CONFIG));
-        CxScanConfig cxScanConfig = configHelper.resolveConfiguration(command, commandLine);
 
         org.slf4j.Logger logger = new Log4jLoggerFactory().getLogger(log.getName());
+        CxConfigHelper configHelper = new CxConfigHelper(commandLine.getOptionValue(Parameters.CLI_CONFIG),logger);
+        CxScanConfig cxScanConfig = configHelper.resolveConfiguration(command, commandLine);
+        CxConfigHelper.printConfig(logger,commandLine);
         CxSastConnectionProvider connectionProvider = new CxSastConnectionProvider(cxScanConfig, logger);
 
         CxClientDelegator clientDelegator = new CxClientDelegator(cxScanConfig, logger);
@@ -235,28 +234,6 @@ public class CxConsoleLauncher {
                 .stream(args)
                 .map(arg -> arg.startsWith("-") ? arg.toLowerCase() : arg)
                 .toArray(String[]::new);
-    }
-
-    private static void initLogging(CommandLine commandLine) throws CLIParsingException {
-        String logPath = commandLine.getOptionValue(LOG_PATH, "." + File.separator + "logs" + File.separator + "cx_console.log");
-        File logFile = new File(logPath);
-        DOMConfigurator.configure("." + File.separator + "log4j.xml");
-        try {
-            if (!logFile.exists()) {
-                Files.createParentDirs(logFile);
-                Files.touch(logFile);
-            }
-            Writer writer = new FileWriter(logPath);
-            Appender faAppender = org.apache.log4j.Logger.getRootLogger().getAppender("FA");
-            if (commandLine.hasOption(Parameters.VERBOSE)) {
-                //TODO: it seems that common client overrides threshold? prints only info level
-                ((RollingFileAppender) faAppender).setThreshold(Level.TRACE);
-            }
-            ((RollingFileAppender) faAppender).setWriter(writer);
-            log.info("[CxConsole] Log file location: " + logPath);
-        } catch (IOException e) {
-            throw new CLIParsingException("[CxConsole] error creating log file", e);
-        }
     }
 
 }

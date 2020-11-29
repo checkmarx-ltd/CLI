@@ -45,6 +45,10 @@ public final class CxConfigHelper {
     public CxConfigHelper(String configFilePath) {
         props = PropertiesManager.getProps(configFilePath);
     }
+    public CxConfigHelper(String configFilePath,Logger logger) {
+        this.log=logger;
+        props = PropertiesManager.getProps(configFilePath,logger);
+    }
 
     /**
      * Resolves configuration from the config file and the console parameters
@@ -427,7 +431,7 @@ public final class CxConfigHelper {
         return fullPath.substring(0, lastIdx);
     }
 
-    public static void printConfig(CommandLine commandLine) {
+    public static void printConfig(Logger log,CommandLine commandLine) {
         log.info("-----------------------------------------------------------------------------------------");
         log.info("CxConsole Configuration: ");
         log.info("--------------------");
