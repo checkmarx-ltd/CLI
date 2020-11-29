@@ -21,12 +21,7 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.Consts;
-
-import org.apache.log4j.Appender;
-import org.apache.log4j.RollingFileAppender;
-import org.apache.log4j.xml.DOMConfigurator;
 import org.slf4j.impl.Log4jLoggerFactory;
-
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
