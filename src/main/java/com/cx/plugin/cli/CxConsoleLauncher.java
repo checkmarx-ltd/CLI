@@ -13,7 +13,6 @@ import com.cx.restclient.dto.ScanResults;
 import com.cx.restclient.dto.ScannerType;
 import com.cx.restclient.dto.scansummary.ScanSummary;
 import com.cx.restclient.exception.CxClientException;
-import com.google.common.io.Files;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -21,16 +20,7 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.Consts;
-import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
-
-import org.apache.logging.log4j.core.LoggerContext;
-
-import org.apache.logging.log4j.core.appender.FileAppender;
-import org.apache.logging.log4j.core.appender.RollingFileAppender;
-import org.apache.logging.log4j.core.appender.WriterAppender;
-import org.apache.logging.log4j.core.config.Configuration;
-import org.apache.logging.log4j.core.layout.PatternLayout;
 import org.apache.logging.slf4j.Log4jLoggerFactory;
 
 import java.io.*;
@@ -61,9 +51,7 @@ public class CxConsoleLauncher {
             args = convertParamToLowerCase(args);
             CommandLine commandLine = getCommandLine(args);
             command = getCommand(commandLine);
-            String logLocation= commandLine.getOptionValue(LOG_PATH, "." + File.separator + "logs" + File.separator + "cx_console.log");
-            System.setProperty("cliLogPath", logLocation);
-            /*initLogging2(commandLine);*/
+            initFileLogging(commandLine);
             exitCode = execute(command, commandLine);
         } catch (CLIParsingException | ParseException e) {
             CxConfigHelper.printHelp(command);
@@ -109,12 +97,11 @@ public class CxConsoleLauncher {
             throws CLIParsingException, IOException, CxClientException, InterruptedException {
         List<ScanResults> results = new ArrayList<>();
         int exitCode = Errors.SCAN_SUCCEEDED.getCode();
-
-
-        org.slf4j.Logger logger = new Log4jLoggerFactory().getLogger(log.getName());
-        CxConfigHelper configHelper = new CxConfigHelper(commandLine.getOptionValue(Parameters.CLI_CONFIG),logger);
+        CxConfigHelper.printConfig(commandLine);
+        CxConfigHelper configHelper = new CxConfigHelper(commandLine.getOptionValue(Parameters.CLI_CONFIG));
         CxScanConfig cxScanConfig = configHelper.resolveConfiguration(command, commandLine);
-        CxConfigHelper.printConfig(logger,commandLine);
+        org.slf4j.Logger logger = new Log4jLoggerFactory().getLogger(log.getName());
+
         CxSastConnectionProvider connectionProvider = new CxSastConnectionProvider(cxScanConfig, logger);
 
         CxClientDelegator clientDelegator = new CxClientDelegator(cxScanConfig, logger);
@@ -245,62 +232,14 @@ public class CxConsoleLauncher {
                 .toArray(String[]::new);
     }
 
+    private static void initFileLogging(CommandLine commandLine) {
+        String logLocation = commandLine.getOptionValue(LOG_PATH, "." + File.separator + "logs" + File.separator + "cx_console.log");
+        System.setProperty("cliLogPath", logLocation);
+        String logLevel = getLogLevel(commandLine);
+        System.setProperty("logLevel", logLevel);
+    }
 
-/*    private static void initLogging(CommandLine commandLine) throws CLIParsingException {
-        String logPath = commandLine.getOptionValue(LOG_PATH, "." + File.separator + "logs" + File.separator + "cx_console.log");
-        File logFile = new File(logPath);
-        DOMConfigurator.configure("." + File.separator + "log4j.xml");
-        try {
-            if (!logFile.exists()) {
-                Files.createParentDirs(logFile);
-                Files.touch(logFile);
-            }
-            Writer writer = new FileWriter(logPath);
-            Appender faAppender = org.apache.log4j.Logger.getRootLogger().getAppender("FA");
-            if (commandLine.hasOption(Parameters.VERBOSE)) {
-                //TODO: it seems that common client overrides threshold? prints only info level
-                ((RollingFileAppender) faAppender).setThreshold(Level.TRACE);
-            }
-            ((RollingFileAppender) faAppender).setWriter(writer);
-            log.info("[CxConsole] Log file location: " + logPath);
-        } catch (IOException e) {
-            throw new CLIParsingException("[CxConsole] error creating log file", e);
-        }
-    }*/
-
-/*    private static void initLogging2(CommandLine commandLine) throws CLIParsingException {
-        String logPath = commandLine.getOptionValue(LOG_PATH, "." + File.separator + "logs" + File.separator + "cx_console.log");
-        File logFile = new File(logPath);
-
-        final LoggerContext loggerContext = (LoggerContext) LogManager.getContext(false);
-        final Configuration config = loggerContext.getConfiguration();
-
-        try {
-            if (!logFile.exists()) {
-                Files.createParentDirs(logFile);
-                Files.touch(logFile);
-            }
-            Writer writer = new FileWriter(logPath);
-            System.setProperty("cliLogPath", logPath);
-*//*            org.apache.logging.log4j.core.LoggerContext ctx =
-                    (org.apache.logging.log4j.core.LoggerContext) LogManager.getContext(false);
-            ctx.reconfigure();*//*
-            RollingFileAppender appender = config.getAppender("FA");
-*//*            WriterAppender wa = WriterAppender.createAppender(ap);*//*
-            *//*WriterAppender wa = config.getAppender("FA");*//*
-            log.info("appender config "+ appender);
-            log.info(appender.getFileName());
-            //appender.initialize();
-        }catch (IOException e) {
-            throw new CLIParsingException("[CxConsole] error creating log file", e);
-        }
-
-    }*/
-
-
-/*    private static void initFileLogging(String path){
-        FileAppender apndr = new FileAppender(new PatternLayout("%d %-5p [%c{1}] %m%n"),path,true);
-        log.addAppender(apndr);
-        log.setLevel((Level) Level.ALL);
-    }*/
+    private static String getLogLevel(CommandLine commandLine) {
+        return commandLine.hasOption(Parameters.VERBOSE) ? "TRACE" : "INFO";
+    }
 }

@@ -1,5 +1,4 @@
 package com.cx.plugin.cli.utils;
-
 import com.cx.plugin.cli.constants.Command;
 import com.cx.plugin.cli.constants.Parameters;
 import com.cx.plugin.cli.exceptions.BadOptionCombinationException;
@@ -15,8 +14,8 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.annotation.Nullable;
 import java.io.File;
@@ -33,7 +32,7 @@ import static org.apache.commons.lang3.StringUtils.isNotEmpty;
  */
 public final class CxConfigHelper {
 
-    private static Logger log = LoggerFactory.getLogger(CxConfigHelper.class);
+    private static Logger log = LogManager.getLogger(CxConfigHelper.class);
 
     private static final String DEFAULT_PRESET_NAME = "Checkmarx Default";
 
@@ -45,10 +44,7 @@ public final class CxConfigHelper {
     public CxConfigHelper(String configFilePath) {
         props = PropertiesManager.getProps(configFilePath);
     }
-    public CxConfigHelper(String configFilePath,Logger logger) {
-        this.log=logger;
-        props = PropertiesManager.getProps(configFilePath,logger);
-    }
+
 
     /**
      * Resolves configuration from the config file and the console parameters
@@ -425,7 +421,7 @@ public final class CxConfigHelper {
         return fullPath.substring(0, lastIdx);
     }
 
-    public static void printConfig(Logger log,CommandLine commandLine) {
+    public static void printConfig(CommandLine commandLine) {
         log.info("-----------------------------------------------------------------------------------------");
         log.info("CxConsole Configuration: ");
         log.info("--------------------");

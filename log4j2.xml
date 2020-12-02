@@ -40,9 +40,9 @@
         <Logger name="org.springframework" level="ERROR"/>
         <Logger name="org.whitesource.agent" level="ERROR"/>
 
-        <Root level="INFO">
-            <AppenderRef ref="Routing"/>
-            <AppenderRef ref="CA"/>
+        <Root level="TRACE">
+            <AppenderRef ref="Routing" level="${sys:logLevel}"/>
+            <AppenderRef ref="CA" level="INFO"/>
         </Root>
     </Loggers>
 </Configuration>
