@@ -21,22 +21,24 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.Consts;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.core.Appender;
+
 import org.apache.logging.log4j.core.LoggerContext;
+
 import org.apache.logging.log4j.core.appender.FileAppender;
 import org.apache.logging.log4j.core.appender.RollingFileAppender;
+import org.apache.logging.log4j.core.appender.WriterAppender;
 import org.apache.logging.log4j.core.config.Configuration;
-import org.apache.logging.log4j.core.config.builder.api.ConfigurationBuilderFactory;
-import org.apache.logging.log4j.core.config.properties.PropertiesConfigurationBuilder;
-import org.slf4j.impl.Log4jLoggerFactory;
+import org.apache.logging.log4j.core.layout.PatternLayout;
+import org.apache.logging.slf4j.Log4jLoggerFactory;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import static com.cx.plugin.cli.constants.Parameters.*;
 import static com.cx.plugin.cli.errorsconstants.ErrorMessages.INVALID_COMMAND_COUNT;
 import static com.cx.plugin.cli.errorsconstants.ErrorMessages.INVALID_COMMAND_ERROR;
@@ -48,6 +50,7 @@ public class CxConsoleLauncher {
 
     private static org.apache.logging.log4j.Logger log = LogManager.getLogger(CxConsoleLauncher.class);
 
+
     public static void main(String[] args) {
         int exitCode;
         Command command = null;
@@ -58,7 +61,9 @@ public class CxConsoleLauncher {
             args = convertParamToLowerCase(args);
             CommandLine commandLine = getCommandLine(args);
             command = getCommand(commandLine);
-            initLogging2(commandLine);
+            String logLocation= commandLine.getOptionValue(LOG_PATH, "." + File.separator + "logs" + File.separator + "cx_console.log");
+            System.setProperty("cliLogPath", logLocation);
+            /*initLogging2(commandLine);*/
             exitCode = execute(command, commandLine);
         } catch (CLIParsingException | ParseException e) {
             CxConfigHelper.printHelp(command);
@@ -263,7 +268,7 @@ public class CxConsoleLauncher {
         }
     }*/
 
-    private static void initLogging2(CommandLine commandLine) throws CLIParsingException {
+/*    private static void initLogging2(CommandLine commandLine) throws CLIParsingException {
         String logPath = commandLine.getOptionValue(LOG_PATH, "." + File.separator + "logs" + File.separator + "cx_console.log");
         File logFile = new File(logPath);
 
@@ -276,14 +281,26 @@ public class CxConsoleLauncher {
                 Files.touch(logFile);
             }
             Writer writer = new FileWriter(logPath);
-/*            org.apache.logging.log4j.Logger faLogger = LogManager.getLogger("FA");
-            faLogger.info("majd");*/
+            System.setProperty("cliLogPath", logPath);
+*//*            org.apache.logging.log4j.core.LoggerContext ctx =
+                    (org.apache.logging.log4j.core.LoggerContext) LogManager.getContext(false);
+            ctx.reconfigure();*//*
             RollingFileAppender appender = config.getAppender("FA");
+*//*            WriterAppender wa = WriterAppender.createAppender(ap);*//*
+            *//*WriterAppender wa = config.getAppender("FA");*//*
+            log.info("appender config "+ appender);
             log.info(appender.getFileName());
+            //appender.initialize();
         }catch (IOException e) {
             throw new CLIParsingException("[CxConsole] error creating log file", e);
         }
 
-    }
+    }*/
 
+
+/*    private static void initFileLogging(String path){
+        FileAppender apndr = new FileAppender(new PatternLayout("%d %-5p [%c{1}] %m%n"),path,true);
+        log.addAppender(apndr);
+        log.setLevel((Level) Level.ALL);
+    }*/
 }

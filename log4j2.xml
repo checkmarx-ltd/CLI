@@ -7,9 +7,9 @@
             <PatternLayout pattern="[%d{ISO8601} %-5p] %m%n"/>
         </Console>
 
-        <RollingFile name="FA" fileName="${cliLogPath}.log" filePattern=".\logs\$${date:yyyy-MM}\app-%d{MM-dd-yyyy}-%i.log.gz">
+<!--        <RollingFile name="FA" fileName="$${sys:cliLogPath}.log" filePattern=".\logs\$${date:yyyy-MM}\app-%d{MM-dd-yyyy}-%i.log.gz">
             <PatternLayout>
-                <!--<pattern>%d{ISO8601} [%t] (%F:%L) %-5p - %m%n</pattern>-->
+                &lt;!&ndash;<pattern>%d{ISO8601} [%t] (%F:%L) %-5p - %m%n</pattern>&ndash;&gt;
                 <Pattern>%d %p %c{1.} [%t] %m%n</Pattern>
             </PatternLayout>
             <Policies>
@@ -17,7 +17,20 @@
                 <SizeBasedTriggeringPolicy size="10 MB"/>
 
             </Policies>
-        </RollingFile>
+        </RollingFile>-->
+
+        <Routing name="Routing">
+            <Routes pattern="$${sys:cliLogPath}">
+                <Route>
+                    <File name="File" fileName="${sys:cliLogPath}"
+                          immediateFlush="false" append="false">
+                        <PatternLayout
+                                pattern="%d{ISO8601} [%t] (%F:%L) %-5p - %m%n" />
+                    </File>
+                </Route>
+
+            </Routes>
+        </Routing>
 
     </Appenders>
 
@@ -28,7 +41,7 @@
         <Logger name="org.whitesource.agent" level="ERROR"/>
 
         <Root level="INFO">
-            <AppenderRef ref="FA"/>
+            <AppenderRef ref="Routing"/>
             <AppenderRef ref="CA"/>
         </Root>
     </Loggers>
