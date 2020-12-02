@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.cx.plugin</groupId>
     <artifactId>CxConsolePlugin</artifactId>
-    <version>2020.4.9</version>
+    <version>2020.4.7</version>
     <packaging>jar</packaging>
 
     <repositories>
@@ -133,9 +133,8 @@
         <dependency>
             <groupId>com.checkmarx</groupId>
             <artifactId>cx-client-common</artifactId>
-            <version>2020.5.1</version>
+            <version>2020.4.109</version>
         </dependency>
-        <!-- those dependencies were implemented in the common, to solve a log4j warning -->
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
@@ -151,15 +150,6 @@
             <artifactId>commons-cli</artifactId>
             <version>1.4</version>
         </dependency>
-        <!--Already Imported in the cli-client-common-->
-        <!--        &lt;!&ndash; https://mvnrepository.com/artifact/javax.xml.bind/jaxb-api &ndash;&gt;
-                <dependency>
-                    <groupId>javax.xml.bind</groupId>
-                    <artifactId>jaxb-api</artifactId>
-                    <version>2.3.1</version>
-                </dependency>-->
-
-        <!-- https://mvnrepository.com/artifact/javax.activation/activation -->
         <dependency>
             <groupId>javax.activation</groupId>
             <artifactId>activation</artifactId>
@@ -171,14 +161,6 @@
             <version>5.5.2</version>
             <scope>test</scope>
         </dependency>
-        <!--Already Imported in the cli-client-common-->
-        <!--        &lt;!&ndash; https://mvnrepository.com/artifact/org.glassfish.jaxb/jaxb-runtime &ndash;&gt;
-                <dependency>
-                    <groupId>org.glassfish.jaxb</groupId>
-                    <artifactId>jaxb-runtime</artifactId>
-                    <version>2.3.2</version>
-                </dependency>-->
-
     </dependencies>
 
 </project>

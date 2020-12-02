@@ -3,21 +3,8 @@
 <Configuration>
     <Appenders>
         <Console name="CA" target="SYSTEM_OUT">
-            <!--  <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>-->
             <PatternLayout pattern="[%d{ISO8601} %-5p] %m%n"/>
         </Console>
-
-<!--        <RollingFile name="FA" fileName="$${sys:cliLogPath}.log" filePattern=".\logs\$${date:yyyy-MM}\app-%d{MM-dd-yyyy}-%i.log.gz">
-            <PatternLayout>
-                &lt;!&ndash;<pattern>%d{ISO8601} [%t] (%F:%L) %-5p - %m%n</pattern>&ndash;&gt;
-                <Pattern>%d %p %c{1.} [%t] %m%n</Pattern>
-            </PatternLayout>
-            <Policies>
-                <TimeBasedTriggeringPolicy interval="1" modulate="true" />
-                <SizeBasedTriggeringPolicy size="10 MB"/>
-
-            </Policies>
-        </RollingFile>-->
 
         <Routing name="Routing">
             <Routes pattern="$${sys:cliLogPath}">

@@ -6,8 +6,9 @@ import com.cx.restclient.dto.RemoteSourceTypes;
 import com.google.common.base.Strings;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.compress.utils.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -28,7 +29,7 @@ class ScanSourceConfigurator {
     private String INVALID_PORT_EXCEPTION = "[CxConsole] Invalid port specified: [%s]";
 
 
-    private static final Logger log = LoggerFactory.getLogger(ScanSourceConfigurator.class);
+    private static final Logger log = LogManager.getLogger(ScanSourceConfigurator.class);
 
     private CxScanConfig scanConfig;
 

@@ -22,7 +22,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.http.Consts;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.slf4j.Log4jLoggerFactory;
-
+import org.apache.logging.log4j.Logger;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,7 +38,7 @@ import static com.cx.plugin.cli.errorsconstants.ErrorMessages.INVALID_COMMAND_ER
  */
 public class CxConsoleLauncher {
 
-    private static org.apache.logging.log4j.Logger log = LogManager.getLogger(CxConsoleLauncher.class);
+    private static Logger log = LogManager.getLogger(CxConsoleLauncher.class);
 
 
     public static void main(String[] args) {

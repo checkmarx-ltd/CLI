@@ -1,8 +1,8 @@
 package com.cx.plugin.cli.utils;
 
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -17,7 +17,7 @@ import java.util.Properties;
  */
 public class PropertiesManager {
 
-    private static Logger log = LoggerFactory.getLogger(PropertiesManager.class);
+    private static Logger log = LogManager.getLogger(PropertiesManager.class);
 
     /*
      * Property keys
@@ -67,10 +67,7 @@ public class PropertiesManager {
     public static PropertiesManager getProps(String configFilePath) {
         return props == null ? new PropertiesManager(configFilePath) : props;
     }
-    public static PropertiesManager getProps(String configFilePath,Logger logger) {
-        log=logger;
-        return props == null ? new PropertiesManager(configFilePath) : props;
-    }
+
     private void loadProperties(String confPath) {
         try {
             if (confPath != null && loadFromConfigParam(confPath)) {
