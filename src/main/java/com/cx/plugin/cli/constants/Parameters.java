@@ -39,6 +39,7 @@ public final class Parameters {
     public static final String OSA_FILES_INCLUDE = "osafilesinclude";
     public static final String OSA_FILES_EXCLUDE = "osafilesexclude";
     public static final String OSA_FOLDER_EXCLUDE = "osapathexclude";
+    public static final String INCLUDE_EXCLUDE_PATTERN = "includeexcludepattern";
     public static final String OSA_ARCHIVE_TO_EXTRACT = "osaarchivetoextract";
     public static final String OSA_SCAN_DEPTH = "osascandepth";
     public static final String OSA_ENABLED = "enableosa";

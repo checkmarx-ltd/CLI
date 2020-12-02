@@ -1,5 +1,4 @@
 package com.cx.plugin.cli.utils;
-
 import com.cx.plugin.cli.constants.Command;
 import com.cx.plugin.cli.constants.Parameters;
 import com.cx.plugin.cli.exceptions.BadOptionCombinationException;
@@ -15,12 +14,11 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.annotation.Nullable;
 import java.io.File;
-import java.io.FileReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -34,7 +32,7 @@ import static org.apache.commons.lang3.StringUtils.isNotEmpty;
  */
 public final class CxConfigHelper {
 
-    private static Logger log = LoggerFactory.getLogger(CxConfigHelper.class);
+    private static Logger log = LogManager.getLogger(CxConfigHelper.class);
 
     private static final String DEFAULT_PRESET_NAME = "Checkmarx Default";
 
@@ -46,6 +44,7 @@ public final class CxConfigHelper {
     public CxConfigHelper(String configFilePath) {
         props = PropertiesManager.getProps(configFilePath);
     }
+
 
     /**
      * Resolves configuration from the config file and the console parameters
@@ -113,7 +112,8 @@ public final class CxConfigHelper {
         scanConfig.setPresetName(cmd.getOptionValue(PRESET) == null ? DEFAULT_PRESET_NAME : cmd.getOptionValue(PRESET));
 
         scanConfig.setSastFolderExclusions(getParamWithDefault(LOCATION_PATH_EXCLUDE, KEY_EXCLUDED_FOLDERS));
-        scanConfig.setSastFilterPattern(getParamWithDefault(LOCATION_FILES_EXCLUDE, KEY_EXCLUDED_FILES));
+        String includeExcludeCommand= getRelevantCommand();
+        scanConfig.setSastFilterPattern(getParamWithDefault(includeExcludeCommand, KEY_EXCLUDED_FILES));
         scanConfig.setScanComment(cmd.getOptionValue(SCAN_COMMENT));
         setScanReports(scanConfig);
         scanConfig.setIncremental(cmd.hasOption(IS_INCREMENTAL));
@@ -147,6 +147,18 @@ public final class CxConfigHelper {
         }
 
         setSharedDependencyScanConfig(scanConfig);
+    }
+
+    private String getRelevantCommand()
+    {
+        String oldCommandLineValue = commandLine.getOptionValue(LOCATION_FILES_EXCLUDE);
+        String newCommandLineValue = commandLine.getOptionValue(INCLUDE_EXCLUDE_PATTERN);
+        if(newCommandLineValue!=null) {
+            return INCLUDE_EXCLUDE_PATTERN;
+        } else if(oldCommandLineValue!=null) {
+            return LOCATION_FILES_EXCLUDE;
+        }
+        return "";
     }
 
     private void setOsaSpecificConfig(CxScanConfig scanConfig) {

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<Configuration>
+    <Appenders>
+        <Console name="CA" target="SYSTEM_OUT">
+            <PatternLayout pattern="[%d{ISO8601} %-5p] %m%n"/>
+        </Console>
+
+        <Routing name="Routing">
+            <Routes pattern="$${sys:cliLogPath}">
+                <Route>
+                    <File name="File" fileName="${sys:cliLogPath}"
+                          immediateFlush="false" append="false">
+                        <PatternLayout
+                                pattern="%d{ISO8601} [%t] (%F:%L) %-5p - %m%n" />
+                    </File>
+                </Route>
+
+            </Routes>
+        </Routing>
+
+    </Appenders>
+
+    <Loggers>
+        <Logger name="org.apache.http" level="WARN"/>
+        <Logger name="org.apache.cxf" level="ERROR"/>
+        <Logger name="org.springframework" level="ERROR"/>
+        <Logger name="org.whitesource.agent" level="ERROR"/>
+
+        <Root level="TRACE">
+            <AppenderRef ref="Routing" level="${sys:logLevel}"/>
+            <AppenderRef ref="CA" level="INFO"/>
+        </Root>
+    </Loggers>
+</Configuration>
