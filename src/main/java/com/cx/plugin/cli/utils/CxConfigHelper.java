@@ -4,7 +4,10 @@ import com.checkmarx.configprovider.ConfigProvider;
 import com.checkmarx.configprovider.dto.GeneralRepoDto;
 import com.checkmarx.configprovider.dto.ProtocolType;
 import com.checkmarx.configprovider.readers.GeneralGitReader;
-import com.cx.plugin.cli.configascode.*;
+import com.cx.plugin.cli.configascode.ConfigAsCode;
+import com.cx.plugin.cli.configascode.ProjectConfig;
+import com.cx.plugin.cli.configascode.SastConfig;
+import com.cx.plugin.cli.configascode.ScaConfig;
 import com.cx.plugin.cli.constants.Command;
 import com.cx.plugin.cli.constants.Parameters;
 import com.cx.plugin.cli.exceptions.BadOptionCombinationException;
@@ -23,10 +26,9 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.eclipse.jgit.transport.URIish;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import javax.annotation.Nullable;
 import javax.naming.ConfigurationException;
 import java.io.File;
@@ -35,7 +37,10 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -50,7 +55,7 @@ import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 public final class CxConfigHelper {
 
     private static final String CONFIG_AS_CODE_FILE_NAME = "cx";
-    private static Logger log = LoggerFactory.getLogger(CxConfigHelper.class);
+    private static Logger log = LogManager.getLogger(CxConfigHelper.class);
 
     private static final String DEFAULT_PRESET_NAME = "Checkmarx Default";
 
@@ -129,7 +134,8 @@ public final class CxConfigHelper {
         scanConfig.setPresetName(cmd.getOptionValue(PRESET) == null ? DEFAULT_PRESET_NAME : cmd.getOptionValue(PRESET));
 
         scanConfig.setSastFolderExclusions(getParamWithDefault(LOCATION_PATH_EXCLUDE, KEY_EXCLUDED_FOLDERS));
-        scanConfig.setSastFilterPattern(getParamWithDefault(LOCATION_FILES_EXCLUDE, KEY_EXCLUDED_FILES));
+        String includeExcludeCommand = getRelevantCommand();
+        scanConfig.setSastFilterPattern(getParamWithDefault(includeExcludeCommand, KEY_EXCLUDED_FILES));
         scanConfig.setScanComment(cmd.getOptionValue(SCAN_COMMENT));
         setScanReports(scanConfig);
         scanConfig.setIncremental(cmd.hasOption(IS_INCREMENTAL));
@@ -427,6 +433,17 @@ public final class CxConfigHelper {
         setSharedDependencyScanConfig(scanConfig);
     }
 
+    private String getRelevantCommand() {
+        String oldCommandLineValue = commandLine.getOptionValue(LOCATION_FILES_EXCLUDE);
+        String newCommandLineValue = commandLine.getOptionValue(INCLUDE_EXCLUDE_PATTERN);
+        if (newCommandLineValue != null) {
+            return INCLUDE_EXCLUDE_PATTERN;
+        } else if (oldCommandLineValue != null) {
+            return LOCATION_FILES_EXCLUDE;
+        }
+        return "";
+    }
+
     private void setOsaSpecificConfig(CxScanConfig scanConfig) {
         scanConfig.setOsaRunInstall(commandLine.hasOption(INSTALL_PACKAGE_MANAGER));
 
@@ -462,19 +479,21 @@ public final class CxConfigHelper {
         sca.setSourceLocationType(SourceLocationType.LOCAL_DIRECTORY);
 
         String reportDir = commandLine.getOptionValue(SCA_JSON_REPORT);
-        File reportFolder = new File(reportDir);
-        Path reportPath = Paths.get(reportDir);
-        if (reportFolder.isDirectory() && reportFolder.canWrite()) {
-            if (Files.isWritable(reportPath)) {
-                scanConfig.setReportsDir(reportDir != null ? reportFolder : null);
-                //use setOsaGenerateJsonReport instead of creating one for sca, because there is no case of using osa and sca simultaneously.
-                scanConfig.setOsaGenerateJsonReport(reportDir != null);
-                scanConfig.setScaJsonReport(reportDir);
+        if (reportDir != null) {
+            File reportFolder = new File(reportDir);
+            Path reportPath = Paths.get(reportDir);
+            if (reportFolder.isDirectory() && reportFolder.canWrite()) {
+                if (Files.isWritable(reportPath)) {
+                    scanConfig.setReportsDir(reportDir != null ? reportFolder : null);
+                    //use setOsaGenerateJsonReport instead of creating one for sca, because there is no case of using osa and sca simultaneously.
+                    scanConfig.setOsaGenerateJsonReport(reportDir != null);
+                    scanConfig.setScaJsonReport(reportDir);
+                } else {
+                    throw new CLIParsingException("There is no write access for: " + reportDir);
+                }
             } else {
-                throw new CLIParsingException("There is no write access for: " + reportDir);
+                throw new CLIParsingException(reportDir + " directory doesn't exist.");
             }
-        } else {
-            throw new CLIParsingException(reportDir + " directory doesn't exist.");
         }
 
         scanConfig.setAstScaConfig(sca);

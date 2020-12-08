@@ -1,8 +1,8 @@
 package com.cx.plugin.cli.utils;
 
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -17,7 +17,7 @@ import java.util.Properties;
  */
 public class PropertiesManager {
 
-    private static Logger log = LoggerFactory.getLogger(PropertiesManager.class);
+    private static Logger log = LogManager.getLogger(PropertiesManager.class);
 
     /*
      * Property keys

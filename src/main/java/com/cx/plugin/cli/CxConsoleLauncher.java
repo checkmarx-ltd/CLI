@@ -13,7 +13,6 @@ import com.cx.restclient.dto.ScanResults;
 import com.cx.restclient.dto.ScannerType;
 import com.cx.restclient.dto.scansummary.ScanSummary;
 import com.cx.restclient.exception.CxClientException;
-import com.google.common.io.Files;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -21,13 +20,9 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.Consts;
-import org.apache.log4j.Appender;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.apache.log4j.RollingFileAppender;
-import org.apache.log4j.xml.DOMConfigurator;
-import org.slf4j.impl.Log4jLoggerFactory;
-
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.slf4j.Log4jLoggerFactory;
+import org.apache.logging.log4j.Logger;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -43,7 +38,8 @@ import static com.cx.plugin.cli.errorsconstants.ErrorMessages.INVALID_COMMAND_ER
  */
 public class CxConsoleLauncher {
 
-    private static Logger log = Logger.getLogger(CxConsoleLauncher.class);
+    private static Logger log = LogManager.getLogger(CxConsoleLauncher.class);
+
 
     public static void main(String[] args) {
         int exitCode;
@@ -55,7 +51,7 @@ public class CxConsoleLauncher {
             args = convertParamToLowerCase(args);
             CommandLine commandLine = getCommandLine(args);
             command = getCommand(commandLine);
-            initLogging(commandLine);
+            initFileLogging(commandLine);
             exitCode = execute(command, commandLine);
         } catch (CLIParsingException | ParseException e) {
             CxConfigHelper.printHelp(command);
@@ -102,11 +98,10 @@ public class CxConsoleLauncher {
         List<ScanResults> results = new ArrayList<>();
         int exitCode = Errors.SCAN_SUCCEEDED.getCode();
         CxConfigHelper.printConfig(commandLine);
-
         CxConfigHelper configHelper = new CxConfigHelper(commandLine.getOptionValue(Parameters.CLI_CONFIG));
         CxScanConfig cxScanConfig = configHelper.resolveConfiguration(command, commandLine);
-
         org.slf4j.Logger logger = new Log4jLoggerFactory().getLogger(log.getName());
+
         CxSastConnectionProvider connectionProvider = new CxSastConnectionProvider(cxScanConfig, logger);
 
         CxClientDelegator clientDelegator = new CxClientDelegator(cxScanConfig, logger);
@@ -237,26 +232,14 @@ public class CxConsoleLauncher {
                 .toArray(String[]::new);
     }
 
-    private static void initLogging(CommandLine commandLine) throws CLIParsingException {
-        String logPath = commandLine.getOptionValue(LOG_PATH, "." + File.separator + "logs" + File.separator + "cx_console.log");
-        File logFile = new File(logPath);
-        DOMConfigurator.configure("." + File.separator + "log4j.xml");
-        try {
-            if (!logFile.exists()) {
-                Files.createParentDirs(logFile);
-                Files.touch(logFile);
-            }
-            Writer writer = new FileWriter(logPath);
-            Appender faAppender = org.apache.log4j.Logger.getRootLogger().getAppender("FA");
-            if (commandLine.hasOption(Parameters.VERBOSE)) {
-                //TODO: it seems that common client overrides threshold? prints only info level
-                ((RollingFileAppender) faAppender).setThreshold(Level.TRACE);
-            }
-            ((RollingFileAppender) faAppender).setWriter(writer);
-            log.info("[CxConsole] Log file location: " + logPath);
-        } catch (IOException e) {
-            throw new CLIParsingException("[CxConsole] error creating log file", e);
-        }
+    private static void initFileLogging(CommandLine commandLine) {
+        String logLocation = commandLine.getOptionValue(LOG_PATH, "." + File.separator + "logs" + File.separator + "cx_console.log");
+        System.setProperty("cliLogPath", logLocation);
+        String logLevel = getLogLevel(commandLine);
+        System.setProperty("logLevel", logLevel);
     }
 
+    private static String getLogLevel(CommandLine commandLine) {
+        return commandLine.hasOption(Parameters.VERBOSE) ? "TRACE" : "INFO";
+    }
 }
