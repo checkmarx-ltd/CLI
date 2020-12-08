@@ -3,6 +3,9 @@ package com.cx.plugin.cli.utils;
 import com.checkmarx.configprovider.ConfigProvider;
 import com.checkmarx.configprovider.dto.GeneralRepoDto;
 import com.checkmarx.configprovider.dto.ProtocolType;
+import com.checkmarx.configprovider.dto.ResourceType;
+import com.checkmarx.configprovider.dto.interfaces.ConfigReader;
+import com.checkmarx.configprovider.readers.FileReader;
 import com.checkmarx.configprovider.readers.GeneralGitReader;
 import com.cx.plugin.cli.configascode.ConfigAsCode;
 import com.cx.plugin.cli.configascode.ProjectConfig;
@@ -54,7 +57,7 @@ import static org.apache.commons.lang3.StringUtils.isNotEmpty;
  */
 public final class CxConfigHelper {
 
-    private static final String CONFIG_AS_CODE_FILE_NAME = "cx";
+    private static final String CONFIG_AS_CODE_FILE_NAME = "cx.config";
     private static Logger log = LogManager.getLogger(CxConfigHelper.class);
 
     private static final String DEFAULT_PRESET_NAME = "Checkmarx Default";
@@ -172,9 +175,10 @@ public final class CxConfigHelper {
 
     private void resolveConfigAsCodeLocal(CxScanConfig scanConfig) {
         log.info("loading config file from local working directory ..");
+
         try {
             ConfigAsCode configAsCodeFromFile = getConfigAsCodeFromFile(
-                    scanConfig.getSourceDir() + File.separator + CONFIG_AS_CODE_FILE_NAME);
+                    scanConfig.getSourceDir() +File.separator+".checkmarx"+ File.separator + CONFIG_AS_CODE_FILE_NAME);
             overrideConfigAsCode(configAsCodeFromFile, scanConfig);
         } catch (ConfigurationException | IOException e) {
             log.warn(String.format("Config file %s not found or couldn't be loaded,ignoring config as code", CONFIG_AS_CODE_FILE_NAME));
@@ -183,7 +187,6 @@ public final class CxConfigHelper {
 
     private void resolveConfigAsCodeFromRemote(CxScanConfig scanConfig) {
         log.info("loading config file from remote working directory ..");
-        ConfigProvider configProvider = ConfigProvider.getInstance();
         GeneralGitReader reader = null;
 
 
@@ -203,22 +206,10 @@ public final class CxConfigHelper {
                 repoDto.setSrcPrivateKey(commandLine.getOptionValue(PRIVATE_KEY));
             }
 
-            reader = new GeneralGitReader(repoDto, CONFIG_AS_CODE_FILE_NAME);
 
-            configProvider.init(CX_ORIGIN, reader);
-            ConfigAsCode configAsCodeFromFile = new ConfigAsCode();
+            reader = new GeneralGitReader(repoDto);
 
-            if (configProvider.hasConfiguration(CX_ORIGIN, "project"))
-                configAsCodeFromFile.setProject(
-                        configProvider.getConfiguration(CX_ORIGIN, "project", ProjectConfig.class));
-
-            if (configProvider.hasConfiguration(CX_ORIGIN, "sast"))
-                configAsCodeFromFile.setSast(
-                        configProvider.getConfiguration(CX_ORIGIN, "sast", SastConfig.class));
-
-            if (configProvider.hasConfiguration(CX_ORIGIN, "sca"))
-                configAsCodeFromFile.setSca(
-                        configProvider.getConfiguration(CX_ORIGIN, "sca", ScaConfig.class));
+            ConfigAsCode configAsCodeFromFile = getConfigAsCode(reader);
 
             overrideConfigAsCode(configAsCodeFromFile, scanConfig);
 
@@ -227,6 +218,26 @@ public final class CxConfigHelper {
         } finally {
             Optional.ofNullable(reader).ifPresent(GeneralGitReader::close);
         }
+    }
+
+    private ConfigAsCode getConfigAsCode(ConfigReader reader) throws ConfigurationException {
+        ConfigProvider configProvider = ConfigProvider.getInstance();
+
+        configProvider.init(CX_ORIGIN, reader);
+        ConfigAsCode configAsCodeFromFile = new ConfigAsCode();
+
+        if (configProvider.hasConfiguration(CX_ORIGIN, "project"))
+            configAsCodeFromFile.setProject(
+                    configProvider.getConfiguration(CX_ORIGIN, "project", ProjectConfig.class));
+
+        if (configProvider.hasConfiguration(CX_ORIGIN, "sast"))
+            configAsCodeFromFile.setSast(
+                    configProvider.getConfiguration(CX_ORIGIN, "sast", SastConfig.class));
+
+        if (configProvider.hasConfiguration(CX_ORIGIN, "sca"))
+            configAsCodeFromFile.setSca(
+                    configProvider.getConfiguration(CX_ORIGIN, "sca", ScaConfig.class));
+        return configAsCodeFromFile;
     }
 
     private void overrideConfigAsCode(ConfigAsCode configAsCodeFromFile, CxScanConfig scanConfig) {
@@ -399,13 +410,10 @@ public final class CxConfigHelper {
 
     private ConfigAsCode getConfigAsCodeFromFile(String filePath) throws ConfigurationException, IOException {
 
-        File file = new File(filePath);
-        if (!file.exists()) {
-            throw new ConfigurationException("File not found: " + filePath);
-        }
+        com.checkmarx.configprovider.readers.FileReader reader = new FileReader(ResourceType.YAML,filePath);
 
-        ObjectMapper objectMapper = new ObjectMapper(new YAMLFactory());
-        return objectMapper.readValue(file, ConfigAsCode.class);
+        return getConfigAsCode(reader);
+
 
     }
 

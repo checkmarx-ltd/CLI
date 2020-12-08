@@ -1,6 +1,5 @@
 package com.cx.plugin.cli.configascode;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.typesafe.config.Optional;
 
 public class ConfigAsCode {
