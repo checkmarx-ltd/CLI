@@ -1,4 +1,5 @@
 package com.cx.plugin.cli.utils;
+
 import com.cx.plugin.cli.constants.Command;
 import com.cx.plugin.cli.constants.Parameters;
 import com.cx.plugin.cli.exceptions.BadOptionCombinationException;
@@ -112,7 +113,7 @@ public final class CxConfigHelper {
         scanConfig.setPresetName(cmd.getOptionValue(PRESET) == null ? DEFAULT_PRESET_NAME : cmd.getOptionValue(PRESET));
 
         scanConfig.setSastFolderExclusions(getParamWithDefault(LOCATION_PATH_EXCLUDE, KEY_EXCLUDED_FOLDERS));
-        String includeExcludeCommand= getRelevantCommand();
+        String includeExcludeCommand = getRelevantCommand();
         scanConfig.setSastFilterPattern(getParamWithDefault(includeExcludeCommand, KEY_EXCLUDED_FILES));
         scanConfig.setScanComment(cmd.getOptionValue(SCAN_COMMENT));
         setScanReports(scanConfig);
@@ -149,13 +150,12 @@ public final class CxConfigHelper {
         setSharedDependencyScanConfig(scanConfig);
     }
 
-    private String getRelevantCommand()
-    {
+    private String getRelevantCommand() {
         String oldCommandLineValue = commandLine.getOptionValue(LOCATION_FILES_EXCLUDE);
         String newCommandLineValue = commandLine.getOptionValue(INCLUDE_EXCLUDE_PATTERN);
-        if(newCommandLineValue!=null) {
+        if (newCommandLineValue != null) {
             return INCLUDE_EXCLUDE_PATTERN;
-        } else if(oldCommandLineValue!=null) {
+        } else if (oldCommandLineValue != null) {
             return LOCATION_FILES_EXCLUDE;
         }
         return "";
@@ -196,19 +196,21 @@ public final class CxConfigHelper {
         sca.setSourceLocationType(SourceLocationType.LOCAL_DIRECTORY);
 
         String reportDir = commandLine.getOptionValue(SCA_JSON_REPORT);
-        File reportFolder = new File(reportDir);
-        Path reportPath = Paths.get(reportDir);
-        if(reportFolder.isDirectory() && reportFolder.canWrite()) {
-            if(Files.isWritable(reportPath)){
-            scanConfig.setReportsDir(reportDir != null ? reportFolder : null);
-            //use setOsaGenerateJsonReport instead of creating one for sca, because there is no case of using osa and sca simultaneously.
-            scanConfig.setOsaGenerateJsonReport(reportDir != null);
-            scanConfig.setScaJsonReport(reportDir);
-            }else{
-                throw new CLIParsingException("There is no write access for: " + reportDir);
+        if (reportDir != null) {
+            File reportFolder = new File(reportDir);
+            Path reportPath = Paths.get(reportDir);
+            if (reportFolder.isDirectory() && reportFolder.canWrite()) {
+                if (Files.isWritable(reportPath)) {
+                    scanConfig.setReportsDir(reportDir != null ? reportFolder : null);
+                    //use setOsaGenerateJsonReport instead of creating one for sca, because there is no case of using osa and sca simultaneously.
+                    scanConfig.setOsaGenerateJsonReport(reportDir != null);
+                    scanConfig.setScaJsonReport(reportDir);
+                } else {
+                    throw new CLIParsingException("There is no write access for: " + reportDir);
+                }
+            } else {
+                throw new CLIParsingException(reportDir + " directory doesn't exist.");
             }
-        }else{
-            throw new CLIParsingException(reportDir + " directory doesn't exist.");
         }
 
         scanConfig.setAstScaConfig(sca);
