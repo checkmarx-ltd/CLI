@@ -143,8 +143,8 @@ public enum Command {
         options.addOption(SCA_FILES_INCLUDE, true, ArgDescriptions.SCA_FILES_INCLUDE);
         options.addOption(SCA_FILES_EXCLUDE, true, ArgDescriptions.SCA_FILES_EXCLUDE);
         options.addOption(SCA_LOCATION_PATH, true, ArgDescriptions.SCA_LOCATION_PATH);
+        options.addOption(CONFIG_AS_CODE, false, ArgDescriptions.CONFIG_AS_CODE);
         options.addOption(SCA_FOLDER_EXCLUDE, true, ArgDescriptions.SCA_FOLDER_EXCLUDE);
-
         options.addOption(VERBOSE, VERBOSE_LONG, false, ArgDescriptions.VERBOSE);
         options.addOption(LOG_PATH, true, ArgDescriptions.LOG_PATH);
         options.addOption(TRUSTED_CERTIFICATES, false, ArgDescriptions.TRUSTED_CERTIFICATES);

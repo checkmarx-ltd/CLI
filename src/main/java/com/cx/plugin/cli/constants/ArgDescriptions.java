@@ -55,7 +55,7 @@ class ArgDescriptions {
     static final String LOCATION_PATH_EXCLUDE = "Comma separated list of folder name patterns to exclude from scan. For example, exclude all test and log folders: -locationPathExclude test* log_* Optional";
     static final String LOCATION_FILES_EXCLUDE = "Comma separated list of file name patterns to exclude from scan. For example, exclude all files with '.class' extension: -LocationFilesExclude *.class Optional";
     static final String LOCATION_PRIVATE_KEY = "GIT SSH key locations, Mandatory if location type is GIT using SSH";
-
+    public static final String CONFIG_AS_CODE = "Override scan settings with Remote/Local configuration file located inside source directory";
     static final String CX_SAST = "CxSAST";
     static final String CX_OSA = "CxOSA";
     static final String CX_SCA = "CxSCA";

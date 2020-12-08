@@ -1,5 +1,10 @@
 package com.cx.plugin.cli.utils;
 
+import com.checkmarx.configprovider.ConfigProvider;
+import com.checkmarx.configprovider.dto.GeneralRepoDto;
+import com.checkmarx.configprovider.dto.ProtocolType;
+import com.checkmarx.configprovider.readers.GeneralGitReader;
+import com.cx.plugin.cli.configascode.*;
 import com.cx.plugin.cli.constants.Command;
 import com.cx.plugin.cli.constants.Parameters;
 import com.cx.plugin.cli.exceptions.BadOptionCombinationException;
@@ -7,23 +12,33 @@ import com.cx.plugin.cli.exceptions.CLIParsingException;
 import com.cx.restclient.ast.dto.sca.AstScaConfig;
 import com.cx.restclient.configuration.CxScanConfig;
 import com.cx.restclient.dto.ProxyConfig;
+import com.cx.restclient.dto.RemoteSourceTypes;
 import com.cx.restclient.dto.ScannerType;
 import com.cx.restclient.dto.SourceLocationType;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.common.base.Strings;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.jgit.transport.URIish;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+import javax.naming.ConfigurationException;
 import java.io.File;
-import java.io.FileReader;
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.cx.plugin.cli.constants.Parameters.*;
 import static com.cx.plugin.cli.utils.PropertiesManager.*;
@@ -34,6 +49,7 @@ import static org.apache.commons.lang3.StringUtils.isNotEmpty;
  */
 public final class CxConfigHelper {
 
+    private static final String CONFIG_AS_CODE_FILE_NAME = "cx";
     private static Logger log = LoggerFactory.getLogger(CxConfigHelper.class);
 
     private static final String DEFAULT_PRESET_NAME = "Checkmarx Default";
@@ -132,7 +148,269 @@ public final class CxConfigHelper {
 
         configureDependencyScan(scanConfig);
 
+        if (cmd.hasOption(CONFIG_AS_CODE))
+            checkForConfigAsCode(scanConfig);
+
         return scanConfig;
+    }
+
+    private void checkForConfigAsCode(CxScanConfig scanConfig) {
+        if (StringUtils.isNotEmpty(scanConfig.getRemoteSrcUrl()) && RemoteSourceTypes.GIT == scanConfig.getRemoteType()) {
+            resolveConfigAsCodeFromRemote(scanConfig);
+        }
+
+        if (StringUtils.isNotEmpty(scanConfig.getSourceDir())) {
+            resolveConfigAsCodeLocal(scanConfig);
+        }
+    }
+
+    private void resolveConfigAsCodeLocal(CxScanConfig scanConfig) {
+        log.info("loading config file from local working directory ..");
+        try {
+            ConfigAsCode configAsCodeFromFile = getConfigAsCodeFromFile(
+                    scanConfig.getSourceDir() + File.separator + CONFIG_AS_CODE_FILE_NAME);
+            overrideConfigAsCode(configAsCodeFromFile, scanConfig);
+        } catch (ConfigurationException | IOException e) {
+            log.warn(String.format("Config file %s not found or couldn't be loaded,ignoring config as code", CONFIG_AS_CODE_FILE_NAME));
+        }
+    }
+
+    private void resolveConfigAsCodeFromRemote(CxScanConfig scanConfig) {
+        log.info("loading config file from remote working directory ..");
+        ConfigProvider configProvider = ConfigProvider.getInstance();
+        GeneralGitReader reader = null;
+
+
+        try {
+            URIish urIish = prepareRemoteUrl(scanConfig.getRemoteSrcUrl(), scanConfig.getRemoteSrcPort());
+            GeneralRepoDto repoDto = new GeneralRepoDto();
+            repoDto.setSrcUrl(urIish.toString());
+            repoDto.setSrcPass(isNotEmpty(urIish.getPass()) ? urIish.getPass() : scanConfig.getRemoteSrcPass());
+            repoDto.setSrcUserName(isNotEmpty(urIish.getUser()) ? urIish.getUser() : scanConfig.getRemoteSrcUser());
+            repoDto.setSrcRef(scanConfig.getRemoteSrcBranch());
+
+            if ("http".equalsIgnoreCase(urIish.getScheme()) || "https".equalsIgnoreCase(urIish.getScheme())) {
+                repoDto.setProtocolType(ProtocolType.HTTP);
+
+            } else {
+                repoDto.setProtocolType(ProtocolType.SSH);
+                repoDto.setSrcPrivateKey(commandLine.getOptionValue(PRIVATE_KEY));
+            }
+
+            reader = new GeneralGitReader(repoDto, CONFIG_AS_CODE_FILE_NAME);
+
+            configProvider.init(CX_ORIGIN, reader);
+            ConfigAsCode configAsCodeFromFile = new ConfigAsCode();
+
+            if (configProvider.hasConfiguration(CX_ORIGIN, "project"))
+                configAsCodeFromFile.setProject(
+                        configProvider.getConfiguration(CX_ORIGIN, "project", ProjectConfig.class));
+
+            if (configProvider.hasConfiguration(CX_ORIGIN, "sast"))
+                configAsCodeFromFile.setSast(
+                        configProvider.getConfiguration(CX_ORIGIN, "sast", SastConfig.class));
+
+            if (configProvider.hasConfiguration(CX_ORIGIN, "sca"))
+                configAsCodeFromFile.setSca(
+                        configProvider.getConfiguration(CX_ORIGIN, "sca", ScaConfig.class));
+
+            overrideConfigAsCode(configAsCodeFromFile, scanConfig);
+
+        } catch (ConfigurationException | URISyntaxException e) {
+            log.warn(String.format("Config file %s not found or couldn't be loaded,ignoring config as code", CONFIG_AS_CODE_FILE_NAME));
+        } finally {
+            Optional.ofNullable(reader).ifPresent(GeneralGitReader::close);
+        }
+    }
+
+    private void overrideConfigAsCode(ConfigAsCode configAsCodeFromFile, CxScanConfig scanConfig) {
+        Map<String, String> overridesResults = new HashMap<>();
+
+        mapProjectConfiguration(Optional.ofNullable(configAsCodeFromFile.getProject()), scanConfig, overridesResults);
+        mapSastConfiguration(Optional.ofNullable(configAsCodeFromFile.getSast()), scanConfig, overridesResults);
+        mapScaConfiguration(Optional.ofNullable(configAsCodeFromFile.getSca()), scanConfig, overridesResults);
+
+        if (!overridesResults.isEmpty())
+            log.info(String.format("the following fields was overrides using config as code file : %s",
+                    overridesResults.keySet().stream().map(key -> key + " = " + overridesResults.get(key))
+                            .collect(Collectors.joining("\n", "[", "]"))));
+    }
+
+    private void mapScaConfiguration(Optional<ScaConfig> sca, CxScanConfig scanConfig, Map<String, String> overridesResults) {
+
+        AtomicReference<String> fileInclude = new AtomicReference<>("");
+        AtomicReference<String> fileExclude = new AtomicReference<>("");
+
+        sca.map(ScaConfig::getFileExclude)
+                .filter(StringUtils::isNotBlank)
+                .ifPresent(pValue -> {
+                    fileExclude.set(pValue);
+                    overridesResults.put("Sca File Exclude", pValue);
+                });
+
+        sca.map(ScaConfig::getFileInclude)
+                .filter(StringUtils::isNotBlank)
+                .ifPresent(pValue -> {
+                    fileInclude.set(pValue);
+                    overridesResults.put("Sca File Include", pValue);
+                });
+
+        sca.map(ScaConfig::getPathExclude)
+                .filter(StringUtils::isNotBlank)
+                .ifPresent(pValue -> {
+                    scanConfig.setOsaFolderExclusions(pValue);
+                    overridesResults.put("Sca Folder Exclude", pValue);
+                });
+
+        sca.map(ScaConfig::getHigh)
+                .ifPresent(pValue -> {
+                    scanConfig.setOsaThresholdsEnabled(true);
+                    scanConfig.setOsaHighThreshold(pValue);
+                    overridesResults.put("Sca High", String.valueOf(pValue));
+                });
+
+        sca.map(ScaConfig::getMedium)
+                .ifPresent(pValue -> {
+                    scanConfig.setOsaThresholdsEnabled(true);
+                    scanConfig.setOsaMediumThreshold(pValue);
+                    overridesResults.put("Sca Medium", String.valueOf(pValue));
+                });
+
+        sca.map(ScaConfig::getLow)
+                .ifPresent(pValue -> {
+                    scanConfig.setOsaThresholdsEnabled(true);
+                    scanConfig.setOsaLowThreshold(pValue);
+                    overridesResults.put("Sca Low", String.valueOf(pValue));
+                });
+
+        //build include/exclude file pattern
+        if (!fileExclude.get().isEmpty() || !fileInclude.get().isEmpty())
+            setDependencyScanFilterPattern(scanConfig, fileInclude.get(), fileExclude.get());
+
+    }
+
+    private void mapSastConfiguration(Optional<SastConfig> sast, CxScanConfig scanConfig, Map<String, String> overridesResults) {
+        sast.map(SastConfig::getConfiguration)
+                .filter(StringUtils::isNotBlank)
+                .ifPresent(pValue -> {
+                    scanConfig.setEngineConfigurationName(pValue);
+                    overridesResults.put("Configuration", pValue);
+                });
+
+        sast.map(SastConfig::isIncremental)
+                .ifPresent(pValue -> {
+                    scanConfig.setIncremental(pValue);
+                    overridesResults.put("Is Incremental", String.valueOf(pValue));
+                });
+
+        sast.map(SastConfig::isPrivateScan)
+                .ifPresent(pValue -> {
+                    scanConfig.setPublic(!pValue);
+                    overridesResults.put("Is Private", String.valueOf(pValue));
+                });
+
+        sast.map(SastConfig::getLow)
+                .ifPresent(pValue -> {
+                    scanConfig.setSastThresholdsEnabled(true);
+                    scanConfig.setSastLowThreshold(pValue);
+                    overridesResults.put("Low", String.valueOf(pValue));
+                });
+
+        sast.map(SastConfig::getMedium)
+                .ifPresent(pValue -> {
+                    scanConfig.setSastThresholdsEnabled(true);
+                    scanConfig.setSastMediumThreshold(pValue);
+                    overridesResults.put("Medium", String.valueOf(pValue));
+                });
+
+        sast.map(SastConfig::getHigh)
+                .ifPresent(pValue -> {
+                    scanConfig.setSastThresholdsEnabled(true);
+                    scanConfig.setSastHighThreshold(pValue);
+                    overridesResults.put("Medium", String.valueOf(pValue));
+                });
+        sast.map(SastConfig::getPreset)
+                .filter(StringUtils::isNotBlank)
+                .ifPresent(pValue -> {
+                    scanConfig.setPresetName(pValue);
+                    overridesResults.put("Preset", pValue);
+                });
+
+        sast.map(SastConfig::getExcludeFolders)
+                .filter(StringUtils::isNotBlank)
+                .ifPresent(pValue -> {
+                    if (StringUtils.isNotEmpty(scanConfig.getSastFolderExclusions())) {
+                        pValue = Stream.of(scanConfig.getSastFolderExclusions().split(","), pValue.split(","))
+                                .flatMap(x -> Arrays.stream(x))
+                                .map(String::trim)
+                                .distinct()
+                                .collect(Collectors.joining(","));
+                    }
+                    scanConfig.setSastFolderExclusions(pValue);
+                    overridesResults.put("Folder Exclusions", pValue);
+                });
+
+        sast.map(SastConfig::getExcludeIncludePattern)
+                .filter(StringUtils::isNotBlank)
+                .ifPresent(pValue -> {
+                    if (StringUtils.isNotEmpty(scanConfig.getSastFilterPattern())) {
+                        pValue = Stream.of(scanConfig.getSastFilterPattern().split(","), pValue.split(","))
+                                .flatMap(x -> Arrays.stream(x))
+                                .map(String::trim)
+                                .distinct()
+                                .collect(Collectors.joining(","));
+                    }
+                    scanConfig.setSastFilterPattern(pValue);
+                    overridesResults.put("Include/Exclude pattern", pValue);
+                });
+    }
+
+    private void mapProjectConfiguration(Optional<ProjectConfig> project, CxScanConfig scanConfig, Map<String, String> overridesResults) {
+        project.map(ProjectConfig::getFullPath)
+                .filter(StringUtils::isNotBlank)
+                .ifPresent(projectName -> {
+                    try {
+                        if ((command.equals(Command.SCA_SCAN)) || (command.equals(Command.ASYNC_SCA_SCAN))) {
+                            scanConfig.setProjectName(extractProjectName(projectName, true));
+                        } else {
+                            scanConfig.setProjectName(extractProjectName(projectName, false));
+                            scanConfig.setTeamPath(extractTeamPath(projectName));
+                        }
+                        overridesResults.put("Project Name", projectName);
+
+                    } catch (CLIParsingException e) {
+
+                    }
+                });
+
+        project.map(ProjectConfig::getOrigin)
+                .filter(StringUtils::isNotBlank)
+                .ifPresent(origin -> {
+                    scanConfig.setCxOrigin(origin);
+                    overridesResults.put("Origin", origin);
+                });
+    }
+
+    private ConfigAsCode getConfigAsCodeFromFile(String filePath) throws ConfigurationException, IOException {
+
+        File file = new File(filePath);
+        if (!file.exists()) {
+            throw new ConfigurationException("File not found: " + filePath);
+        }
+
+        ObjectMapper objectMapper = new ObjectMapper(new YAMLFactory());
+        return objectMapper.readValue(file, ConfigAsCode.class);
+
+    }
+
+
+    private URIish prepareRemoteUrl(String remoteSrcUrl, int remoteSrcPort) throws URISyntaxException {
+        URIish urIish = new URIish(remoteSrcUrl);
+        if (remoteSrcPort > 0) {
+            urIish.setPort(remoteSrcPort);
+        }
+
+        return urIish;
     }
 
     private void configureDependencyScan(CxScanConfig scanConfig) throws CLIParsingException {
@@ -186,16 +464,16 @@ public final class CxConfigHelper {
         String reportDir = commandLine.getOptionValue(SCA_JSON_REPORT);
         File reportFolder = new File(reportDir);
         Path reportPath = Paths.get(reportDir);
-        if(reportFolder.isDirectory() && reportFolder.canWrite()) {
-            if(Files.isWritable(reportPath)){
-            scanConfig.setReportsDir(reportDir != null ? reportFolder : null);
-            //use setOsaGenerateJsonReport instead of creating one for sca, because there is no case of using osa and sca simultaneously.
-            scanConfig.setOsaGenerateJsonReport(reportDir != null);
-            scanConfig.setScaJsonReport(reportDir);
-            }else{
+        if (reportFolder.isDirectory() && reportFolder.canWrite()) {
+            if (Files.isWritable(reportPath)) {
+                scanConfig.setReportsDir(reportDir != null ? reportFolder : null);
+                //use setOsaGenerateJsonReport instead of creating one for sca, because there is no case of using osa and sca simultaneously.
+                scanConfig.setOsaGenerateJsonReport(reportDir != null);
+                scanConfig.setScaJsonReport(reportDir);
+            } else {
                 throw new CLIParsingException("There is no write access for: " + reportDir);
             }
-        }else{
+        } else {
             throw new CLIParsingException(reportDir + " directory doesn't exist.");
         }
 
@@ -229,6 +507,11 @@ public final class CxConfigHelper {
             excludedFiles = getOptionalParam(SCA_FILES_EXCLUDE, KEY_SCA_EXCLUDED_FILES);
         }
 
+
+        setDependencyScanFilterPattern(scanConfig, includedFiles, excludedFiles);
+    }
+
+    private void setDependencyScanFilterPattern(CxScanConfig scanConfig, String includedFiles, String excludedFiles) {
         String filterPattern = null;
         if (includedFiles != null) {
             if (excludedFiles != null) {
