@@ -41,20 +41,28 @@ public class CxConsoleLauncher {
     private static Logger log = LogManager.getLogger(CxConsoleLauncher.class);
 
 
-    public static void main(String[] args) {
+    public static void main(String[] args)  {
         int exitCode;
         Command command = null;
-
+        String logLocation=null;
+        String logLevel=null;
         try {
             verifyArgsCount(args);
             args = overrideProperties(args);
             args = convertParamToLowerCase(args);
             CommandLine commandLine = getCommandLine(args);
             command = getCommand(commandLine);
-            initFileLogging(commandLine);
+            logLocation = commandLine.getOptionValue(LOG_PATH, "." + File.separator + "logs" + File.separator + "cx_console.log");
+            logLevel = getLogLevel(commandLine);
+            initFileLogging(logLocation,logLevel);
             exitCode = execute(command, commandLine);
         } catch (CLIParsingException | ParseException e) {
+            if(command==null){
+                logLocation = "." + File.separator + "logs" + File.separator + "cx_console.log";
+                logLevel = "TRACE";
+            }
             CxConfigHelper.printHelp(command);
+            initFileLogging(logLocation,logLevel);
             log.error(String.format("%n%n[CxConsole] Error parsing command: %n%s%n%n", e));
             exitCode = ErrorParsingHelper.parseError(e.getMessage());
         } catch (CxClientException | IOException | InterruptedException e) {
@@ -232,12 +240,12 @@ public class CxConsoleLauncher {
                 .toArray(String[]::new);
     }
 
-    private static void initFileLogging(CommandLine commandLine) {
-        String logLocation = commandLine.getOptionValue(LOG_PATH, "." + File.separator + "logs" + File.separator + "cx_console.log");
+
+    private static void initFileLogging(String logLocation,String logLevel) {
         System.setProperty("cliLogPath", logLocation);
-        String logLevel = getLogLevel(commandLine);
         System.setProperty("logLevel", logLevel);
     }
+
 
     private static String getLogLevel(CommandLine commandLine) {
         return commandLine.hasOption(Parameters.VERBOSE) ? "TRACE" : "INFO";
