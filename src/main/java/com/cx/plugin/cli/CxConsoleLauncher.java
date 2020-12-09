@@ -23,6 +23,7 @@ import org.apache.http.Consts;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.slf4j.Log4jLoggerFactory;
 import org.apache.logging.log4j.Logger;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -41,11 +42,11 @@ public class CxConsoleLauncher {
     private static Logger log = LogManager.getLogger(CxConsoleLauncher.class);
 
 
-    public static void main(String[] args)  {
+    public static void main(String[] args) {
         int exitCode;
         Command command = null;
-        String logLocation=null;
-        String logLevel=null;
+        String logLocation = null;
+        String logLevel = null;
         try {
             verifyArgsCount(args);
             args = overrideProperties(args);
@@ -54,15 +55,15 @@ public class CxConsoleLauncher {
             command = getCommand(commandLine);
             logLocation = commandLine.getOptionValue(LOG_PATH, "." + File.separator + "logs" + File.separator + "cx_console.log");
             logLevel = getLogLevel(commandLine);
-            initFileLogging(logLocation,logLevel);
+            initFileLogging(logLocation, logLevel);
             exitCode = execute(command, commandLine);
         } catch (CLIParsingException | ParseException e) {
-            if(command==null){
+            if (command == null) {
                 logLocation = "." + File.separator + "logs" + File.separator + "cx_console.log";
                 logLevel = "TRACE";
             }
             CxConfigHelper.printHelp(command);
-            initFileLogging(logLocation,logLevel);
+            initFileLogging(logLocation, logLevel);
             log.error(String.format("%n%n[CxConsole] Error parsing command: %n%s%n%n", e));
             exitCode = ErrorParsingHelper.parseError(e.getMessage());
         } catch (CxClientException | IOException | InterruptedException e) {
@@ -241,7 +242,7 @@ public class CxConsoleLauncher {
     }
 
 
-    private static void initFileLogging(String logLocation,String logLevel) {
+    private static void initFileLogging(String logLocation, String logLevel) {
         System.setProperty("cliLogPath", logLocation);
         System.setProperty("logLevel", logLevel);
     }
