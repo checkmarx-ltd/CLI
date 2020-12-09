@@ -21,8 +21,6 @@ import com.cx.restclient.dto.ProxyConfig;
 import com.cx.restclient.dto.RemoteSourceTypes;
 import com.cx.restclient.dto.ScannerType;
 import com.cx.restclient.dto.SourceLocationType;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.common.base.Strings;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
@@ -32,6 +30,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jgit.transport.URIish;
+
 import javax.annotation.Nullable;
 import javax.naming.ConfigurationException;
 import java.io.File;
@@ -136,9 +135,10 @@ public final class CxConfigHelper {
         }
         scanConfig.setPresetName(cmd.getOptionValue(PRESET) == null ? DEFAULT_PRESET_NAME : cmd.getOptionValue(PRESET));
 
-        scanConfig.setSastFolderExclusions(getParamWithDefault(LOCATION_PATH_EXCLUDE, KEY_EXCLUDED_FOLDERS));
+        scanConfig.setSastFolderExclusions(getParamWithDefault(LOCATION_PATH_EXCLUDE, KEY_EXCLUDED_FOLDERS, true));
         String includeExcludeCommand = getRelevantCommand();
-        scanConfig.setSastFilterPattern(getParamWithDefault(includeExcludeCommand, KEY_EXCLUDED_FILES));
+        String sastFilterPattern = getParamWithDefault(includeExcludeCommand, KEY_EXCLUDED_FILES, true) + getIncExcParamWithDefault(includeExcludeCommand);
+        scanConfig.setSastFilterPattern(sastFilterPattern);
         scanConfig.setScanComment(cmd.getOptionValue(SCAN_COMMENT));
         setScanReports(scanConfig);
         scanConfig.setIncremental(cmd.hasOption(IS_INCREMENTAL));
@@ -178,10 +178,10 @@ public final class CxConfigHelper {
 
         try {
             ConfigAsCode configAsCodeFromFile = getConfigAsCodeFromFile(
-                    scanConfig.getSourceDir() +File.separator+".checkmarx"+ File.separator + CONFIG_AS_CODE_FILE_NAME);
+                    scanConfig.getSourceDir() + File.separator + ".checkmarx" + File.separator + CONFIG_AS_CODE_FILE_NAME);
             overrideConfigAsCode(configAsCodeFromFile, scanConfig);
         } catch (ConfigurationException | IOException e) {
-            log.warn(String.format("Config file %s not found or couldn't be loaded,ignoring config as code", CONFIG_AS_CODE_FILE_NAME));
+            log.warn(String.format("Config file %s not found or couldn't be loaded, ignoring config as code", CONFIG_AS_CODE_FILE_NAME));
         }
     }
 
@@ -344,7 +344,7 @@ public final class CxConfigHelper {
                 .ifPresent(pValue -> {
                     scanConfig.setSastThresholdsEnabled(true);
                     scanConfig.setSastHighThreshold(pValue);
-                    overridesResults.put("Medium", String.valueOf(pValue));
+                    overridesResults.put("High", String.valueOf(pValue));
                 });
         sast.map(SastConfig::getPreset)
                 .filter(StringUtils::isNotBlank)
@@ -410,7 +410,7 @@ public final class CxConfigHelper {
 
     private ConfigAsCode getConfigAsCodeFromFile(String filePath) throws ConfigurationException, IOException {
 
-        com.checkmarx.configprovider.readers.FileReader reader = new FileReader(ResourceType.YAML,filePath);
+        com.checkmarx.configprovider.readers.FileReader reader = new FileReader(ResourceType.YAML, filePath);
 
         return getConfigAsCode(reader);
 
@@ -459,7 +459,7 @@ public final class CxConfigHelper {
         scanConfig.setReportsDir(reportDir != null ? new File(reportDir) : null);
         scanConfig.setOsaGenerateJsonReport(reportDir != null);
 
-        String archiveIncludePatterns = getParamWithDefault(OSA_ARCHIVE_TO_EXTRACT, KEY_OSA_EXTRACTABLE_INCLUDE_FILES);
+        String archiveIncludePatterns = getParamWithDefault(OSA_ARCHIVE_TO_EXTRACT, KEY_OSA_EXTRACTABLE_INCLUDE_FILES, false);
         scanConfig.setOsaArchiveIncludePatterns(archiveIncludePatterns);
 
         String osaScanDepth = getOptionalParam(OSA_SCAN_DEPTH, KEY_OSA_SCAN_DEPTH);
@@ -766,10 +766,22 @@ public final class CxConfigHelper {
         return isNotEmpty(commandLineValue) ? commandLineValue : propertyValue;
     }
 
-    private String getParamWithDefault(String commandLineKey, String fallbackProperty) {
+    private String getParamWithDefault(String commandLineKey, String fallbackProperty, boolean useConfigAsCode) {
         String commandLineValue = commandLine.getOptionValue(commandLineKey);
         String propertyValue = props.getProperty(fallbackProperty);
+        if (useConfigAsCode)
+            return isNotEmpty(commandLineValue) && !commandLine.hasOption(CONFIG_AS_CODE) ? propertyValue + ", " + commandLineValue : propertyValue;
         return isNotEmpty(commandLineValue) ? propertyValue + ", " + commandLineValue : propertyValue;
+    }
+
+    private String getIncExcParamWithDefault(String commandLineKey) {
+        String commandLineValue = commandLine.getOptionValue(commandLineKey);
+        if (!commandLine.hasOption(CONFIG_AS_CODE) && isNotEmpty(commandLineValue)
+                && Stream.of(commandLineValue.split(",")).map(String::trim).anyMatch(val -> !val.startsWith("!"))
+                && !commandLineValue.contains("**/*")) {
+            return ", **/*";
+        }
+        return "";
     }
 
     private static String getRequiredParam(CommandLine cmdLine, String cmdLineOptionName, @Nullable String fallbackProperty)
