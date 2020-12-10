@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.cx.plugin</groupId>
     <artifactId>CxConsolePlugin</artifactId>
-    <version>2020.4.8</version>
+    <version>2020.4.11</version>
     <packaging>jar</packaging>
 
     <repositories>
@@ -133,7 +133,7 @@
         <dependency>
             <groupId>com.checkmarx</groupId>
             <artifactId>cx-client-common</artifactId>
-            <version>2020.4.119</version>
+            <version>2020.4.128</version>
         </dependency>
         <dependency>
             <groupId>commons-cli</groupId>
@@ -151,6 +151,18 @@
             <version>5.5.2</version>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>com.checkmarx</groupId>
+            <artifactId>cx-config-provider</artifactId>
+            <version>1.0.13</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.5.4</version>
+        </dependency>
+
     </dependencies>
 
 </project>

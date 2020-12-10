@@ -23,6 +23,8 @@ import org.apache.http.Consts;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.slf4j.Log4jLoggerFactory;
 import org.apache.logging.log4j.Logger;
+
+import javax.naming.ConfigurationException;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -44,6 +46,8 @@ public class CxConsoleLauncher {
     public static void main(String[] args) {
         int exitCode;
         Command command = null;
+        String logLocation;
+        String logLevel;
 
         try {
             verifyArgsCount(args);
@@ -51,9 +55,16 @@ public class CxConsoleLauncher {
             args = convertParamToLowerCase(args);
             CommandLine commandLine = getCommandLine(args);
             command = getCommand(commandLine);
-            initFileLogging(commandLine);
+            logLocation = commandLine.getOptionValue(LOG_PATH, "." + File.separator + "logs" + File.separator + "cx_console.log");
+            logLevel = getLogLevel(commandLine);
+            initFileLogging(logLocation, logLevel);
             exitCode = execute(command, commandLine);
-        } catch (CLIParsingException | ParseException e) {
+        } catch (CLIParsingException | ParseException | ConfigurationException e) {
+            if (command == null) {
+                logLocation = "." + File.separator + "logs" + File.separator + "cx_console.log";
+                logLevel = "TRACE";
+                initFileLogging(logLocation, logLevel);
+            }
             CxConfigHelper.printHelp(command);
             log.error(String.format("%n%n[CxConsole] Error parsing command: %n%s%n%n", e));
             exitCode = ErrorParsingHelper.parseError(e.getMessage());
@@ -94,7 +105,7 @@ public class CxConsoleLauncher {
     }
 
     private static int execute(Command command, CommandLine commandLine)
-            throws CLIParsingException, IOException, CxClientException, InterruptedException {
+            throws CLIParsingException, IOException, CxClientException, InterruptedException, ConfigurationException {
         List<ScanResults> results = new ArrayList<>();
         int exitCode = Errors.SCAN_SUCCEEDED.getCode();
         CxConfigHelper.printConfig(commandLine);
@@ -232,10 +243,8 @@ public class CxConsoleLauncher {
                 .toArray(String[]::new);
     }
 
-    private static void initFileLogging(CommandLine commandLine) {
-        String logLocation = commandLine.getOptionValue(LOG_PATH, "." + File.separator + "logs" + File.separator + "cx_console.log");
+    private static void initFileLogging(String logLocation, String logLevel) {
         System.setProperty("cliLogPath", logLocation);
-        String logLevel = getLogLevel(commandLine);
         System.setProperty("logLevel", logLevel);
     }
 
