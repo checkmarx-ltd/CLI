@@ -24,6 +24,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.slf4j.Log4jLoggerFactory;
 import org.apache.logging.log4j.Logger;
 
+import javax.naming.ConfigurationException;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -58,7 +59,7 @@ public class CxConsoleLauncher {
             logLevel = getLogLevel(commandLine);
             initFileLogging(logLocation, logLevel);
             exitCode = execute(command, commandLine);
-        } catch (CLIParsingException | ParseException e) {
+        } catch (CLIParsingException | ParseException | ConfigurationException e) {
             if (command == null) {
                 logLocation = "." + File.separator + "logs" + File.separator + "cx_console.log";
                 logLevel = "TRACE";
@@ -104,7 +105,7 @@ public class CxConsoleLauncher {
     }
 
     private static int execute(Command command, CommandLine commandLine)
-            throws CLIParsingException, IOException, CxClientException, InterruptedException {
+            throws CLIParsingException, IOException, CxClientException, InterruptedException, ConfigurationException {
         List<ScanResults> results = new ArrayList<>();
         int exitCode = Errors.SCAN_SUCCEEDED.getCode();
         CxConfigHelper.printConfig(commandLine);

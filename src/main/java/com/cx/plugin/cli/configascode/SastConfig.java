@@ -8,7 +8,7 @@ public class SastConfig {
     @Optional
     private String configuration;
     @Optional
-    private String excludeIncludePattern;
+    private String includeExcludePattern;
     @Optional
     private String excludeFolders;
     @Optional
@@ -42,12 +42,12 @@ public class SastConfig {
         this.configuration = configuration;
     }
 
-    public String getExcludeIncludePattern() {
-        return excludeIncludePattern;
+    public String getIncludeExcludePattern() {
+        return includeExcludePattern;
     }
 
-    public void setExcludeIncludePattern(String excludeIncludePattern) {
-        this.excludeIncludePattern = excludeIncludePattern;
+    public void setIncludeExcludePattern(String includeExcludePattern) {
+        this.includeExcludePattern = includeExcludePattern;
     }
 
     public String getExcludeFolders() {

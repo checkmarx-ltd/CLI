@@ -15,12 +15,15 @@ import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import javax.naming.ConfigurationException;
+import java.io.IOException;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class CxConfigHelperTests {
     @Test
     @DisplayName("Command line should be correctly converted to scan config during a SCA-only scan")
-    void ScaArgs_Valid() throws ParseException, CLIParsingException {
+    void ScaArgs_Valid() throws ParseException, CLIParsingException, IOException, ConfigurationException {
         final String LOCATION_PATH = "c:\\anydir\\child-dir",
                 API_URL = "https://api.example.com",
                 ACCESS_CONTROL_URL = "https://ac.example.com",

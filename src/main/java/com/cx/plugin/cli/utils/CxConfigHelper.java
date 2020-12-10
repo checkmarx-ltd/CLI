@@ -57,6 +57,8 @@ import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 public final class CxConfigHelper {
 
     private static final String CONFIG_AS_CODE_FILE_NAME = "cx.config";
+    public static final String CONFIG_FILE_S_NOT_FOUND_OR_COULDN_T_BE_LOADED = "Config file %s not found or couldn't " +
+            "be loaded,please check if file exist's and if file content is valid";
     private static Logger log = LogManager.getLogger(CxConfigHelper.class);
 
     private static final String DEFAULT_PRESET_NAME = "Checkmarx Default";
@@ -77,7 +79,7 @@ public final class CxConfigHelper {
      * @param cmd     the parameters passed by the user mapped by key/value
      * @return CxScanConfig an object containing all the relevant data for the scan
      */
-    public CxScanConfig resolveConfiguration(Command command, CommandLine cmd) throws CLIParsingException {
+    public CxScanConfig resolveConfiguration(Command command, CommandLine cmd) throws CLIParsingException, IOException, ConfigurationException {
         this.command = command;
         this.commandLine = cmd;
 
@@ -127,12 +129,15 @@ public final class CxConfigHelper {
 
         scanConfig.setPublic(!cmd.hasOption(IS_PRIVATE));
         scanConfig.setEnablePolicyViolations(cmd.hasOption(IS_CHECKED_POLICY));
-        if ((command.equals(Command.SCA_SCAN)) || (command.equals(Command.ASYNC_SCA_SCAN))) {
-            scanConfig.setProjectName(extractProjectName(cmd.getOptionValue(FULL_PROJECT_PATH), true));
-        } else {
-            scanConfig.setProjectName(extractProjectName(cmd.getOptionValue(FULL_PROJECT_PATH), false));
-            scanConfig.setTeamPath(extractTeamPath(cmd.getOptionValue(FULL_PROJECT_PATH)));
+        if (!commandLine.hasOption(CONFIG_AS_CODE)) {
+            if ((command.equals(Command.SCA_SCAN)) || (command.equals(Command.ASYNC_SCA_SCAN))) {
+                scanConfig.setProjectName(extractProjectName(cmd.getOptionValue(FULL_PROJECT_PATH), true));
+            } else {
+                scanConfig.setProjectName(extractProjectName(cmd.getOptionValue(FULL_PROJECT_PATH), false));
+                scanConfig.setTeamPath(extractTeamPath(cmd.getOptionValue(FULL_PROJECT_PATH)));
+            }
         }
+
         scanConfig.setPresetName(cmd.getOptionValue(PRESET) == null ? DEFAULT_PRESET_NAME : cmd.getOptionValue(PRESET));
 
         scanConfig.setSastFolderExclusions(getParamWithDefault(LOCATION_PATH_EXCLUDE, KEY_EXCLUDED_FOLDERS, true));
@@ -163,7 +168,7 @@ public final class CxConfigHelper {
         return scanConfig;
     }
 
-    private void checkForConfigAsCode(CxScanConfig scanConfig) {
+    private void checkForConfigAsCode(CxScanConfig scanConfig) throws CLIParsingException, IOException, ConfigurationException {
         if (StringUtils.isNotEmpty(scanConfig.getRemoteSrcUrl()) && RemoteSourceTypes.GIT == scanConfig.getRemoteType()) {
             resolveConfigAsCodeFromRemote(scanConfig);
         }
@@ -173,19 +178,16 @@ public final class CxConfigHelper {
         }
     }
 
-    private void resolveConfigAsCodeLocal(CxScanConfig scanConfig) {
+    private void resolveConfigAsCodeLocal(CxScanConfig scanConfig) throws CLIParsingException, IOException, ConfigurationException {
         log.info("loading config file from local working directory ..");
 
-        try {
             ConfigAsCode configAsCodeFromFile = getConfigAsCodeFromFile(
                     scanConfig.getSourceDir() + File.separator + ".checkmarx" + File.separator + CONFIG_AS_CODE_FILE_NAME);
             overrideConfigAsCode(configAsCodeFromFile, scanConfig);
-        } catch (ConfigurationException | IOException e) {
-            log.warn(String.format("Config file %s not found or couldn't be loaded, ignoring config as code", CONFIG_AS_CODE_FILE_NAME));
-        }
+
     }
 
-    private void resolveConfigAsCodeFromRemote(CxScanConfig scanConfig) {
+    private void resolveConfigAsCodeFromRemote(CxScanConfig scanConfig) throws CLIParsingException, ConfigurationException {
         log.info("loading config file from remote working directory ..");
         GeneralGitReader reader = null;
 
@@ -206,15 +208,14 @@ public final class CxConfigHelper {
                 repoDto.setSrcPrivateKey(commandLine.getOptionValue(PRIVATE_KEY));
             }
 
-
             reader = new GeneralGitReader(repoDto);
 
             ConfigAsCode configAsCodeFromFile = getConfigAsCode(reader);
 
             overrideConfigAsCode(configAsCodeFromFile, scanConfig);
 
-        } catch (ConfigurationException | URISyntaxException e) {
-            log.warn(String.format("Config file %s not found or couldn't be loaded,ignoring config as code", CONFIG_AS_CODE_FILE_NAME));
+        } catch (URISyntaxException e) {
+            throw new ConfigurationException(String.format("Couldn't initiate connection using %s", scanConfig.getRemoteSrcUrl()));
         } finally {
             Optional.ofNullable(reader).ifPresent(GeneralGitReader::close);
         }
@@ -224,6 +225,11 @@ public final class CxConfigHelper {
         ConfigProvider configProvider = ConfigProvider.getInstance();
 
         configProvider.init(CX_ORIGIN, reader);
+
+        if (!configProvider.hasAnyConfiguration(CX_ORIGIN))
+            throw new ConfigurationException(String.format(CONFIG_FILE_S_NOT_FOUND_OR_COULDN_T_BE_LOADED, ".checkmarx/"+CONFIG_AS_CODE_FILE_NAME));
+
+
         ConfigAsCode configAsCodeFromFile = new ConfigAsCode();
 
         if (configProvider.hasConfiguration(CX_ORIGIN, "project"))
@@ -240,17 +246,17 @@ public final class CxConfigHelper {
         return configAsCodeFromFile;
     }
 
-    private void overrideConfigAsCode(ConfigAsCode configAsCodeFromFile, CxScanConfig scanConfig) {
+    private void overrideConfigAsCode(ConfigAsCode configAsCodeFromFile, CxScanConfig scanConfig) throws CLIParsingException {
         Map<String, String> overridesResults = new HashMap<>();
 
         mapProjectConfiguration(Optional.ofNullable(configAsCodeFromFile.getProject()), scanConfig, overridesResults);
         mapSastConfiguration(Optional.ofNullable(configAsCodeFromFile.getSast()), scanConfig, overridesResults);
         mapScaConfiguration(Optional.ofNullable(configAsCodeFromFile.getSca()), scanConfig, overridesResults);
 
-        if (!overridesResults.isEmpty())
-            log.info(String.format("the following fields was overrides using config as code file : %s",
-                    overridesResults.keySet().stream().map(key -> key + " = " + overridesResults.get(key))
-                            .collect(Collectors.joining("\n", "[", "]"))));
+        if (!overridesResults.isEmpty()) {
+            log.info("the following fields was overrides using config as code file : ");
+            overridesResults.keySet().forEach(key -> log.info(String.format("%s = %s", key, overridesResults.get(key))));
+        }
     }
 
     private void mapScaConfiguration(Optional<ScaConfig> sca, CxScanConfig scanConfig, Map<String, String> overridesResults) {
@@ -367,7 +373,7 @@ public final class CxConfigHelper {
                     overridesResults.put("Folder Exclusions", pValue);
                 });
 
-        sast.map(SastConfig::getExcludeIncludePattern)
+        sast.map(SastConfig::getIncludeExcludePattern)
                 .filter(StringUtils::isNotBlank)
                 .ifPresent(pValue -> {
                     if (StringUtils.isNotEmpty(scanConfig.getSastFilterPattern())) {
@@ -382,23 +388,21 @@ public final class CxConfigHelper {
                 });
     }
 
-    private void mapProjectConfiguration(Optional<ProjectConfig> project, CxScanConfig scanConfig, Map<String, String> overridesResults) {
-        project.map(ProjectConfig::getFullPath)
-                .filter(StringUtils::isNotBlank)
-                .ifPresent(projectName -> {
-                    try {
-                        if ((command.equals(Command.SCA_SCAN)) || (command.equals(Command.ASYNC_SCA_SCAN))) {
-                            scanConfig.setProjectName(extractProjectName(projectName, true));
-                        } else {
-                            scanConfig.setProjectName(extractProjectName(projectName, false));
-                            scanConfig.setTeamPath(extractTeamPath(projectName));
-                        }
-                        overridesResults.put("Project Name", projectName);
+    private void mapProjectConfiguration(Optional<ProjectConfig> project, CxScanConfig scanConfig, Map<String, String> overridesResults) throws CLIParsingException {
 
-                    } catch (CLIParsingException e) {
+        String projectName = project.map(ProjectConfig::getFullPath).orElse(null);
 
-                    }
-                });
+        if ((command.equals(Command.SCA_SCAN)) || (command.equals(Command.ASYNC_SCA_SCAN))) {
+            scanConfig.setProjectName(extractProjectName(projectName, true));
+        } else {
+            scanConfig.setProjectName(extractProjectName(projectName, false));
+            scanConfig.setTeamPath(extractTeamPath(projectName));
+        }
+
+
+        if (projectName != null)
+            overridesResults.put("Project Name", projectName);
+
 
         project.map(ProjectConfig::getOrigin)
                 .filter(StringUtils::isNotBlank)
