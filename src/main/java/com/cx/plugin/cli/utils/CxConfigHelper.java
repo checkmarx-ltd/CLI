@@ -286,6 +286,7 @@ public final class CxConfigHelper {
                 });
 
         sca.map(ScaConfig::getHigh)
+                .filter(n -> n > 0)
                 .ifPresent(pValue -> {
                     scanConfig.setOsaThresholdsEnabled(true);
                     scanConfig.setOsaHighThreshold(pValue);
@@ -293,6 +294,7 @@ public final class CxConfigHelper {
                 });
 
         sca.map(ScaConfig::getMedium)
+                .filter(n -> n > 0)
                 .ifPresent(pValue -> {
                     scanConfig.setOsaThresholdsEnabled(true);
                     scanConfig.setOsaMediumThreshold(pValue);
@@ -300,6 +302,7 @@ public final class CxConfigHelper {
                 });
 
         sca.map(ScaConfig::getLow)
+                .filter(n -> n > 0)
                 .ifPresent(pValue -> {
                     scanConfig.setOsaThresholdsEnabled(true);
                     scanConfig.setOsaLowThreshold(pValue);
@@ -333,6 +336,7 @@ public final class CxConfigHelper {
                 });
 
         sast.map(SastConfig::getLow)
+                .filter(n -> n > 0)
                 .ifPresent(pValue -> {
                     scanConfig.setSastThresholdsEnabled(true);
                     scanConfig.setSastLowThreshold(pValue);
@@ -340,6 +344,7 @@ public final class CxConfigHelper {
                 });
 
         sast.map(SastConfig::getMedium)
+                .filter(n -> n > 0)
                 .ifPresent(pValue -> {
                     scanConfig.setSastThresholdsEnabled(true);
                     scanConfig.setSastMediumThreshold(pValue);
@@ -347,6 +352,7 @@ public final class CxConfigHelper {
                 });
 
         sast.map(SastConfig::getHigh)
+                .filter(n -> n > 0)
                 .ifPresent(pValue -> {
                     scanConfig.setSastThresholdsEnabled(true);
                     scanConfig.setSastHighThreshold(pValue);
