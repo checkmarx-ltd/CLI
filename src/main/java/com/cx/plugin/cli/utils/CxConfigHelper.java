@@ -108,7 +108,7 @@ public final class CxConfigHelper {
         scanConfig.setPresetName(cmd.getOptionValue(PRESET) == null ? DEFAULT_PRESET_NAME : cmd.getOptionValue(PRESET));
 
         scanConfig.setSastFolderExclusions(getParamWithDefault(LOCATION_PATH_EXCLUDE, KEY_EXCLUDED_FOLDERS));
-        scanConfig.setSastFilterPattern(getParamWithDefault(LOCATION_FILES_EXCLUDE, KEY_EXCLUDED_FILES));
+        scanConfig.setSastFilterPattern(getFilterPattern(getParamWithDefault(LOCATION_FILES_EXCLUDE, KEY_EXCLUDED_FILES)));
         scanConfig.setScanComment(cmd.getOptionValue(SCAN_COMMENT));
         setScanReports(scanConfig);
         scanConfig.setIncremental(cmd.hasOption(IS_INCREMENTAL));
@@ -128,6 +128,25 @@ public final class CxConfigHelper {
         configureDependencyScan(scanConfig);
 
         return scanConfig;
+    }
+
+    private static String getFilterPattern(String excludePattern) {
+        if (StringUtils.isNotEmpty(excludePattern)) {
+            StringBuilder sb = new StringBuilder();
+            String[] excPatArray = excludePattern.split(",");
+
+            for (String excPat : excPatArray) {
+                if (!excPat.trim().startsWith("!**/")) {
+                    sb.append("!**/");
+                }
+                sb.append(excPat);
+                sb.append(",");
+            }
+            String str = sb.toString();
+            return str.substring(0, str.length() - 1);
+        } else {
+            return excludePattern;
+        }
     }
 
     private void configureDependencyScan(CxScanConfig scanConfig) throws CLIParsingException {

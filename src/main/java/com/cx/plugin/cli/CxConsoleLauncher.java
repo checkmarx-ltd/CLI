@@ -8,10 +8,7 @@ import com.cx.plugin.cli.utils.CxConfigHelper;
 import com.cx.plugin.cli.utils.ErrorParsingHelper;
 import com.cx.restclient.CxClientDelegator;
 import com.cx.restclient.configuration.CxScanConfig;
-import com.cx.restclient.dto.Results;
 import com.cx.restclient.dto.ScanResults;
-import com.cx.restclient.dto.ScannerType;
-import com.cx.restclient.dto.scansummary.ScanSummary;
 import com.cx.restclient.exception.CxClientException;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -31,7 +28,10 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import static com.cx.plugin.cli.constants.Parameters.*;
 import static com.cx.plugin.cli.errorsconstants.ErrorMessages.INVALID_COMMAND_COUNT;
@@ -152,44 +152,31 @@ public class CxConsoleLauncher {
             }
         }
 
-        ScanResults createScanResults = clientDelegator.initiateScan();
-        results.add(createScanResults);
-
-        if (cxScanConfig.getSynchronous()) {
-            final ScanResults scanResults = clientDelegator.waitForScanResults();
-            results.add(scanResults);
-
-            getScanResultExceptionIfExists(results);
-
-            ScanSummary scanSummary = new ScanSummary(
-                    cxScanConfig,
-                    scanResults.getSastResults(),
-                    scanResults.getOsaResults(),
-                    scanResults.getScaResults()
-            );
-            String scanSummaryString = scanSummary.toString();
-            if (scanSummary.hasErrors()) {
-                log.info(scanSummaryString);
-                exitCode = ErrorParsingHelper.getErrorType(scanSummary).getCode();
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        try {
+            Future<Integer> futureStep = executor.submit(new ScanStep(cxScanConfig, clientDelegator, results));
+            Integer scanTimeout = getScanTimeout();
+            if (scanTimeout != null) {
+                exitCode = futureStep.get(scanTimeout, TimeUnit.MINUTES);
+            } else {
+                exitCode = futureStep.get();
             }
-        } else {
-            getScanResultExceptionIfExists(results);
+        } catch (Exception e) {
+            log.error("Error executing SAST scan command: " + e.getCause().getMessage(), e);
+            exitCode = 1;
+        } finally {
+            executor.shutdownNow();
         }
 
         return exitCode;
     }
 
-    private static void getScanResultExceptionIfExists(List<ScanResults> scanResults) {
-        scanResults.forEach(scanResult -> {
-            if (scanResult != null) {
-                Map<ScannerType, Results> resultsMap = scanResult.getResults();
-                for (Results value : resultsMap.values()) {
-                    if (value != null && value.getException() != null) {
-                        throw value.getException();
-                    }
-                }
-            }
-        });
+    private static Integer getScanTimeout() {
+        try {
+            return Integer.valueOf(System.getProperty("scan.timeout"));
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     private static CommandLine getCommandLine(String[] args) throws ParseException {

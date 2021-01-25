@@ -3,6 +3,7 @@
 <log4j:configuration xmlns:log4j='http://jakarta.apache.org/log4j/' debug="false">
 
     <appender name="CA" class="org.apache.log4j.ConsoleAppender">
+        <param name="Encoding" value="UTF-8" />
         <param name="Threshold" value="INFO"/>
         <layout class="org.apache.log4j.PatternLayout">
             <param name="ConversionPattern" value="[%d{ISO8601} %-5p] %m%n"/>
@@ -10,6 +11,7 @@
     </appender>
 
     <appender name="FA" class="org.apache.log4j.RollingFileAppender">
+        <param name="Encoding" value="UTF-8" />
         <param name="Threshold" value="TRACE"/>
         <param name="maxBackupIndex" value="10"/>
         <param name="maxFileSize" value="10MB"/>
@@ -19,7 +21,6 @@
             <param name="ConversionPattern" value="%d{ISO8601} [%t] (%F:%L) %-5p - %m%n"/>
         </layout>
     </appender>
-
 
     <category name="org.apache.http">
         <priority value="WARN"/>
@@ -34,7 +35,7 @@
     </category>
 
     <category name="org.whitesource.agent">
-        <priority value="ERROR"/>
+        <priority value="DEBUG"/>
     </category>
 
     <root>
