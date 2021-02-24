@@ -134,8 +134,8 @@
             <artifactId>cx-client-common</artifactId>
             <version>2021.1.146</version>
             
-            <!--causing vulnerabilities in the osa scan of the project, excluded and newer dependencies imported instead -->
-            <!-- TODO: remove these excludes once its solved in the cx-client-common and fsa-->
+            
+            <!-- Remove these excludes once latest FSA is used -->
            <exclusions>
            
 	      	<exclusion>
