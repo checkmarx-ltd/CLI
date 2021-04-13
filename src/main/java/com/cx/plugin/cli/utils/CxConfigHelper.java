@@ -21,11 +21,13 @@ import com.cx.restclient.dto.ProxyConfig;
 import com.cx.restclient.dto.RemoteSourceTypes;
 import com.cx.restclient.dto.ScannerType;
 import com.cx.restclient.dto.SourceLocationType;
+import com.cx.restclient.sca.utils.CxSCAFileSystemUtils;
 import com.google.common.base.Strings;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -39,6 +41,7 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -488,6 +491,18 @@ public final class CxConfigHelper {
 
         String webAppUrl = normalizeUrl(getRequiredParam(commandLine, SCA_WEB_APP_URL, KEY_SCA_WEB_APP_URL));
         sca.setWebAppUrl(webAppUrl);
+
+        String envVariables = getOptionalParam(ENV_VARIABLE, "");
+        if(StringUtils.isNotEmpty(envVariables))
+        {
+            sca.setEnvVariables(CxSCAFileSystemUtils.convertStringToKeyValueMap(envVariables));
+        }
+
+        sca.setConfigFilePaths(Arrays.asList(getOptionalParams(SCA_CONFIG_FILE, "")));
+        sca.setSastProjectId(getOptionalParam(SAST_PROJECT_ID, ""));
+        sca.setSastServerUrl(getOptionalParam(SERVER_URL, ""));
+        sca.setSastUsername(getOptionalParam(USER_NAME, ""));
+        sca.setSastPassword(getOptionalParam(USER_PASSWORD, ""));
 
         sca.setUsername(getRequiredParam(commandLine, SCA_USERNAME, null));
         sca.setPassword(getRequiredParam(commandLine, SCA_PASSWORD, null));
