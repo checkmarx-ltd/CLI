@@ -498,11 +498,14 @@ public final class CxConfigHelper {
             sca.setEnvVariables(CxSCAFileSystemUtils.convertStringToKeyValueMap(envVariables));
         }
 
-        sca.setConfigFilePaths(Arrays.asList(getOptionalParams(SCA_CONFIG_FILE, "")));
+        sca.setConfigFilePaths(Arrays.asList(getOptionalParam(SCA_CONFIG_FILE, "")));
         sca.setSastProjectId(getOptionalParam(SAST_PROJECT_ID, ""));
         sca.setSastServerUrl(getOptionalParam(SERVER_URL, ""));
         sca.setSastUsername(getOptionalParam(USER_NAME, ""));
         sca.setSastPassword(getOptionalParam(USER_PASSWORD, ""));
+		if (commandLine.hasOption(SCA_INCLUDE_SOURCE_FLAG)) {
+			sca.setIncludeSources(true);
+		}
 
         sca.setUsername(getRequiredParam(commandLine, SCA_USERNAME, null));
         sca.setPassword(getRequiredParam(commandLine, SCA_PASSWORD, null));
