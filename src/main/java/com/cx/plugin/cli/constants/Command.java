@@ -155,6 +155,11 @@ public enum Command {
 
         options.addOption(ENV_VARIABLE, true, ArgDescriptions.ENV_VARIABLE);
         options.addOption(SAST_PROJECT_ID, true, ArgDescriptions.SAST_PROJECT_ID);
+        
+        options.addOption(SAST_SERVER_URL, true, ArgDescriptions.SAST_SERVER_URL);
+        options.addOption(SAST_USER, true, ArgDescriptions.SAST_USER);
+        options.addOption(SAST_PASSWORD, true, ArgDescriptions.SAST_PASSWORD);
+        
         options.addOption(SCA_CONFIG_FILE, true, ArgDescriptions.SCA_CONFIG_FILE);
         options.addOption(SCA_INCLUDE_SOURCE_FLAG, false, ArgDescriptions.SCA_INCLUDE_SOURCE_FLAG);
 

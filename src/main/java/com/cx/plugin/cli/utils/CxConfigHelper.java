@@ -500,9 +500,30 @@ public final class CxConfigHelper {
 
         sca.setConfigFilePaths(Arrays.asList(getOptionalParam(SCA_CONFIG_FILE, "")));
         sca.setSastProjectId(getOptionalParam(SAST_PROJECT_ID, ""));
-        sca.setSastServerUrl(getOptionalParam(SERVER_URL, ""));
-        sca.setSastUsername(getOptionalParam(USER_NAME, ""));
-        sca.setSastPassword(getOptionalParam(USER_PASSWORD, ""));
+       // When SAST & SCA together
+		if (commandLine.hasOption(SCA_ENABLED)) {
+			// When SCA params are provided by the user
+			if ((!Strings.isNullOrEmpty(getOptionalParam(SAST_SERVER_URL, "")))
+					&& (!Strings.isNullOrEmpty(getOptionalParam(SAST_USER, "")))
+					&& (!Strings.isNullOrEmpty(getOptionalParam(SAST_PASSWORD, "")))) {
+				sca.setSastServerUrl(getOptionalParam(SAST_SERVER_URL, ""));
+				sca.setSastUsername(getOptionalParam(SAST_USER, ""));
+				sca.setSastPassword(getOptionalParam(SAST_PASSWORD, ""));
+			} else {
+				// SCA params are not provided by the user
+				sca.setSastServerUrl(getOptionalParam(SERVER_URL, ""));
+				sca.setSastUsername(getOptionalParam(USER_NAME, ""));
+				sca.setSastPassword(getOptionalParam(USER_PASSWORD, ""));
+			}
+
+		}
+		// When only SCA scan is performed, user must provide SCA params
+		else if (command == Command.SCA_SCAN || command == Command.ASYNC_SCA_SCAN) {
+			sca.setSastServerUrl(getRequiredParam(commandLine, SAST_SERVER_URL, null));
+			sca.setSastUsername(getRequiredParam(commandLine, SAST_USER, null));
+			sca.setSastPassword(getRequiredParam(commandLine, SAST_PASSWORD, null));
+		}
+        
 		if (commandLine.hasOption(SCA_INCLUDE_SOURCE_FLAG)) {
 			sca.setIncludeSources(true);
 		}
