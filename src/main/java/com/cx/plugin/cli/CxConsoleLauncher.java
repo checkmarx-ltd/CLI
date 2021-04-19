@@ -19,6 +19,7 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Consts;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.slf4j.Log4jLoggerFactory;
@@ -30,6 +31,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.cx.plugin.cli.constants.Parameters.*;
 import static com.cx.plugin.cli.errorsconstants.ErrorMessages.INVALID_COMMAND_COUNT;
@@ -39,8 +42,9 @@ import static com.cx.plugin.cli.errorsconstants.ErrorMessages.INVALID_COMMAND_ER
  * Created by idanA on 11/4/2018.
  */
 public class CxConsoleLauncher {
-
-    private static Logger log = LogManager.getLogger(CxConsoleLauncher.class);
+	
+	private static final String SCA_PROJECT_NAME_INVALID_CHARS = "[\"`,:;\\\\|/'<>\\[\\]{}~]";    
+	private static Logger log = LogManager.getLogger(CxConsoleLauncher.class);
 
 
     public static void main(String[] args) {
@@ -111,6 +115,9 @@ public class CxConsoleLauncher {
         CxConfigHelper.printConfig(commandLine);
         CxConfigHelper configHelper = new CxConfigHelper(commandLine.getOptionValue(Parameters.CLI_CONFIG));
         CxScanConfig cxScanConfig = configHelper.resolveConfiguration(command, commandLine);
+        
+        validateScanParameters(cxScanConfig);
+        
         org.slf4j.Logger logger = new Log4jLoggerFactory().getLogger(log.getName());
 
         CxSastConnectionProvider connectionProvider = new CxSastConnectionProvider(cxScanConfig, logger);
@@ -186,7 +193,26 @@ public class CxConsoleLauncher {
         return exitCode;
     }
 
-    private static void getScanResultExceptionIfExists(List<ScanResults> scanResults) {
+    private static void validateScanParameters(CxScanConfig cxScanConfig) throws CLIParsingException{
+    	if(cxScanConfig == null)
+    		return;
+    	
+    	if(cxScanConfig.isAstScaEnabled() && checkContainsSpecialChars(cxScanConfig.getProjectName(), SCA_PROJECT_NAME_INVALID_CHARS))
+    		throw new CLIParsingException("[CxConsole] SCA project name cannot contain special characters.");
+	}
+    
+    private static boolean checkContainsSpecialChars(String valueToCheck, String regex) {
+    	
+    	boolean check = false;
+    	if(!StringUtils.isEmpty(valueToCheck)) {
+    		Pattern my_pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
+    		Matcher my_match = my_pattern.matcher(valueToCheck);
+    		check = my_match.find();    		
+		}    	
+    	return check;
+    }
+
+	private static void getScanResultExceptionIfExists(List<ScanResults> scanResults) {
         scanResults.forEach(scanResult -> {
             if (scanResult != null) {
                 Map<ScannerType, Results> resultsMap = scanResult.getResults();

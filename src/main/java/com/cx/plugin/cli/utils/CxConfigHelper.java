@@ -15,6 +15,7 @@ import com.cx.plugin.cli.constants.Command;
 import com.cx.plugin.cli.constants.Parameters;
 import com.cx.plugin.cli.exceptions.BadOptionCombinationException;
 import com.cx.plugin.cli.exceptions.CLIParsingException;
+import com.cx.plugin.cli.utils.PropertiesManager;
 import com.cx.restclient.ast.dto.sca.AstScaConfig;
 import com.cx.restclient.configuration.CxScanConfig;
 import com.cx.restclient.dto.ProxyConfig;
@@ -132,9 +133,11 @@ public final class CxConfigHelper {
         if (!commandLine.hasOption(CONFIG_AS_CODE)) {
             if ((command.equals(Command.SCA_SCAN)) || (command.equals(Command.ASYNC_SCA_SCAN))) {
                 scanConfig.setProjectName(extractProjectName(cmd.getOptionValue(FULL_PROJECT_PATH), true));
+                scanConfig.setTeamPath(extractTeamPath(cmd.getOptionValue(FULL_PROJECT_PATH), true));
+                
             } else {
                 scanConfig.setProjectName(extractProjectName(cmd.getOptionValue(FULL_PROJECT_PATH), false));
-                scanConfig.setTeamPath(extractTeamPath(cmd.getOptionValue(FULL_PROJECT_PATH)));
+                scanConfig.setTeamPath(extractTeamPath(cmd.getOptionValue(FULL_PROJECT_PATH), false));
             }
         }
 
@@ -254,7 +257,7 @@ public final class CxConfigHelper {
         mapScaConfiguration(Optional.ofNullable(configAsCodeFromFile.getSca()), scanConfig, overridesResults);
 
         if (!overridesResults.isEmpty()) {
-            log.info("the following fields was overrides using config as code file : ");
+            log.info("The following fields are overridden using config as code file : ");
             overridesResults.keySet().forEach(key -> log.info(String.format("%s = %s", key, overridesResults.get(key))));
         }
     }
@@ -400,9 +403,10 @@ public final class CxConfigHelper {
 
         if ((command.equals(Command.SCA_SCAN)) || (command.equals(Command.ASYNC_SCA_SCAN))) {
             scanConfig.setProjectName(extractProjectName(projectName, true));
+            scanConfig.setTeamPath(extractTeamPath(projectName, true));
         } else {
             scanConfig.setProjectName(extractProjectName(projectName, false));
-            scanConfig.setTeamPath(extractTeamPath(projectName));
+            scanConfig.setTeamPath(extractTeamPath(projectName, false));
         }
 
 
@@ -721,12 +725,16 @@ public final class CxConfigHelper {
         return fullPath.substring(lastIdx + 1);
     }
 
-    private static String extractTeamPath(String fullPath) throws CLIParsingException {
+    private static String extractTeamPath(String fullPath, boolean isScaScan) throws CLIParsingException {
         if (Strings.isNullOrEmpty(fullPath)) {
             throw new CLIParsingException("[CxConsole] No project path was specified");
         }
-        int lastIdx = getLastIndexOfTeam(fullPath, false);
-        return fullPath.substring(0, lastIdx);
+        int lastIdx = getLastIndexOfTeam(fullPath, isScaScan);
+        if(lastIdx == -1)
+        	return "";
+        else
+        	return fullPath.substring(0, lastIdx);
+        
     }
 
     public static void printConfig(CommandLine commandLine) {
