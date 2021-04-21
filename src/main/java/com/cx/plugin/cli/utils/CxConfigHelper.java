@@ -22,11 +22,13 @@ import com.cx.restclient.dto.ProxyConfig;
 import com.cx.restclient.dto.RemoteSourceTypes;
 import com.cx.restclient.dto.ScannerType;
 import com.cx.restclient.dto.SourceLocationType;
+import com.cx.restclient.sca.utils.CxSCAFileSystemUtils;
 import com.google.common.base.Strings;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -40,6 +42,7 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -493,6 +496,19 @@ public final class CxConfigHelper {
         String webAppUrl = normalizeUrl(getRequiredParam(commandLine, SCA_WEB_APP_URL, KEY_SCA_WEB_APP_URL));
         sca.setWebAppUrl(webAppUrl);
 
+        String envVariables = getOptionalParam(ENV_VARIABLE, "");
+        if(StringUtils.isNotEmpty(envVariables))
+        {
+            sca.setEnvVariables(CxSCAFileSystemUtils.convertStringToKeyValueMap(envVariables));
+        }
+
+        sca.setConfigFilePaths(Arrays.asList(getOptionalParam(SCA_CONFIG_FILE, "")));
+        configureScaWithSastDetails(sca);
+        
+		if (commandLine.hasOption(SCA_INCLUDE_SOURCE_FLAG)) {
+			sca.setIncludeSources(true);
+		}
+
         sca.setUsername(getRequiredParam(commandLine, SCA_USERNAME, null));
         sca.setPassword(getRequiredParam(commandLine, SCA_PASSWORD, null));
         sca.setTenant(getRequiredParam(commandLine, SCA_ACCOUNT, null));
@@ -520,6 +536,26 @@ public final class CxConfigHelper {
 
         scanConfig.setAstScaConfig(sca);
     }
+
+	private void configureScaWithSastDetails(AstScaConfig sca) {
+		sca.setSastProjectId(getOptionalParam(SAST_PROJECT_ID, ""));
+		
+		if(command == Command.SCA_SCAN || command == Command.ASYNC_SCA_SCAN || commandLine.hasOption(SCA_ENABLED)) {
+			if((Strings.isNullOrEmpty(getOptionalParam(SAST_SERVER_URL, "")))
+					|| (Strings.isNullOrEmpty(getOptionalParam(SAST_USER, "")))
+					|| (Strings.isNullOrEmpty(getOptionalParam(SAST_PASSWORD, "")))) {
+				// SCA params are not provided by the user
+				sca.setSastServerUrl(getOptionalParam(SERVER_URL, ""));
+				sca.setSastUsername(getOptionalParam(USER_NAME, ""));
+				sca.setSastPassword(getOptionalParam(USER_PASSWORD, ""));
+			} else {
+				// When SCA params are provided by the user
+				sca.setSastServerUrl(getOptionalParam(SAST_SERVER_URL, ""));
+				sca.setSastUsername(getOptionalParam(SAST_USER, ""));
+				sca.setSastPassword(getOptionalParam(SAST_PASSWORD, ""));
+			}
+		}
+	}
 
     private void setSharedDependencyScanConfig(CxScanConfig scanConfig) {
         setDependencyScanThresholds(scanConfig);
