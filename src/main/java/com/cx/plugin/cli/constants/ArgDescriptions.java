@@ -131,6 +131,6 @@ class ArgDescriptions {
     static final String SAST_PASSWORD = "Login password. Mandatory, Unless token is used or SSO login is used on Windows ('-useSSO' flag)";
     static final String SAST_USER = "Login username. Mandatory, Unless token is used or SSO login is used on Windows ('-useSSO' flag)";
     
-    static final String SCA_CONFIG_FILE = "Configuration files from package managers (maven,npm etc) needed for the SCA scan.";
+    static final String SCA_CONFIG_FILE = "Configuration files from package managers (maven,npm etc.) needed for the SCA scan.";
     static final String SCA_INCLUDE_SOURCE_FLAG = "Flag to include the entire source code for the SCA scan.";
 }
