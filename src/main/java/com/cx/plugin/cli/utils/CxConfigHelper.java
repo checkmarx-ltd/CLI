@@ -501,8 +501,10 @@ public final class CxConfigHelper {
         {
             sca.setEnvVariables(CxSCAFileSystemUtils.convertStringToKeyValueMap(envVariables));
         }
-
-        sca.setConfigFilePaths(Arrays.asList(getOptionalParam(SCA_CONFIG_FILE, "")));
+        String configFilePaths = getOptionalParam(SCA_CONFIG_FILE, "");
+		if (StringUtils.isNotEmpty(configFilePaths)) {
+			sca.setConfigFilePaths(Arrays.asList(configFilePaths.split("\\s*,\\s*")));
+		}
         configureScaWithSastDetails(sca);
         
 		if (commandLine.hasOption(SCA_INCLUDE_SOURCE_FLAG)) {
