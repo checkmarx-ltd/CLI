@@ -124,6 +124,7 @@ class ArgDescriptions {
     static final String NTLM = "Use NTLM for proxy authentication";
     static final String ENV_VARIABLE = "Optional Environment Variables that could be used during the SCA scan process.";
     static final String SAST_PROJECT_ID = "Project Id from Checkmarx SAST used during SCA scan process.";
+    static final String SAST_PROJECT_NAME = "Project Name from Checkmarx SAST used during SCA scan process.This supports both \"/\" and \"\\\" but requires a leading slash" ;
     
     
     static final String SAST_SERVER_URL = "IP address or resolvable name of CxSuite web server";

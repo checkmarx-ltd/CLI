@@ -539,24 +539,73 @@ public final class CxConfigHelper {
         scanConfig.setAstScaConfig(sca);
     }
 
-	private void configureScaWithSastDetails(AstScaConfig sca) {
-		sca.setSastProjectId(getOptionalParam(SAST_PROJECT_ID, ""));
-		
-		if(command == Command.SCA_SCAN || command == Command.ASYNC_SCA_SCAN || commandLine.hasOption(SCA_ENABLED)) {
-			if((Strings.isNullOrEmpty(getOptionalParam(SAST_SERVER_URL, "")))
-					|| (Strings.isNullOrEmpty(getOptionalParam(SAST_USER, "")))
-					|| (Strings.isNullOrEmpty(getOptionalParam(SAST_PASSWORD, "")))) {
-				// SCA params are not provided by the user
-				sca.setSastServerUrl(getOptionalParam(SERVER_URL, ""));
-				sca.setSastUsername(getOptionalParam(USER_NAME, ""));
-				sca.setSastPassword(getOptionalParam(USER_PASSWORD, ""));
-			} else {
-				// When SCA params are provided by the user
-				sca.setSastServerUrl(getOptionalParam(SAST_SERVER_URL, ""));
-				sca.setSastUsername(getOptionalParam(SAST_USER, ""));
-				sca.setSastPassword(getOptionalParam(SAST_PASSWORD, ""));
+	private void configureScaWithSastDetails(AstScaConfig sca) throws CLIParsingException 
+	{
+	    //We are in SCA function whether SCA alone or with SAST scan, start with SCA specific SAST params
+		String serverURL = getOptionalParam(SAST_SERVER_URL, "");
+		String user = 		getOptionalParam(SAST_USER, "");
+		String password 	= getOptionalParam(SAST_PASSWORD, "");
+		String projectId 	= getOptionalParam(SAST_PROJECT_ID, "");
+		String projectName 	= getOptionalParam(SAST_PROJECT_NAME, "");
+
+
+		//SCA alone scan
+		if ((!commandLine.hasOption(SCA_ENABLED))) {
+			if (exploitablePathParamsIncomplete(serverURL, user, password, projectId, projectName)) {
+				if (!exploitablePathParamsEmpty(serverURL, user, password, projectId, projectName))
+					throw new CLIParsingException(
+							"[CxConsole] For SCA exploitable path, CxSAST server details like url, user, password and full project path or project id are required. Received partial parameters.");
+			}
+			// set the SCA Params after the above validation is done for only
+			// SCA
+			else {
+				prepareExpPathScaConfig(sca, serverURL, user, password, projectId, projectName);
 			}
 		}
+			//SCA with SAST
+	    else if (exploitablePathParamsEmpty(serverURL, user, password, projectId, projectName) || exploitablePathParamsIncomplete(serverURL,user,password,projectId,projectName)) {
+			// assign SAST values to scaconfig
+			prepareExpPathScaConfig(sca, getOptionalParam(SERVER_URL, ""), getOptionalParam(USER_NAME, ""),
+					getOptionalParam(USER_PASSWORD, ""), "", commandLine.getOptionValue(FULL_PROJECT_PATH));
+			if (StringUtils.isNotEmpty(projectId)) {
+				// override SCA's SAST project ID
+				sca.setSastProjectId(projectId);
+			}
+			if (StringUtils.isNotEmpty(projectName)) {
+				// override SCA's SAST project Name
+				sca.setSastProjectName(projectName);
+			}
+		} else {
+			prepareExpPathScaConfig(sca, serverURL, user, password, projectId, projectName);
+		}
+	}
+
+	private void prepareExpPathScaConfig(AstScaConfig sca, String serverURL, String user, String password,
+			String projectId, String projectName) {
+		sca.setSastServerUrl(serverURL);
+		sca.setSastUsername(user);
+		sca.setSastPassword(password);
+		sca.setSastProjectName(projectName);
+		sca.setSastProjectId(projectId);
+
+	}
+
+	private boolean exploitablePathParamsEmpty(String serverURL, String user, String password, String projectId,
+			String projectName) {
+		return StringUtils.isEmpty(serverURL) && StringUtils.isEmpty(user) && StringUtils.isEmpty(password)
+				&& (StringUtils.isEmpty(projectId) || StringUtils.isEmpty(projectName)) ? true : false;
+
+	}
+
+	private boolean exploitablePathParamsIncomplete(String serverURL, String user, String password, String projectId,
+			String projectName) {
+		boolean partialParams = false;
+		partialParams = StringUtils.isNotEmpty(serverURL) && !partialParams ? false : true;
+		partialParams = StringUtils.isNotEmpty(user) && !partialParams ? false : true;
+		partialParams = StringUtils.isNotEmpty(password) && !partialParams ? false : true;
+		partialParams = (StringUtils.isNotEmpty(projectId) || StringUtils.isNotEmpty(projectName)) && !partialParams
+				? false : true;
+		return partialParams;
 	}
 
     private void setSharedDependencyScanConfig(CxScanConfig scanConfig) {
