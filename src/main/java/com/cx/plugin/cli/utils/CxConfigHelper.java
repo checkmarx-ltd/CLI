@@ -593,7 +593,7 @@ public final class CxConfigHelper {
 	private boolean exploitablePathParamsEmpty(String serverURL, String user, String password, String projectId,
 			String projectName) {
 		return StringUtils.isEmpty(serverURL) && StringUtils.isEmpty(user) && StringUtils.isEmpty(password)
-				&& (StringUtils.isEmpty(projectId) || StringUtils.isEmpty(projectName)) ? true : false;
+				&& (StringUtils.isEmpty(projectId) && StringUtils.isEmpty(projectName)) ? true : false;
 
 	}
 
