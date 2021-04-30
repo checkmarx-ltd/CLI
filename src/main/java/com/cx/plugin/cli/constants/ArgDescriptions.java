@@ -122,4 +122,16 @@ class ArgDescriptions {
     static final String TEST_CONNECTION = "\nThe \"TestConnection\" command checks if login was successful or not.";
 
     static final String NTLM = "Use NTLM for proxy authentication";
+    static final String ENV_VARIABLE = "Optional Environment Variables that could be used during the SCA scan process.";
+    static final String SAST_PROJECT_ID = "Project Id from Checkmarx SAST used during SCA scan process.";
+    static final String SAST_PROJECT_NAME = "Project Name from Checkmarx SAST used during SCA scan process.This supports both \"/\" and \"\\\" but requires a leading slash" ;
+    
+    
+    static final String SAST_SERVER_URL = "IP address or resolvable name of CxSuite web server";
+    
+    static final String SAST_PASSWORD = "Login password. Mandatory, Unless token is used or SSO login is used on Windows ('-useSSO' flag)";
+    static final String SAST_USER = "Login username. Mandatory, Unless token is used or SSO login is used on Windows ('-useSSO' flag)";
+    
+    static final String SCA_CONFIG_FILE = "Configuration files from package managers (maven,npm etc.) needed for the SCA scan.";
+    static final String SCA_INCLUDE_SOURCE_FLAG = "Flag to include the entire source code for the SCA scan.";
 }
