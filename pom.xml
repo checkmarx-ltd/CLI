@@ -134,11 +134,8 @@
             <groupId>com.checkmarx</groupId>
             <artifactId>cx-client-common</artifactId>
             <version>2021.1.150</version>
-            
-            
             <!-- Remove these excludes once latest FSA is used -->
            <exclusions>
-           
 	     	<exclusion>
 	     		<groupId>org.mozilla</groupId>
            		<artifactId>rhino</artifactId>
@@ -151,7 +148,10 @@
            		<groupId>io.netty</groupId>
            		<artifactId>netty-handler</artifactId>
            	</exclusion>
-           	
+               <exclusion>
+                   <groupId>ch.qos.logback</groupId>
+                   <artifactId>logback-classic</artifactId>
+               </exclusion>
 	      </exclusions>
         </dependency>
         <!-- excluded dependencies from cx-client-common -->
