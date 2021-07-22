@@ -90,6 +90,7 @@ public class CxConsoleLauncher {
             exitCode = ErrorParsingHelper.parseError(e.getMessage());
         }
 
+        log.debug("Exit Code: " + exitCode);
         System.exit(exitCode);
     }
 

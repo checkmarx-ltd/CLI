@@ -30,6 +30,7 @@ public class ErrorParsingHelper {
         messageToCodeMap.put(INVALID_CREDENTIALS, Errors.LOGIN_FAILED_ERROR.getCode());
         messageToCodeMap.put(SDLC_ERROR_MSG, Errors.SDLC_ERROR.getCode());
         messageToCodeMap.put(NO_OSA_LICENSE_ERROR_MSG, Errors.NO_OSA_LICENSE_ERROR.getCode());
+        messageToCodeMap.put(OSA_RESOLVE_ERROR_MSG, Errors.OSA_RESOLVE_ERROR.getCode());
         messageToCodeMap.put(NO_PROJECT_PRIOR_TO_OSA_SCAN_ERROR_MSG, Errors.NO_PROJECT_PRIOR_TO_OSA_SCAN_ERROR.getCode());
         messageToCodeMap.put(REPORT_PARAMETER_IN_ASYNC_SCAN, Errors.GENERAL_ERROR.getCode());
         messageToCodeMap.put(THRESHOLD_PARAMETER_IN_ASYNC_SCAN, Errors.GENERAL_ERROR.getCode());
@@ -64,9 +65,9 @@ public class ErrorParsingHelper {
         } else if (sastMostSevere == null && osaMostSevere == null && scaMostSevere == null) {
             return Errors.SCAN_SUCCEEDED;
         } else {
-            if(sastMostSevere != null){
+            if (sastMostSevere != null) {
                 return toThresholdErrorCode(sastMostSevere);
-            }else {
+            } else {
                 return toThresholdErrorCode(osaMostSevere != null ? osaMostSevere : scaMostSevere);
             }
         }

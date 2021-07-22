@@ -25,11 +25,11 @@
         <Logger name="org.apache.http" level="WARN"/>
         <Logger name="org.apache.cxf" level="ERROR"/>
         <Logger name="org.springframework" level="ERROR"/>
-        <Logger name="org.whitesource.agent" level="ERROR"/>
+        <Logger name="org.whitesource.agent" level="DEBUG"/>
 
         <Root level="TRACE">
-            <AppenderRef ref="Routing" level="${sys:logLevel}"/>
-            <AppenderRef ref="CA" level="INFO"/>
+            <AppenderRef ref="Routing" level="DEBUG"/>
+            <AppenderRef ref="CA" level="DEBUG"/>
         </Root>
     </Loggers>
 </Configuration>

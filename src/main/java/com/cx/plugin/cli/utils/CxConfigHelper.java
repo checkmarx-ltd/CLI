@@ -471,6 +471,7 @@ public final class CxConfigHelper {
 
     private void setOsaSpecificConfig(CxScanConfig scanConfig) {
         scanConfig.setOsaRunInstall(commandLine.hasOption(INSTALL_PACKAGE_MANAGER));
+        scanConfig.setOsaFailOnError(commandLine.hasOption(OSA_FAIL_ON_ERROR));
 
         String reportDir = commandLine.getOptionValue(OSA_JSON_REPORT);
         scanConfig.setReportsDir(reportDir != null ? new File(reportDir) : null);
