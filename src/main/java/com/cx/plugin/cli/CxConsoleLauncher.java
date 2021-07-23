@@ -22,11 +22,15 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Consts;
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.slf4j.Log4jLoggerFactory;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.config.ConfigurationSource;
+import org.apache.logging.log4j.core.config.Configurator;
+import org.apache.logging.slf4j.Log4jLoggerFactory;
 
 import javax.naming.ConfigurationException;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -42,9 +46,19 @@ import static com.cx.plugin.cli.errorsconstants.ErrorMessages.INVALID_COMMAND_ER
  * Created by idanA on 11/4/2018.
  */
 public class CxConsoleLauncher {
-	
-	private static final String SCA_PROJECT_NAME_INVALID_CHARS = "[\"`,:;\\\\|/'<>\\[\\]{}~]";    
-	private static Logger log = LogManager.getLogger(CxConsoleLauncher.class);
+
+    static {
+        try {
+            String log4jConfigFile = System.getProperty("user.dir") + File.separator + "log4j2.xml";
+            ConfigurationSource source = new ConfigurationSource(new FileInputStream(log4jConfigFile));
+            Configurator.initialize(null, source);
+        } catch (Exception e) {
+            System.out.println("Failed to use external log config file");
+        }
+    }
+
+    private static final String SCA_PROJECT_NAME_INVALID_CHARS = "[\"`,:;\\\\|/'<>\\[\\]{}~]";
+    private static Logger log = LogManager.getLogger(CxConsoleLauncher.class);
 
 
     public static void main(String[] args) {
@@ -115,9 +129,9 @@ public class CxConsoleLauncher {
         CxConfigHelper.printConfig(commandLine);
         CxConfigHelper configHelper = new CxConfigHelper(commandLine.getOptionValue(Parameters.CLI_CONFIG));
         CxScanConfig cxScanConfig = configHelper.resolveConfiguration(command, commandLine);
-        
+
         validateScanParameters(cxScanConfig);
-        
+
         org.slf4j.Logger logger = new Log4jLoggerFactory().getLogger(log.getName());
 
         CxSastConnectionProvider connectionProvider = new CxSastConnectionProvider(cxScanConfig, logger);
@@ -193,26 +207,26 @@ public class CxConsoleLauncher {
         return exitCode;
     }
 
-    private static void validateScanParameters(CxScanConfig cxScanConfig) throws CLIParsingException{
-    	if(cxScanConfig == null)
-    		return;
-    	
-    	if(cxScanConfig.isAstScaEnabled() && checkContainsSpecialChars(cxScanConfig.getProjectName(), SCA_PROJECT_NAME_INVALID_CHARS))
-    		throw new CLIParsingException("[CxConsole] SCA project name cannot contain special characters.");
-	}
-    
-    private static boolean checkContainsSpecialChars(String valueToCheck, String regex) {
-    	
-    	boolean check = false;
-    	if(!StringUtils.isEmpty(valueToCheck)) {
-    		Pattern my_pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
-    		Matcher my_match = my_pattern.matcher(valueToCheck);
-    		check = my_match.find();    		
-		}    	
-    	return check;
+    private static void validateScanParameters(CxScanConfig cxScanConfig) throws CLIParsingException {
+        if (cxScanConfig == null)
+            return;
+
+        if (cxScanConfig.isAstScaEnabled() && checkContainsSpecialChars(cxScanConfig.getProjectName(), SCA_PROJECT_NAME_INVALID_CHARS))
+            throw new CLIParsingException("[CxConsole] SCA project name cannot contain special characters.");
     }
 
-	private static void getScanResultExceptionIfExists(List<ScanResults> scanResults) {
+    private static boolean checkContainsSpecialChars(String valueToCheck, String regex) {
+
+        boolean check = false;
+        if (!StringUtils.isEmpty(valueToCheck)) {
+            Pattern my_pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
+            Matcher my_match = my_pattern.matcher(valueToCheck);
+            check = my_match.find();
+        }
+        return check;
+    }
+
+    private static void getScanResultExceptionIfExists(List<ScanResults> scanResults) {
         scanResults.forEach(scanResult -> {
             if (scanResult != null) {
                 Map<ScannerType, Results> resultsMap = scanResult.getResults();
