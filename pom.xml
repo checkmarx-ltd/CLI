@@ -133,7 +133,7 @@
         <dependency>
             <groupId>com.checkmarx</groupId>
             <artifactId>cx-client-common</artifactId>
-            <version>2021.2.159-SEG</version>
+            <version>2021.3.166</version>
             <!-- Remove these excludes once latest FSA is used -->
            <exclusions>
 	     	<exclusion>
@@ -144,10 +144,7 @@
            		<groupId>io.vertx</groupId>
            		<artifactId>vertx-web</artifactId>
            	</exclusion>
-           	<exclusion>
-           		<groupId>io.netty</groupId>
-           		<artifactId>netty-handler</artifactId>
-           	</exclusion>
+         
                <exclusion>
                    <groupId>ch.qos.logback</groupId>
                    <artifactId>logback-classic</artifactId>
@@ -164,12 +161,18 @@
         		<groupId>io.vertx</groupId>
            		<artifactId>vertx-web</artifactId>
            		<version>4.0.2</version>
+           		<exclusions>
+           	 <exclusion>
+           		<groupId>io.netty</groupId>
+           		<artifactId>netty-codec-http</artifactId>
+           	</exclusion>
+           	 <exclusion>
+           		<groupId>io.netty</groupId>
+           		<artifactId>netty-codec-http2</artifactId>
+           	</exclusion>
+           	</exclusions>	
         </dependency>
-        <dependency>
-        		<groupId>io.netty</groupId>
-           		<artifactId>netty-handler</artifactId>
-           		<version>4.1.58.Final</version>
-        </dependency>
+        
          <!-- end of excluded dependencies -->
         <dependency>
             <groupId>commons-cli</groupId>
