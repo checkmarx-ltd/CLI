@@ -450,6 +450,22 @@ public final class CxConfigHelper {
         }
 
         if (scanConfig.isOsaEnabled()) {
+            String[] fsaConfArr = commandLine.getOptionValues(OSA_FSA_CONF);
+            if (fsaConfArr != null && !Arrays.asList(fsaConfArr).isEmpty()){
+                StringBuilder sb = new StringBuilder();
+                String prefix = "";
+                for (String arg : fsaConfArr) {
+                    arg = arg.trim();
+                    if (StringUtils.isNotEmpty(arg)) {
+                        sb.append(prefix + arg);
+                        prefix = ";";
+                    }
+                }
+                String fsaConf = sb.toString().trim();
+                if (StringUtils.isNotEmpty(fsaConf)) {
+                    System.setProperty("FSA_CONFIGURATION", fsaConf);
+                }
+            }
             setOsaSpecificConfig(scanConfig);
         } else if (scanConfig.isAstScaEnabled()) {
             setScaSpecificConfig(scanConfig);

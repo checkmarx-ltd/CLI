@@ -113,6 +113,7 @@ public enum Command {
         options.addOption(SCA_JSON_REPORT, true, ArgDescriptions.SCA_JSON_REPORT);
         options.addOption(INSTALL_PACKAGE_MANAGER, false, ArgDescriptions.INSTALL_PACKAGE_MANAGER);
         options.addOption(OSA_FAIL_ON_ERROR, false, ArgDescriptions.OSA_FAIL_ON_ERROR);
+        options.addOption(Option.builder(OSA_FSA_CONF).hasArg(true).hasArgs().argName("fsa configuration").desc(ArgDescriptions.OSA_FSA_CONF).valueSeparator(',').build());
 
         options.addOption(PDF_REPORT, true, ArgDescriptions.PDF_REPORT);
         options.addOption(XML_REPORT, true, ArgDescriptions.XML_REPORT);
