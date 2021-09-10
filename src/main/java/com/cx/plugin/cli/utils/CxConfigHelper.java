@@ -15,7 +15,6 @@ import com.cx.plugin.cli.constants.Command;
 import com.cx.plugin.cli.constants.Parameters;
 import com.cx.plugin.cli.exceptions.BadOptionCombinationException;
 import com.cx.plugin.cli.exceptions.CLIParsingException;
-import com.cx.plugin.cli.utils.PropertiesManager;
 import com.cx.restclient.ast.dto.sca.AstScaConfig;
 import com.cx.restclient.configuration.CxScanConfig;
 import com.cx.restclient.dto.ProxyConfig;
@@ -28,7 +27,6 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -42,7 +40,6 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -137,7 +134,7 @@ public final class CxConfigHelper {
             if ((command.equals(Command.SCA_SCAN)) || (command.equals(Command.ASYNC_SCA_SCAN))) {
                 scanConfig.setProjectName(extractProjectName(cmd.getOptionValue(FULL_PROJECT_PATH), true));
                 scanConfig.setTeamPath(extractTeamPath(cmd.getOptionValue(FULL_PROJECT_PATH), true));
-                
+
             } else {
                 scanConfig.setProjectName(extractProjectName(cmd.getOptionValue(FULL_PROJECT_PATH), false));
                 scanConfig.setTeamPath(extractTeamPath(cmd.getOptionValue(FULL_PROJECT_PATH), false));
@@ -187,9 +184,9 @@ public final class CxConfigHelper {
     private void resolveConfigAsCodeLocal(CxScanConfig scanConfig) throws CLIParsingException, IOException, ConfigurationException {
         log.info("loading config file from local working directory ..");
 
-            ConfigAsCode configAsCodeFromFile = getConfigAsCodeFromFile(
-                    scanConfig.getSourceDir() + File.separator + ".checkmarx" + File.separator + CONFIG_AS_CODE_FILE_NAME);
-            overrideConfigAsCode(configAsCodeFromFile, scanConfig);
+        ConfigAsCode configAsCodeFromFile = getConfigAsCodeFromFile(
+                scanConfig.getSourceDir() + File.separator + ".checkmarx" + File.separator + CONFIG_AS_CODE_FILE_NAME);
+        overrideConfigAsCode(configAsCodeFromFile, scanConfig);
 
     }
 
@@ -233,7 +230,7 @@ public final class CxConfigHelper {
         configProvider.init(CX_ORIGIN, reader);
 
         if (!configProvider.hasAnyConfiguration(CX_ORIGIN))
-            throw new ConfigurationException(String.format(CONFIG_FILE_S_NOT_FOUND_OR_COULDN_T_BE_LOADED, ".checkmarx/"+CONFIG_AS_CODE_FILE_NAME));
+            throw new ConfigurationException(String.format(CONFIG_FILE_S_NOT_FOUND_OR_COULDN_T_BE_LOADED, ".checkmarx/" + CONFIG_AS_CODE_FILE_NAME));
 
 
         ConfigAsCode configAsCodeFromFile = new ConfigAsCode();
@@ -450,28 +447,39 @@ public final class CxConfigHelper {
         }
 
         if (scanConfig.isOsaEnabled()) {
-            String[] fsaConfArr = commandLine.getOptionValues(OSA_FSA_CONF);
-            if (fsaConfArr != null && !Arrays.asList(fsaConfArr).isEmpty()){
-                StringBuilder sb = new StringBuilder();
-                String prefix = "";
-                for (String arg : fsaConfArr) {
-                    arg = arg.trim();
-                    if (StringUtils.isNotEmpty(arg)) {
-                        sb.append(prefix + arg);
-                        prefix = ";";
-                    }
-                }
-                String fsaConf = sb.toString().trim();
-                if (StringUtils.isNotEmpty(fsaConf)) {
-                    System.setProperty("FSA_CONFIGURATION", fsaConf);
-                }
-            }
+            setOSAEnv();
             setOsaSpecificConfig(scanConfig);
         } else if (scanConfig.isAstScaEnabled()) {
             setScaSpecificConfig(scanConfig);
         }
 
         setSharedDependencyScanConfig(scanConfig);
+    }
+
+    private void setOSAEnv() {
+        System.setProperty("FSA_ENRICH_ERR_LOGS", "true");
+
+        String[] fsaConfArr = commandLine.getOptionValues(OSA_FSA_CONF);
+        if (fsaConfArr != null && !Arrays.asList(fsaConfArr).isEmpty()) {
+            StringBuilder sb = new StringBuilder();
+            String prefix = "";
+            for (String arg : fsaConfArr) {
+                arg = arg.trim();
+                if (StringUtils.isNotEmpty(arg)) {
+                    sb.append(prefix + arg);
+                    prefix = ";";
+                }
+            }
+            String fsaConf = sb.toString().trim();
+            if (StringUtils.isNotEmpty(fsaConf)) {
+                System.setProperty("FSA_CONFIGURATION", fsaConf);
+            }
+        }
+
+        String errLogDir = commandLine.getOptionValue(OSA_ERR_LOG_DIR);
+        if (StringUtils.isNotEmpty(errLogDir)) {
+            System.setProperty("FSA_ERR_LOGS_PATH", errLogDir);
+        }
     }
 
     private String getRelevantCommand() {
@@ -514,19 +522,18 @@ public final class CxConfigHelper {
         sca.setWebAppUrl(webAppUrl);
 
         String envVariables = getOptionalParam(ENV_VARIABLE, "");
-        if(StringUtils.isNotEmpty(envVariables))
-        {
+        if (StringUtils.isNotEmpty(envVariables)) {
             sca.setEnvVariables(CxSCAFileSystemUtils.convertStringToKeyValueMap(envVariables));
         }
         String configFilePaths = getOptionalParam(SCA_CONFIG_FILE, "");
-		if (StringUtils.isNotEmpty(configFilePaths)) {
-			sca.setConfigFilePaths(Arrays.asList(configFilePaths.split("\\s*,\\s*")));
-		}
+        if (StringUtils.isNotEmpty(configFilePaths)) {
+            sca.setConfigFilePaths(Arrays.asList(configFilePaths.split("\\s*,\\s*")));
+        }
         configureScaWithSastDetails(sca);
-        
-		if (commandLine.hasOption(SCA_INCLUDE_SOURCE_FLAG)) {
-			sca.setIncludeSources(true);
-		}
+
+        if (commandLine.hasOption(SCA_INCLUDE_SOURCE_FLAG)) {
+            sca.setIncludeSources(true);
+        }
 
         sca.setUsername(getRequiredParam(commandLine, SCA_USERNAME, null));
         sca.setPassword(getRequiredParam(commandLine, SCA_PASSWORD, null));
@@ -556,74 +563,73 @@ public final class CxConfigHelper {
         scanConfig.setAstScaConfig(sca);
     }
 
-	private void configureScaWithSastDetails(AstScaConfig sca) throws CLIParsingException 
-	{
-	    //We are in SCA function whether SCA alone or with SAST scan, start with SCA specific SAST params
-		String serverURL = getOptionalParam(SAST_SERVER_URL, "");
-		String user = 		getOptionalParam(SAST_USER, "");
-		String password 	= getOptionalParam(SAST_PASSWORD, "");
-		String projectId 	= getOptionalParam(SAST_PROJECT_ID, "");
-		String projectName 	= getOptionalParam(SAST_PROJECT_NAME, "");
+    private void configureScaWithSastDetails(AstScaConfig sca) throws CLIParsingException {
+        //We are in SCA function whether SCA alone or with SAST scan, start with SCA specific SAST params
+        String serverURL = getOptionalParam(SAST_SERVER_URL, "");
+        String user = getOptionalParam(SAST_USER, "");
+        String password = getOptionalParam(SAST_PASSWORD, "");
+        String projectId = getOptionalParam(SAST_PROJECT_ID, "");
+        String projectName = getOptionalParam(SAST_PROJECT_NAME, "");
 
 
-		//SCA alone scan
-		if ((!commandLine.hasOption(SCA_ENABLED))) {
-			if (exploitablePathParamsIncomplete(serverURL, user, password, projectId, projectName)) {
-				if (!exploitablePathParamsEmpty(serverURL, user, password, projectId, projectName))
-					throw new CLIParsingException(
-							"[CxConsole] For SCA exploitable path, CxSAST server details like url, user, password and full project path or project id are required. Received partial parameters.");
-			}
-			// set the SCA Params after the above validation is done for only
-			// SCA
-			else {
-				prepareExpPathScaConfig(sca, serverURL, user, password, projectId, projectName);
-			}
-		}
-			//SCA with SAST
-	    else if (exploitablePathParamsEmpty(serverURL, user, password, projectId, projectName) || exploitablePathParamsIncomplete(serverURL,user,password,projectId,projectName)) {
-			// assign SAST values to scaconfig
-			prepareExpPathScaConfig(sca, getOptionalParam(SERVER_URL, ""), getOptionalParam(USER_NAME, ""),
-					getOptionalParam(USER_PASSWORD, ""), "", commandLine.getOptionValue(FULL_PROJECT_PATH));
-			if (StringUtils.isNotEmpty(projectId)) {
-				// override SCA's SAST project ID
-				sca.setSastProjectId(projectId);
-			}
-			if (StringUtils.isNotEmpty(projectName)) {
-				// override SCA's SAST project Name
-				sca.setSastProjectName(projectName);
-			}
-		} else {
-			prepareExpPathScaConfig(sca, serverURL, user, password, projectId, projectName);
-		}
-	}
+        //SCA alone scan
+        if ((!commandLine.hasOption(SCA_ENABLED))) {
+            if (exploitablePathParamsIncomplete(serverURL, user, password, projectId, projectName)) {
+                if (!exploitablePathParamsEmpty(serverURL, user, password, projectId, projectName))
+                    throw new CLIParsingException(
+                            "[CxConsole] For SCA exploitable path, CxSAST server details like url, user, password and full project path or project id are required. Received partial parameters.");
+            }
+            // set the SCA Params after the above validation is done for only
+            // SCA
+            else {
+                prepareExpPathScaConfig(sca, serverURL, user, password, projectId, projectName);
+            }
+        }
+        //SCA with SAST
+        else if (exploitablePathParamsEmpty(serverURL, user, password, projectId, projectName) || exploitablePathParamsIncomplete(serverURL, user, password, projectId, projectName)) {
+            // assign SAST values to scaconfig
+            prepareExpPathScaConfig(sca, getOptionalParam(SERVER_URL, ""), getOptionalParam(USER_NAME, ""),
+                    getOptionalParam(USER_PASSWORD, ""), "", commandLine.getOptionValue(FULL_PROJECT_PATH));
+            if (StringUtils.isNotEmpty(projectId)) {
+                // override SCA's SAST project ID
+                sca.setSastProjectId(projectId);
+            }
+            if (StringUtils.isNotEmpty(projectName)) {
+                // override SCA's SAST project Name
+                sca.setSastProjectName(projectName);
+            }
+        } else {
+            prepareExpPathScaConfig(sca, serverURL, user, password, projectId, projectName);
+        }
+    }
 
-	private void prepareExpPathScaConfig(AstScaConfig sca, String serverURL, String user, String password,
-			String projectId, String projectName) {
-		sca.setSastServerUrl(serverURL);
-		sca.setSastUsername(user);
-		sca.setSastPassword(password);
-		sca.setSastProjectName(projectName);
-		sca.setSastProjectId(projectId);
+    private void prepareExpPathScaConfig(AstScaConfig sca, String serverURL, String user, String password,
+                                         String projectId, String projectName) {
+        sca.setSastServerUrl(serverURL);
+        sca.setSastUsername(user);
+        sca.setSastPassword(password);
+        sca.setSastProjectName(projectName);
+        sca.setSastProjectId(projectId);
 
-	}
+    }
 
-	private boolean exploitablePathParamsEmpty(String serverURL, String user, String password, String projectId,
-			String projectName) {
-		return StringUtils.isEmpty(serverURL) && StringUtils.isEmpty(user) && StringUtils.isEmpty(password)
-				&& (StringUtils.isEmpty(projectId) && StringUtils.isEmpty(projectName)) ? true : false;
+    private boolean exploitablePathParamsEmpty(String serverURL, String user, String password, String projectId,
+                                               String projectName) {
+        return StringUtils.isEmpty(serverURL) && StringUtils.isEmpty(user) && StringUtils.isEmpty(password)
+                && (StringUtils.isEmpty(projectId) && StringUtils.isEmpty(projectName)) ? true : false;
 
-	}
+    }
 
-	private boolean exploitablePathParamsIncomplete(String serverURL, String user, String password, String projectId,
-			String projectName) {
-		boolean partialParams = false;
-		partialParams = StringUtils.isNotEmpty(serverURL) && !partialParams ? false : true;
-		partialParams = StringUtils.isNotEmpty(user) && !partialParams ? false : true;
-		partialParams = StringUtils.isNotEmpty(password) && !partialParams ? false : true;
-		partialParams = (StringUtils.isNotEmpty(projectId) || StringUtils.isNotEmpty(projectName)) && !partialParams
-				? false : true;
-		return partialParams;
-	}
+    private boolean exploitablePathParamsIncomplete(String serverURL, String user, String password, String projectId,
+                                                    String projectName) {
+        boolean partialParams = false;
+        partialParams = StringUtils.isNotEmpty(serverURL) && !partialParams ? false : true;
+        partialParams = StringUtils.isNotEmpty(user) && !partialParams ? false : true;
+        partialParams = StringUtils.isNotEmpty(password) && !partialParams ? false : true;
+        partialParams = (StringUtils.isNotEmpty(projectId) || StringUtils.isNotEmpty(projectName)) && !partialParams
+                ? false : true;
+        return partialParams;
+    }
 
     private void setSharedDependencyScanConfig(CxScanConfig scanConfig) {
         setDependencyScanThresholds(scanConfig);
@@ -834,11 +840,11 @@ public final class CxConfigHelper {
             throw new CLIParsingException("[CxConsole] No project path was specified");
         }
         int lastIdx = getLastIndexOfTeam(fullPath, isScaScan);
-        if(lastIdx == -1)
-        	return "";
+        if (lastIdx == -1)
+            return "";
         else
-        	return fullPath.substring(0, lastIdx);
-        
+            return fullPath.substring(0, lastIdx);
+
     }
 
     public static void printConfig(CommandLine commandLine) {

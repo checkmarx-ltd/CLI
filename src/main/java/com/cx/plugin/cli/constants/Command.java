@@ -114,6 +114,7 @@ public enum Command {
         options.addOption(INSTALL_PACKAGE_MANAGER, false, ArgDescriptions.INSTALL_PACKAGE_MANAGER);
         options.addOption(OSA_FAIL_ON_ERROR, false, ArgDescriptions.OSA_FAIL_ON_ERROR);
         options.addOption(Option.builder(OSA_FSA_CONF).hasArg(true).hasArgs().argName("fsa configuration").desc(ArgDescriptions.OSA_FSA_CONF).valueSeparator(',').build());
+        options.addOption(Option.builder(OSA_ERR_LOG_DIR).hasArg(true).hasArgs().argName("osa error log dir").desc(ArgDescriptions.OSA_ERR_LOG_DIR).build());
 
         options.addOption(PDF_REPORT, true, ArgDescriptions.PDF_REPORT);
         options.addOption(XML_REPORT, true, ArgDescriptions.XML_REPORT);
@@ -161,7 +162,7 @@ public enum Command {
         options.addOption(SAST_SERVER_URL, true, ArgDescriptions.SAST_SERVER_URL);
         options.addOption(SAST_USER, true, ArgDescriptions.SAST_USER);
         options.addOption(SAST_PASSWORD, true, ArgDescriptions.SAST_PASSWORD);
-        
+
         options.addOption(SCA_CONFIG_FILE, true, ArgDescriptions.SCA_CONFIG_FILE);
         options.addOption(SCA_INCLUDE_SOURCE_FLAG, false, ArgDescriptions.SCA_INCLUDE_SOURCE_FLAG);
 
