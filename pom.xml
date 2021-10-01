@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.cx.plugin</groupId>
     <artifactId>CxConsolePlugin</artifactId>
-    <version>1.1.11-BOA</version>
+    <version>1.1.12-BOA</version>
     <packaging>jar</packaging>
 
     <repositories>
@@ -132,7 +132,7 @@
         <dependency>
             <groupId>com.checkmarx</groupId>
             <artifactId>cx-client-common</artifactId>
-            <version>2021.2.162-SEG</version>
+            <version>2021.2.162-BOA</version>
             <!-- Remove these excludes once latest FSA is used -->
             <exclusions>
                 <exclusion>

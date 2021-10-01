@@ -4,10 +4,13 @@ import com.cx.plugin.cli.errorsconstants.Errors;
 import com.cx.restclient.dto.scansummary.ErrorSource;
 import com.cx.restclient.dto.scansummary.ScanSummary;
 import com.cx.restclient.dto.scansummary.ThresholdError;
+import org.apache.commons.lang3.StringUtils;
+import org.whitesource.agent.utils.CommandLineErrors;
 
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import static com.cx.plugin.cli.errorsconstants.ErrorMessages.*;
 
@@ -31,6 +34,7 @@ public class ErrorParsingHelper {
         messageToCodeMap.put(SDLC_ERROR_MSG, Errors.SDLC_ERROR.getCode());
         messageToCodeMap.put(NO_OSA_LICENSE_ERROR_MSG, Errors.NO_OSA_LICENSE_ERROR.getCode());
         messageToCodeMap.put(OSA_RESOLVE_ERROR_MSG, Errors.OSA_RESOLVE_ERROR.getCode());
+        messageToCodeMap.put(OSA_NO_DEPENDENCIES_ERROR_MSG, Errors.OSA_NO_DEPENDENCIES_ERROR.getCode());
         messageToCodeMap.put(NO_PROJECT_PRIOR_TO_OSA_SCAN_ERROR_MSG, Errors.NO_PROJECT_PRIOR_TO_OSA_SCAN_ERROR.getCode());
         messageToCodeMap.put(REPORT_PARAMETER_IN_ASYNC_SCAN, Errors.GENERAL_ERROR.getCode());
         messageToCodeMap.put(THRESHOLD_PARAMETER_IN_ASYNC_SCAN, Errors.GENERAL_ERROR.getCode());
@@ -44,6 +48,11 @@ public class ErrorParsingHelper {
         messageToCodeMap.put(SAST_HIGH_THRESHOLD_ERROR_MSG, Errors.SAST_HIGH_THRESHOLD_ERROR.getCode());
         messageToCodeMap.put(SAST_MEDIUM_THRESHOLD_ERROR_MSG, Errors.SAST_MEDIUM_THRESHOLD_ERROR.getCode());
         messageToCodeMap.put(SAST_LOW_THRESHOLD_ERROR_MSG, Errors.SAST_LOW_THRESHOLD_ERROR.getCode());
+        // OSA resolvers
+        messageToCodeMap.put(OSA_MAVEN_RESOLVE_ERROR_MSG, Errors.OSA_MAVEN_RESOLVE_ERROR.getCode());
+        messageToCodeMap.put(OSA_GRADLE_RESOLVE_ERROR_MSG, Errors.OSA_GRADLE_RESOLVE_ERROR.getCode());
+        messageToCodeMap.put(OSA_NPM_RESOLVE_ERROR_MSG, Errors.OSA_NPM_RESOLVE_ERROR.getCode());
+        messageToCodeMap.put(OSA_NUGET_RESOLVE_ERROR_MSG, Errors.OSA_NUGET_RESOLVE_ERROR.getCode());
 
         return messageToCodeMap;
     }
@@ -108,8 +117,28 @@ public class ErrorParsingHelper {
             return Errors.GENERAL_ERROR.getCode();
         }
 
+        if (StringUtils.containsIgnoreCase(errorMsg, OSA_RESOLVE_ERROR_MSG)) {
+            Set<String> failedResolver = CommandLineErrors.getFailedResolver();
+            if (failedResolver.size() > 1) {
+                return Errors.OSA_RESOLVE_ERROR.getCode();
+            }
+
+            String resolver = failedResolver.iterator().next();
+            if (resolver.equalsIgnoreCase("Maven")) {
+                return Errors.OSA_MAVEN_RESOLVE_ERROR.getCode();
+            } else if (resolver.equalsIgnoreCase("Gradle")) {
+                return Errors.OSA_GRADLE_RESOLVE_ERROR.getCode();
+            } else if (resolver.equalsIgnoreCase("NPM")) {
+                return Errors.OSA_NPM_RESOLVE_ERROR.getCode();
+            } else if (resolver.equalsIgnoreCase("DotNet") || resolver.equalsIgnoreCase("Nuget")) {
+                return Errors.OSA_NUGET_RESOLVE_ERROR.getCode();
+            }
+
+            return Errors.OSA_RESOLVE_ERROR.getCode();
+        }
+
         for (Map.Entry<String, Integer> entry : errorMsgToCodeMap.entrySet()) {
-            if (errorMsg.toLowerCase().contains(entry.getKey().toLowerCase())) {
+            if (StringUtils.containsIgnoreCase(errorMsg, entry.getKey())) {
                 return entry.getValue();
             }
         }
