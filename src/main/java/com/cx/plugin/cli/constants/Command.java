@@ -162,6 +162,7 @@ public enum Command {
         
         options.addOption(SCA_CONFIG_FILE, true, ArgDescriptions.SCA_CONFIG_FILE);
         options.addOption(SCA_INCLUDE_SOURCE_FLAG, false, ArgDescriptions.SCA_INCLUDE_SOURCE_FLAG);
+        options.addOption(SCA_TIMEOUT, true, ArgDescriptions.SCA_TIME_OUT);
 
         return options;
     }
