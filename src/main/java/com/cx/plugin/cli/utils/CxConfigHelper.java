@@ -137,7 +137,9 @@ public final class CxConfigHelper {
             if ((command.equals(Command.SCA_SCAN)) || (command.equals(Command.ASYNC_SCA_SCAN))) {
                 scanConfig.setProjectName(extractProjectName(cmd.getOptionValue(FULL_PROJECT_PATH), true));
                 scanConfig.setTeamPath(extractTeamPath(cmd.getOptionValue(FULL_PROJECT_PATH), true));
-                
+				if (cmd.hasOption(SCA_TIMEOUT)) {
+					scanConfig.setSCAScanTimeoutInMinutes(Integer.valueOf(cmd.getOptionValue(SCA_TIMEOUT)));
+				}
             } else {
                 scanConfig.setProjectName(extractProjectName(cmd.getOptionValue(FULL_PROJECT_PATH), false));
                 scanConfig.setTeamPath(extractTeamPath(cmd.getOptionValue(FULL_PROJECT_PATH), false));

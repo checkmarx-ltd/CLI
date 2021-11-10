@@ -99,5 +99,6 @@ public final class Parameters {
     public static final String SAST_SERVER_URL = "cxsasturl";
     public static final String SAST_PASSWORD = "cxsastpass";
     public static final String SAST_USER = "cxsastuser";
+    public static final String SCA_TIMEOUT = "scatimeout";
 
 }
