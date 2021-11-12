@@ -24,10 +24,6 @@
             <name>libs-snapshot</name>
             <url>~/.m2</url>
         </repository>
-        <repository>          <id>local-repo</id>
-	          <name>Local Repository</name>
-	          <url>file:C:\Users\admin\.m2\repository</url>
-	        </repository>
     </repositories>
 
     <properties>
