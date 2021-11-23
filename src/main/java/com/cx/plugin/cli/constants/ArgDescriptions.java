@@ -135,4 +135,5 @@ class ArgDescriptions {
     static final String SCA_CONFIG_FILE = "Configuration files from package managers (maven,npm etc.) needed for the SCA scan.";
     static final String SCA_INCLUDE_SOURCE_FLAG = "Flag to include the entire source code for the SCA scan.";
     static final String SCA_TIME_OUT = "Timeout duration for SCA scan.";
+    static final String SCAN_LEVEL_CUSTOM_FIELDS = "Scan level custom fields";
 }
