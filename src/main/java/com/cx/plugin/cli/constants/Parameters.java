@@ -78,6 +78,10 @@ public final class Parameters {
     public static final String SCA_USERNAME = "scausername";
     public static final String SCA_PASSWORD = "scapassword";
     public static final String SCA_ACCOUNT = "scaaccount";
+	
+	public static final String PATH_TO_RESOLVER = "pathtoresolver";
+    public static final String USE_SCA_RESOLVER = "usescaresolver";
+    public static final String ADDITIONAL_PARAMETERS_FOR_RESOLVER = "resolveradditionalparameters";
 
     public static final String SCA_HIGH = "scahigh";
     public static final String SCA_MEDIUM = "scamedium";

@@ -137,6 +137,10 @@ public enum Command {
         options.addOption(SCA_USERNAME, true, ArgDescriptions.SCA_USERNAME);
         options.addOption(SCA_PASSWORD, true, ArgDescriptions.SCA_PASSWORD);
         options.addOption(SCA_ACCOUNT, true, ArgDescriptions.SCA_ACCOUNT);
+		
+		options.addOption(USE_SCA_RESOLVER, false, ArgDescriptions.USE_SCA_RESOLVER);//use SCA resolver
+        options.addOption(PATH_TO_RESOLVER, true, ArgDescriptions.PATH_TO_RESOLVER);//path to resolver
+        options.addOption(ADDITIONAL_PARAMETERS_FOR_RESOLVER, true, ArgDescriptions.ADDITIONAL_PARAMETERS_FOR_RESOLVER);//path to resolver
 
         options.addOption(SCA_HIGH, true, ArgDescriptions.SCA_HIGH);
         options.addOption(SCA_MEDIUM, true, ArgDescriptions.SCA_MEDIUM);
