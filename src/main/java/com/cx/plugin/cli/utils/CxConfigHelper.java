@@ -513,6 +513,9 @@ public final class CxConfigHelper {
 			sca.setIncludeSources(true);
 		}
 
+        if (commandLine.hasOption(SCA_ENABLE_RESOLVER_FLAG)) {
+            sca.setEnableScaResolver(true);
+        }
         sca.setUsername(getRequiredParam(commandLine, SCA_USERNAME, null));
         sca.setPassword(getRequiredParam(commandLine, SCA_PASSWORD, null));
         sca.setTenant(getRequiredParam(commandLine, SCA_ACCOUNT, null));

@@ -80,7 +80,7 @@ public final class Parameters {
     public static final String SCA_ACCOUNT = "scaaccount";
 	
 	public static final String PATH_TO_RESOLVER = "pathtoresolver";
-    public static final String USE_SCA_RESOLVER = "usescaresolver";
+    public static final String USE_SCA_RESOLVER = "enablescaresolver";
     public static final String ADDITIONAL_PARAMETERS_FOR_RESOLVER = "resolveradditionalparameters";
 
     public static final String SCA_HIGH = "scahigh";
@@ -100,6 +100,7 @@ public final class Parameters {
     public static final String SAST_PROJECT_NAME = "cxsastprojectname";
     public static final String SCA_CONFIG_FILE = "scaconfigfile";
     public static final String SCA_INCLUDE_SOURCE_FLAG = "includesource";
+    public static final String SCA_ENABLE_RESOLVER_FLAG = "enablescaresolver";
     public static final String SAST_SERVER_URL = "cxsasturl";
     public static final String SAST_PASSWORD = "cxsastpass";
     public static final String SAST_USER = "cxsastuser";
