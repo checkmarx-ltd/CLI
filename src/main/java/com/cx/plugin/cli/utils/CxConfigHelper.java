@@ -515,8 +515,12 @@ public final class CxConfigHelper {
 		
 		if (commandLine.hasOption(ENABLE_SCA_RESOLVER)) {
 			sca.setEnableScaResolver(true);
-			sca.setPathToScaResolver(getRequiredParam(commandLine, PATH_TO_RESOLVER, null));
-			sca.setScaResolverAddParameters(getRequiredParam(commandLine, SCA_RESOLVER_ADD_PARAMETERS, null));
+            String pathToResolver = getRequiredParam(commandLine, PATH_TO_RESOLVER, null);
+            String additionalParams = getRequiredParam(commandLine, SCA_RESOLVER_ADD_PARAMETERS, null);
+            validateSCAResolverParams();
+            sca.setPathToScaResolver(pathToResolver);
+            sca.setScaResolverAddParameters(additionalParams);
+
 		}
 
         sca.setUsername(getRequiredParam(commandLine, SCA_USERNAME, null));
@@ -876,6 +880,45 @@ public final class CxConfigHelper {
         String commandLineValue = commandLine.getOptionValue(commandLineKey);
         String propertyValue = props.getProperty(fallbackProperty);
         return isNotEmpty(commandLineValue) ? commandLineValue : propertyValue;
+    }
+
+    /**
+     * This method validates SCA Resolver flow parameters
+     * @return
+     * @throws CLIParsingException
+     */
+    private boolean  validateSCAResolverParams()throws CLIParsingException {
+        boolean isValidParams = true;
+
+        String pathToResolver = commandLine.getOptionValue(PATH_TO_RESOLVER);
+        String additionalParams = commandLine.getOptionValue(SCA_RESOLVER_ADD_PARAMETERS);
+        File file = new File(pathToResolver + File.separator + "ScaResolver.exe");
+        if(!file.exists())
+        {
+            throw new CLIParsingException("SCA Resolver path does not exist.");
+        }
+        String[] arguments = additionalParams.split(" ");
+        String dirPath;
+        for (int i = 0; i <  arguments.length ; i++) {
+            if (arguments[i].equals("-r")  || arguments[i].equals("-s") ) {
+                dirPath = arguments[i + 1];
+                if(dirPath.endsWith(File.separator)){
+                    dirPath = dirPath.substring(0,dirPath.length()-2);
+                }
+                File resultPath = new File(dirPath);
+                if(!resultPath.exists())
+                {
+                    if(arguments[i].equals("-r") ) {
+
+                        throw new CLIParsingException("SCA Resolver result path does not exist.");
+                    }
+                    if(arguments[i].equals("-s") ) {
+                        throw new CLIParsingException("Source code path does not exist.");
+                    }
+                }
+            }
+        }
+        return isValidParams;
     }
 
     private String getParamWithDefault(String commandLineKey, String fallbackProperty, boolean useConfigAsCode) {
