@@ -512,6 +512,12 @@ public final class CxConfigHelper {
 		if (commandLine.hasOption(SCA_INCLUDE_SOURCE_FLAG)) {
 			sca.setIncludeSources(true);
 		}
+		
+		if (commandLine.hasOption(ENABLE_SCA_RESOLVER)) {
+			sca.setEnableScaResolver(true);
+			sca.setPathToScaResolver(getRequiredParam(commandLine, PATH_TO_RESOLVER, null));
+			sca.setScaResolverAddParameters(getRequiredParam(commandLine, SCA_RESOLVER_ADD_PARAMETERS, null));
+		}
 
         sca.setUsername(getRequiredParam(commandLine, SCA_USERNAME, null));
         sca.setPassword(getRequiredParam(commandLine, SCA_PASSWORD, null));
@@ -537,7 +543,6 @@ public final class CxConfigHelper {
                 throw new CLIParsingException(reportDir + " directory doesn't exist.");
             }
         }
-
         scanConfig.setAstScaConfig(sca);
     }
 
