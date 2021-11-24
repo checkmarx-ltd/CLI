@@ -82,6 +82,7 @@ public enum Command {
         options.addOption(SERVER_URL, true, ArgDescriptions.CX_SERVER);
         options.addOption(USER_NAME, true, ArgDescriptions.CX_USER);
         options.addOption(USER_PASSWORD, true, ArgDescriptions.CX_PASS);
+        options.addOption(CUSTOM_FIELDS, true, ArgDescriptions.SCAN_LEVEL_CUSTOM_FIELDS);
         options.addOption(TOKEN, true, ArgDescriptions.CX_TOKEN);
         options.addOption(GENERATETOKEN, false, ArgDescriptions.TOKEN_GEN);
         options.addOption(REVOKETOKEN, true, ArgDescriptions.TOKEN_REVOKE);

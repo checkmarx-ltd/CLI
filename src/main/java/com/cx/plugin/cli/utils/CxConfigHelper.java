@@ -127,7 +127,9 @@ public final class CxConfigHelper {
         }
 
         scanConfig.setEngineConfigurationName(cmd.getOptionValue(CONFIGURATION));
-
+        if(cmd.hasOption(CUSTOM_FIELDS)) {
+        scanConfig.setCustomFields(apiFormat(cmd.getOptionValue(CUSTOM_FIELDS)));
+        }
         scanConfig.setUseSSOLogin(cmd.hasOption(IS_SSO));
         scanConfig.setDisableCertificateValidation(cmd.hasOption(TRUSTED_CERTIFICATES));
 
@@ -176,6 +178,16 @@ public final class CxConfigHelper {
         return scanConfig;
     }
 
+    
+    private String apiFormat(String customFields) {
+    	if(StringUtils.isNotEmpty(customFields)) {
+			customFields = customFields.replaceAll(":", "\":\"");
+			customFields = customFields.replaceAll(",", "\",\"");
+			customFields = "{\"".concat(customFields).concat("\"}");
+    	}
+    	return customFields;
+	}
+    
     private void checkForConfigAsCode(CxScanConfig scanConfig) throws CLIParsingException, IOException, ConfigurationException {
         if (StringUtils.isNotEmpty(scanConfig.getRemoteSrcUrl()) && RemoteSourceTypes.GIT == scanConfig.getRemoteType()) {
             resolveConfigAsCodeFromRemote(scanConfig);

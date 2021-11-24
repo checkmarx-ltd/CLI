@@ -15,6 +15,7 @@ public final class Parameters {
     public static final String CLI_CONFIG = "config";
     public static final String SERVER_URL = "cxserver";
     public static final String USER_NAME = "cxuser";
+    public static final String CUSTOM_FIELDS = "customfields";
     public static final String USER_PASSWORD = "cxpassword";
     public static final String GENERATETOKEN = "generatetoken";
     public static final String REVOKETOKEN = "revoketoken";
