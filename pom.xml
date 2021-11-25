@@ -24,12 +24,6 @@
             <name>libs-snapshot</name>
             <url>~/.m2</url>
         </repository>
-        
-        <repository>          
-        	<id>local-repo</id>
-              <name>Local Repository</name>
-              <url>~/.m2</url>
-            </repository>
     </repositories>
 
     <properties>
@@ -138,7 +132,7 @@
         <dependency>
             <groupId>com.checkmarx</groupId>
             <artifactId>cx-client-common</artifactId>
-            <version>2021.4.7</version>
+            <version>2021.4.6</version>
             <!-- Remove these excludes once latest FSA is used -->
            <exclusions>
 	     	<exclusion>
