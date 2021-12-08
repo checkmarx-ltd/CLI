@@ -1,5 +1,8 @@
 package com.cx.plugin.cli;
 
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+
 import com.cx.plugin.cli.constants.Command;
 import com.cx.plugin.cli.constants.Parameters;
 import com.cx.plugin.cli.errorsconstants.Errors;
@@ -16,6 +19,7 @@ import com.cx.restclient.exception.CxClientException;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
@@ -33,6 +37,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -277,10 +283,32 @@ public class CxConsoleLauncher {
     }
 
     private static String[] convertParamToLowerCase(String[] args) {
-        return Arrays
-                .stream(args)
-                .map(arg -> arg.startsWith("-") ? arg.toLowerCase() : arg)
-                .toArray(String[]::new);
+		String [] lowerArgs = new String[args.length];
+    	ArrayList<String> optionList = new ArrayList<String>();	
+		Collection<Option> options = Command.getOptions().getOptions();
+		 
+		for(Iterator<Option> iterator = options.iterator(); iterator.hasNext();)
+		{
+			optionList.add(iterator.next().getOpt());
+		}   	
+		
+		for (int i = 0; i < args.length; i++)
+		{
+			if(args[i].startsWith("-") && optionList.contains(args[i].substring(1, args[i].length()).toLowerCase()) )
+			{
+				lowerArgs[i] = args[i].toLowerCase();
+			}
+			else
+			{
+				lowerArgs[i] = args[i];
+			}
+		}
+    	
+    	return lowerArgs;
+        //return Arrays
+         //       .stream(args)
+          //      .map(arg -> arg.startsWith("-") || optionList.contains(arg) ? arg.toLowerCase() : arg)
+           //     .toArray(String[]::new);
     }
 
     private static void initFileLogging(String logLocation, String logLevel) {

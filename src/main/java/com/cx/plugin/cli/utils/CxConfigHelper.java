@@ -892,15 +892,17 @@ public final class CxConfigHelper {
 
         String pathToResolver = commandLine.getOptionValue(PATH_TO_RESOLVER);
         String additionalParams = commandLine.getOptionValue(SCA_RESOLVER_ADD_PARAMETERS);
+        
         File file = new File(pathToResolver + File.separator + "ScaResolver.exe");
         if(!file.exists())
         {
-            throw new CLIParsingException("SCA Resolver path does not exist.");
+        	throw new CLIParsingException("SCA Resolver path does not exist.");
         }
+        
         String[] arguments = additionalParams.split(" ");
         String dirPath;
         for (int i = 0; i <  arguments.length ; i++) {
-            if (arguments[i].equals("-r")  || arguments[i].equals("-s") ) {
+            if (arguments[i].equals("-s") ) {
                 dirPath = arguments[i + 1];
                 if(dirPath.endsWith(File.separator)){
                     dirPath = dirPath.substring(0,dirPath.length()-2);
@@ -908,12 +910,8 @@ public final class CxConfigHelper {
                 File resultPath = new File(dirPath);
                 if(!resultPath.exists())
                 {
-                    if(arguments[i].equals("-r") ) {
-
-                        throw new CLIParsingException("SCA Resolver result path does not exist.");
-                    }
                     if(arguments[i].equals("-s") ) {
-                        throw new CLIParsingException("Source code path does not exist.");
+                        throw new CLIParsingException("Source code path does not exist." + resultPath);
                     }
                 }
             }
