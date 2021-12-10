@@ -109,9 +109,9 @@ class ArgDescriptions {
     static final String SCA_PASSWORD = "SCA password.";
     static final String SCA_ACCOUNT = "Account name to be used during authentication.";
 	
-	static final String ENABLE_SCA_RESOLVER = "The command enables you to run a SCA dependency scan with the help of SCA Resolver.";
-    static final String PATH_TO_RESOLVER = "Local path to sca resolver .exe file";
-    static final String SCA_RESOLVER_ADD_PARAMETERS = "this argument receives additional parameters required for Sca Resolver scan.";
+	static final String ENABLE_SCA_RESOLVER = "The command enables SCA dependency resolution using SCA Resolver Tool.";
+    static final String PATH_TO_RESOLVER = "Local path to sca resolver installation directory.";
+    static final String SCA_RESOLVER_ADD_PARAMETERS = "Arguments to SCA Resolver tool. Mandatory parameters as documented in SCA Resolver documentation to execute it in offline mode must be provided.";
 
     static final String SCA_HIGH = String.format(THRESHOLD_TEMPLATE, CX_SCA, HIGH);
     static final String SCA_MEDIUM = String.format(THRESHOLD_TEMPLATE, CX_SCA, MEDIUM);
