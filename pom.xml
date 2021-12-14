@@ -132,7 +132,7 @@
         <dependency>
             <groupId>com.checkmarx</groupId>
             <artifactId>cx-client-common</artifactId>
-            <version>2021.4.7-umesh</version>
+            <version>2021.4.9</version>
             <!-- Remove these excludes once latest FSA is used -->
            <exclusions>
 	     	<exclusion>
