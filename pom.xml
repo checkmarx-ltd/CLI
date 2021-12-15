@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.cx.plugin</groupId>
     <artifactId>CxConsolePlugin</artifactId>
-    <version>1.1.12-BOA</version>
+    <version>1.1.17-BOA</version>
     <packaging>jar</packaging>
 
     <repositories>
@@ -37,6 +37,9 @@
         <sonar.projectKey>checkmarx-ltd_CLI</sonar.projectKey>
         <sonar.organization>checkmarx-ltd</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+
+        <slf4j.version>1.7.32</slf4j.version>
+        <log4j2.version>2.15.0</log4j2.version>
     </properties>
 
     <organization>
@@ -132,7 +135,7 @@
         <dependency>
             <groupId>com.checkmarx</groupId>
             <artifactId>cx-client-common</artifactId>
-            <version>2021.2.162-BOA</version>
+            <version>2021.2.163-BOA</version>
             <!-- Remove these excludes once latest FSA is used -->
             <exclusions>
                 <exclusion>
@@ -200,6 +203,22 @@
                     <groupId>com.fasterxml.jackson.core</groupId>
                     <artifactId>jackson-databind</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.logging.log4j</groupId>
+                    <artifactId>log4j-slf4j-impl</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.logging.log4j</groupId>
+                    <artifactId>log4j-api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.logging.log4j</groupId>
+                    <artifactId>log4j-core</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
@@ -218,6 +237,28 @@
             <version>4.5.13</version>
         </dependency>
 
+        <!-- Logger -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-slf4j-impl</artifactId>
+            <version>${log4j2.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <version>${log4j2.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>${log4j2.version}</version>
+        </dependency>
+        <!-- Logger End -->
     </dependencies>
 
 </project>
