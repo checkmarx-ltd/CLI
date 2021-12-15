@@ -108,6 +108,10 @@ class ArgDescriptions {
     static final String SCA_USERNAME = "SCA username.";
     static final String SCA_PASSWORD = "SCA password.";
     static final String SCA_ACCOUNT = "Account name to be used during authentication.";
+	
+	static final String ENABLE_SCA_RESOLVER = "The command enables SCA dependency resolution using SCA Resolver Tool.";
+    static final String PATH_TO_RESOLVER = "Local path to sca resolver installation directory.";
+    static final String SCA_RESOLVER_ADD_PARAMETERS = "Arguments to SCA Resolver tool. Mandatory parameters as documented in SCA Resolver documentation to execute it in offline mode must be provided.";
 
     static final String SCA_HIGH = String.format(THRESHOLD_TEMPLATE, CX_SCA, HIGH);
     static final String SCA_MEDIUM = String.format(THRESHOLD_TEMPLATE, CX_SCA, MEDIUM);
@@ -134,4 +138,6 @@ class ArgDescriptions {
     
     static final String SCA_CONFIG_FILE = "Configuration files from package managers (maven,npm etc.) needed for the SCA scan.";
     static final String SCA_INCLUDE_SOURCE_FLAG = "Flag to include the entire source code for the SCA scan.";
+    static final String SCA_TIME_OUT = "Timeout duration for SCA scan.";
+    static final String SCAN_LEVEL_CUSTOM_FIELDS = "Scan level custom fields";
 }

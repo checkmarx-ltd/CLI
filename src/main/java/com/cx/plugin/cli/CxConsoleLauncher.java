@@ -13,9 +13,13 @@ import com.cx.restclient.dto.ScanResults;
 import com.cx.restclient.dto.ScannerType;
 import com.cx.restclient.dto.scansummary.ScanSummary;
 import com.cx.restclient.exception.CxClientException;
+
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.Option;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
@@ -33,6 +37,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -279,10 +284,20 @@ public class CxConsoleLauncher {
     private static String[] convertParamToLowerCase(String[] args) {
         return Arrays
                 .stream(args)
-                .map(arg -> arg.startsWith("-") ? arg.toLowerCase() : arg)
+                .map(arg -> arg.startsWith("-") && isCliCmdOption(arg)? arg.toLowerCase() : arg)
                 .toArray(String[]::new);
     }
 
+    private static boolean isCliCmdOption(String argName) {
+    	
+    	Option argfound = Command.getOptions().getOption(argName.toLowerCase());    	
+    	if(argfound != null && !StringUtils.isEmpty(argfound.getOpt().toString()))
+    		return true;
+    	else
+    		return false;    		    	
+    }
+    
+    
     private static void initFileLogging(String logLocation, String logLevel) {
         System.setProperty("cliLogPath", logLocation);
         System.setProperty("logLevel", logLevel);

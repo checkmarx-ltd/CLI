@@ -1,3 +1,4 @@
+
 package com.cx.plugin.cli.utils;
 
 import com.checkmarx.configprovider.ConfigProvider;
@@ -30,6 +31,7 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.SystemUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jgit.transport.URIish;
@@ -127,7 +129,9 @@ public final class CxConfigHelper {
         }
 
         scanConfig.setEngineConfigurationName(cmd.getOptionValue(CONFIGURATION));
-
+        if(cmd.hasOption(CUSTOM_FIELDS)) {
+        scanConfig.setCustomFields(apiFormat(cmd.getOptionValue(CUSTOM_FIELDS)));
+        }
         scanConfig.setUseSSOLogin(cmd.hasOption(IS_SSO));
         scanConfig.setDisableCertificateValidation(cmd.hasOption(TRUSTED_CERTIFICATES));
 
@@ -137,7 +141,9 @@ public final class CxConfigHelper {
             if ((command.equals(Command.SCA_SCAN)) || (command.equals(Command.ASYNC_SCA_SCAN))) {
                 scanConfig.setProjectName(extractProjectName(cmd.getOptionValue(FULL_PROJECT_PATH), true));
                 scanConfig.setTeamPath(extractTeamPath(cmd.getOptionValue(FULL_PROJECT_PATH), true));
-                
+				if (cmd.hasOption(SCA_TIMEOUT)) {
+					scanConfig.setSCAScanTimeoutInMinutes(Integer.valueOf(cmd.getOptionValue(SCA_TIMEOUT)));
+				}
             } else {
                 scanConfig.setProjectName(extractProjectName(cmd.getOptionValue(FULL_PROJECT_PATH), false));
                 scanConfig.setTeamPath(extractTeamPath(cmd.getOptionValue(FULL_PROJECT_PATH), false));
@@ -174,6 +180,16 @@ public final class CxConfigHelper {
         return scanConfig;
     }
 
+    
+    private String apiFormat(String customFields) {
+    	if(StringUtils.isNotEmpty(customFields)) {
+			customFields = customFields.replaceAll(":", "\":\"");
+			customFields = customFields.replaceAll(",", "\",\"");
+			customFields = "{\"".concat(customFields).concat("\"}");
+    	}
+    	return customFields;
+	}
+    
     private void checkForConfigAsCode(CxScanConfig scanConfig) throws CLIParsingException, IOException, ConfigurationException {
         if (StringUtils.isNotEmpty(scanConfig.getRemoteSrcUrl()) && RemoteSourceTypes.GIT == scanConfig.getRemoteType()) {
             resolveConfigAsCodeFromRemote(scanConfig);
@@ -510,6 +526,16 @@ public final class CxConfigHelper {
 		if (commandLine.hasOption(SCA_INCLUDE_SOURCE_FLAG)) {
 			sca.setIncludeSources(true);
 		}
+		
+		if (commandLine.hasOption(ENABLE_SCA_RESOLVER)) {
+			sca.setEnableScaResolver(true);
+            String pathToResolver = getRequiredParam(commandLine, PATH_TO_RESOLVER, null);
+            String additionalParams = getRequiredParam(commandLine, SCA_RESOLVER_ADD_PARAMETERS, null);
+            validateSCAResolverParams();
+            sca.setPathToScaResolver(pathToResolver);
+            sca.setScaResolverAddParameters(additionalParams);
+
+		}
 
         sca.setUsername(getRequiredParam(commandLine, SCA_USERNAME, null));
         sca.setPassword(getRequiredParam(commandLine, SCA_PASSWORD, null));
@@ -535,7 +561,6 @@ public final class CxConfigHelper {
                 throw new CLIParsingException(reportDir + " directory doesn't exist.");
             }
         }
-
         scanConfig.setAstScaConfig(sca);
     }
 
@@ -869,6 +894,46 @@ public final class CxConfigHelper {
         String commandLineValue = commandLine.getOptionValue(commandLineKey);
         String propertyValue = props.getProperty(fallbackProperty);
         return isNotEmpty(commandLineValue) ? commandLineValue : propertyValue;
+    }
+
+    /**
+     * This method validates SCA Resolver flow parameters
+     * @return
+     * @throws CLIParsingException
+     */
+    private boolean  validateSCAResolverParams()throws CLIParsingException {
+        boolean isValidParams = true;
+
+        String pathToResolver = commandLine.getOptionValue(PATH_TO_RESOLVER);
+        String additionalParams = commandLine.getOptionValue(SCA_RESOLVER_ADD_PARAMETERS);
+        
+        pathToResolver = pathToResolver + File.separator + "ScaResolver";
+		if(!SystemUtils.IS_OS_UNIX)
+			pathToResolver = pathToResolver + ".exe";
+		
+        File file = new File(pathToResolver);
+        if(!file.exists())
+        {
+            throw new CLIParsingException("SCA Resolver path does not exist. Path="+file.getAbsolutePath());
+        }
+        String[] arguments = additionalParams.split(" ");
+        String dirPath;
+        for (int i = 0; i <  arguments.length ; i++) {
+            if (arguments[i].equals("-r")  || arguments[i].equals("-s") ) {
+                dirPath = arguments[i + 1];
+                if(dirPath.endsWith(File.separator)){
+                    dirPath = dirPath.substring(0,dirPath.length()-2);
+                }
+                File resultPath = new File(dirPath);
+                if(!resultPath.exists())
+                { 
+                    if(arguments[i].equals("-s") ) {
+                        throw new CLIParsingException("Source code path does not exist. " + resultPath.getAbsolutePath());
+                    }
+                }
+            }
+        }
+        return isValidParams;
     }
 
     private String getParamWithDefault(String commandLineKey, String fallbackProperty, boolean useConfigAsCode) {

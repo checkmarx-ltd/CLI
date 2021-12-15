@@ -15,6 +15,7 @@ public final class Parameters {
     public static final String CLI_CONFIG = "config";
     public static final String SERVER_URL = "cxserver";
     public static final String USER_NAME = "cxuser";
+    public static final String CUSTOM_FIELDS = "customfields";
     public static final String USER_PASSWORD = "cxpassword";
     public static final String GENERATETOKEN = "generatetoken";
     public static final String REVOKETOKEN = "revoketoken";
@@ -78,6 +79,10 @@ public final class Parameters {
     public static final String SCA_USERNAME = "scausername";
     public static final String SCA_PASSWORD = "scapassword";
     public static final String SCA_ACCOUNT = "scaaccount";
+	
+    public static final String ENABLE_SCA_RESOLVER = "enablescaresolver";
+	public static final String PATH_TO_RESOLVER = "pathtoresolver";
+    public static final String SCA_RESOLVER_ADD_PARAMETERS = "scaresolveraddparameters";
 
     public static final String SCA_HIGH = "scahigh";
     public static final String SCA_MEDIUM = "scamedium";
@@ -99,5 +104,6 @@ public final class Parameters {
     public static final String SAST_SERVER_URL = "cxsasturl";
     public static final String SAST_PASSWORD = "cxsastpass";
     public static final String SAST_USER = "cxsastuser";
+    public static final String SCA_TIMEOUT = "scatimeout";
 
 }
