@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.cx.plugin</groupId>
     <artifactId>CxConsolePlugin</artifactId>
-    <version>1.1.17-BOA</version>
+    <version>1.1.18-BOA</version>
     <packaging>jar</packaging>
 
     <repositories>
@@ -39,7 +39,7 @@
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
 
         <slf4j.version>1.7.32</slf4j.version>
-        <log4j2.version>2.15.0</log4j2.version>
+        <log4j2.version>2.17.0</log4j2.version>
     </properties>
 
     <organization>
