@@ -75,6 +75,7 @@ class ArgDescriptions {
     static final String OSA_FAIL_ON_ERROR = "Fails the execution in case of any error during the dependencies resolution process.";
     static final String OSA_FSA_CONF = "Comma separated list of FSA args, Example: 'npm.runPreStep,nuget.resolveDependencies' will override default values.";
     static final String OSA_ERR_LOG_DIR = "OSA error logs root path, if not provided will be stored at runtime directory.";
+    static final String OSA_SCAN_JSON = "OSA dependencies json to scan.";
     static final String SCA_JSON_REPORT = "Generates three CxSCA JSON reports. Saves the reports in the specified folder path, Optional. Not supported in AsyncScaScan/AsyncScan mode";
     static final String INSTALL_PACKAGE_MANAGER = "Retrieve all supported package dependencies before performing OSA scan (see Remarks section). Optional.";
     static final String DOCKER_IMAGE_PATTERN = "The docker images to be selected for scan";

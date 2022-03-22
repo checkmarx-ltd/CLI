@@ -46,6 +46,7 @@ public final class Parameters {
     public static final String OSA_FAIL_ON_ERROR = "osafailonerror";
     public static final String OSA_FSA_CONF = "osafsaconf";
     public static final String OSA_ERR_LOG_DIR = "osaerrorlogdir";
+    public static final String OSA_SCAN_JSON = "osascanjson";
     public static final String SCA_ENABLED = "enablesca";
     public static final String OSA_JSON_REPORT = "osajson";
     public static final String SCA_JSON_REPORT = "scajsondirpath";

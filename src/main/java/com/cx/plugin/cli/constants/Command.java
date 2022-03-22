@@ -115,6 +115,7 @@ public enum Command {
         options.addOption(OSA_FAIL_ON_ERROR, false, ArgDescriptions.OSA_FAIL_ON_ERROR);
         options.addOption(Option.builder(OSA_FSA_CONF).hasArg(true).hasArgs().argName("fsa configuration").desc(ArgDescriptions.OSA_FSA_CONF).valueSeparator(',').build());
         options.addOption(Option.builder(OSA_ERR_LOG_DIR).hasArg(true).hasArgs().argName("osa error log dir").desc(ArgDescriptions.OSA_ERR_LOG_DIR).build());
+        options.addOption(Option.builder(OSA_SCAN_JSON).hasArg(true).hasArgs().argName("osa scan json").desc(ArgDescriptions.OSA_SCAN_JSON).build());
 
         options.addOption(PDF_REPORT, true, ArgDescriptions.PDF_REPORT);
         options.addOption(XML_REPORT, true, ArgDescriptions.XML_REPORT);

@@ -39,8 +39,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.cx.plugin.cli.constants.Parameters.*;
-import static com.cx.plugin.cli.errorsconstants.ErrorMessages.INVALID_COMMAND_COUNT;
-import static com.cx.plugin.cli.errorsconstants.ErrorMessages.INVALID_COMMAND_ERROR;
+import static com.cx.plugin.cli.errorsconstants.ErrorMessages.*;
+import static com.cx.plugin.cli.utils.CxConfigHelper.EMPTY_JSON;
 
 /**
  * Created by idanA on 11/4/2018.
@@ -208,12 +208,17 @@ public class CxConsoleLauncher {
         return exitCode;
     }
 
-    private static void validateScanParameters(CxScanConfig cxScanConfig) throws CLIParsingException {
+    private static void validateScanParameters(CxScanConfig cxScanConfig) throws CLIParsingException, CxClientException {
         if (cxScanConfig == null)
             return;
 
-        if (cxScanConfig.isAstScaEnabled() && checkContainsSpecialChars(cxScanConfig.getProjectName(), SCA_PROJECT_NAME_INVALID_CHARS))
+        if (cxScanConfig.isOsaEnabled() && cxScanConfig.getOsaDependenciesJson().equals(EMPTY_JSON)) {
+            throw new CxClientException(OSA_NO_DEPENDENCIES_ERROR_MSG);
+        }
+
+        if (cxScanConfig.isAstScaEnabled() && checkContainsSpecialChars(cxScanConfig.getProjectName(), SCA_PROJECT_NAME_INVALID_CHARS)) {
             throw new CLIParsingException("[CxConsole] SCA project name cannot contain special characters.");
+        }
     }
 
     private static boolean checkContainsSpecialChars(String valueToCheck, String regex) {

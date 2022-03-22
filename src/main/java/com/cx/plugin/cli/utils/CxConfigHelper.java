@@ -22,28 +22,29 @@ import com.cx.restclient.dto.RemoteSourceTypes;
 import com.cx.restclient.dto.ScannerType;
 import com.cx.restclient.dto.SourceLocationType;
 import com.cx.restclient.sca.utils.CxSCAFileSystemUtils;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jgit.transport.URIish;
+import org.whitesource.agent.api.model.AgentProjectInfo;
 
 import javax.annotation.Nullable;
 import javax.naming.ConfigurationException;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -56,6 +57,8 @@ import static org.apache.commons.lang3.StringUtils.isNotEmpty;
  * Created by idanA on 11/5/2018.
  */
 public final class CxConfigHelper {
+
+    public static final String EMPTY_JSON = "EMPTY_JSON";
 
     private static final String CONFIG_AS_CODE_FILE_NAME = "cx.config";
     public static final String CONFIG_FILE_S_NOT_FOUND_OR_COULDN_T_BE_LOADED = "Config file %s not found or couldn't " +
@@ -398,7 +401,6 @@ public final class CxConfigHelper {
     }
 
     private void mapProjectConfiguration(Optional<ProjectConfig> project, CxScanConfig scanConfig, Map<String, String> overridesResults) throws CLIParsingException {
-
         String projectName = project.map(ProjectConfig::getFullPath).orElse(null);
 
         if ((command.equals(Command.SCA_SCAN)) || (command.equals(Command.ASYNC_SCA_SCAN))) {
@@ -408,7 +410,6 @@ public final class CxConfigHelper {
             scanConfig.setProjectName(extractProjectName(projectName, false));
             scanConfig.setTeamPath(extractTeamPath(projectName, false));
         }
-
 
         if (projectName != null)
             overridesResults.put("Project Name", projectName);
@@ -423,14 +424,10 @@ public final class CxConfigHelper {
     }
 
     private ConfigAsCode getConfigAsCodeFromFile(String filePath) throws ConfigurationException, IOException {
-
         com.checkmarx.configprovider.readers.FileReader reader = new FileReader(ResourceType.YAML, filePath);
 
         return getConfigAsCode(reader);
-
-
     }
-
 
     private URIish prepareRemoteUrl(String remoteSrcUrl, int remoteSrcPort) throws URISyntaxException {
         URIish urIish = new URIish(remoteSrcUrl);
@@ -497,6 +494,18 @@ public final class CxConfigHelper {
         scanConfig.setOsaRunInstall(commandLine.hasOption(INSTALL_PACKAGE_MANAGER));
         scanConfig.setOsaFailOnError(commandLine.hasOption(OSA_FAIL_ON_ERROR));
 
+        String osaJsonFile = commandLine.getOptionValue(OSA_SCAN_JSON);
+        if (StringUtils.isNotEmpty(osaJsonFile)) {
+            if (verifyOsaJson(osaJsonFile)) {
+                String json = getFileContent(new File(osaJsonFile));
+                scanConfig.setOsaDependenciesJson(json);
+                log.info("FSA resolver override SUCCESS, OSA dependencies json used: " + osaJsonFile);
+            } else {
+                log.error("FSA resolver override: FAILED, OSA dependencies json used: " + osaJsonFile);
+                scanConfig.setOsaDependenciesJson(EMPTY_JSON);
+            }
+        }
+
         String reportDir = commandLine.getOptionValue(OSA_JSON_REPORT);
         scanConfig.setReportsDir(reportDir != null ? new File(reportDir) : null);
         scanConfig.setOsaGenerateJsonReport(reportDir != null);
@@ -508,6 +517,31 @@ public final class CxConfigHelper {
         scanConfig.setOsaScanDepth(osaScanDepth);
     }
 
+    private boolean verifyOsaJson(String osaJsonFile) {
+        try {
+            File jsonFile = new File(osaJsonFile);
+            if (jsonFile.exists()) {
+                ObjectMapper jsonMapper = new ObjectMapper();
+                String json = getFileContent(jsonFile);
+                Collection<AgentProjectInfo> dependenciesObj = jsonMapper.readValue(json, jsonMapper.getTypeFactory().constructCollectionType(Collection.class, AgentProjectInfo.class));
+                if (dependenciesObj != null) {
+                    return true;
+                }
+            }
+        } catch (Exception e) {
+            log.error("Fail parse dependencies json file.");
+        }
+        return false;
+    }
+
+    private String getFileContent(File file) {
+        try {
+            return IOUtils.toString(file.toURI(), StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            log.error("Fail to get file content.");
+            return "";
+        }
+    }
 
     private void setScaSpecificConfig(CxScanConfig scanConfig) throws CLIParsingException {
         AstScaConfig sca = new AstScaConfig();
