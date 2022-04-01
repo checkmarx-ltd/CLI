@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.cx.plugin</groupId>
     <artifactId>CxConsolePlugin</artifactId>
-    <version>1.1.10</version>
+    <version>1.1.11</version>
     <packaging>jar</packaging>
 
     <repositories>
@@ -132,9 +132,17 @@
         <dependency>
             <groupId>com.checkmarx</groupId>
             <artifactId>cx-client-common</artifactId>
-            <version>2021.4.9</version>
+            <version>2022.1.10</version>
             <!-- Remove these excludes once latest FSA is used -->
            <exclusions>
+		   <exclusion>
+	     		<groupId>org.freemarker</groupId>
+				<artifactId>freemarker</artifactId>
+           	</exclusion>
+			<exclusion>
+	     		<groupId>com.github.junrar</groupId>
+				<artifactId>junrar</artifactId>
+           	</exclusion>
 	     	<exclusion>
 	     		<groupId>org.mozilla</groupId>
            		<artifactId>rhino</artifactId>
@@ -143,14 +151,57 @@
            		<groupId>io.vertx</groupId>
            		<artifactId>vertx-web</artifactId>
            	</exclusion>
-         
-               <exclusion>
-                   <groupId>ch.qos.logback</groupId>
-                   <artifactId>logback-classic</artifactId>
+            <exclusion>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+            </exclusion>
+			<exclusion>
+                   <groupId>io.netty</groupId>
+					<artifactId>netty-codec-http</artifactId>
                </exclusion>
+			   <exclusion>
+                   <groupId>com.fasterxml.jackson.core</groupId>
+					<artifactId>jackson-databind</artifactId>
+               </exclusion>
+			   <exclusion>
+                   <groupId>org.springframework</groupId>
+					<artifactId>spring-core</artifactId>
+               </exclusion>
+			   
 	      </exclusions>
         </dependency>
         <!-- excluded dependencies from cx-client-common -->
+		<dependency>
+			<groupId>com.github.junrar</groupId>
+			<artifactId>junrar</artifactId>
+			<version>7.4.1</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-api</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.freemarker</groupId>
+			<artifactId>freemarker</artifactId>
+			<version>2.3.31</version>
+		</dependency>
+		<dependency>
+			<groupId>io.netty</groupId>
+			<artifactId>netty-codec-http</artifactId>
+			<version>4.1.75.Final</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>2.13.2.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-core</artifactId>
+			<version>5.3.17</version>
+		</dependency>
         <dependency>
         	<groupId>org.mozilla</groupId>
            	<artifactId>rhino</artifactId>
@@ -224,11 +275,6 @@
             	<artifactId>log4j-slf4j-impl</artifactId>
 	     	</exclusion>	     		     	
 	     	</exclusions>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>2.10.5.1</version>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>
