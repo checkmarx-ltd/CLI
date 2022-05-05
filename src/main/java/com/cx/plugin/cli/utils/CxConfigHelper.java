@@ -16,7 +16,6 @@ import com.cx.plugin.cli.constants.Command;
 import com.cx.plugin.cli.constants.Parameters;
 import com.cx.plugin.cli.exceptions.BadOptionCombinationException;
 import com.cx.plugin.cli.exceptions.CLIParsingException;
-import com.cx.plugin.cli.utils.PropertiesManager;
 import com.cx.restclient.ast.dto.sca.AstScaConfig;
 import com.cx.restclient.configuration.CxScanConfig;
 import com.cx.restclient.dto.ProxyConfig;
@@ -24,31 +23,30 @@ import com.cx.restclient.dto.RemoteSourceTypes;
 import com.cx.restclient.dto.ScannerType;
 import com.cx.restclient.dto.SourceLocationType;
 import com.cx.restclient.sca.utils.CxSCAFileSystemUtils;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jgit.transport.URIish;
+import org.whitesource.agent.api.model.AgentProjectInfo;
 
 import javax.annotation.Nullable;
 import javax.naming.ConfigurationException;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -61,6 +59,8 @@ import static org.apache.commons.lang3.StringUtils.isNotEmpty;
  * Created by idanA on 11/5/2018.
  */
 public final class CxConfigHelper {
+
+    public static final String EMPTY_JSON = "EMPTY_JSON";
 
     private static final String CONFIG_AS_CODE_FILE_NAME = "cx.config";
     public static final String CONFIG_FILE_S_NOT_FOUND_OR_COULDN_T_BE_LOADED = "Config file %s not found or couldn't " +
@@ -129,8 +129,8 @@ public final class CxConfigHelper {
         }
 
         scanConfig.setEngineConfigurationName(cmd.getOptionValue(CONFIGURATION));
-        if(cmd.hasOption(CUSTOM_FIELDS)) {
-        scanConfig.setCustomFields(apiFormat(cmd.getOptionValue(CUSTOM_FIELDS)));
+        if (cmd.hasOption(CUSTOM_FIELDS)) {
+            scanConfig.setCustomFields(apiFormat(cmd.getOptionValue(CUSTOM_FIELDS)));
         }
         scanConfig.setUseSSOLogin(cmd.hasOption(IS_SSO));
         scanConfig.setDisableCertificateValidation(cmd.hasOption(TRUSTED_CERTIFICATES));
@@ -141,9 +141,9 @@ public final class CxConfigHelper {
             if ((command.equals(Command.SCA_SCAN)) || (command.equals(Command.ASYNC_SCA_SCAN))) {
                 scanConfig.setProjectName(extractProjectName(cmd.getOptionValue(FULL_PROJECT_PATH), true));
                 scanConfig.setTeamPath(extractTeamPath(cmd.getOptionValue(FULL_PROJECT_PATH), true));
-				if (cmd.hasOption(SCA_TIMEOUT)) {
-					scanConfig.setSCAScanTimeoutInMinutes(Integer.valueOf(cmd.getOptionValue(SCA_TIMEOUT)));
-				}
+                if (cmd.hasOption(SCA_TIMEOUT)) {
+                    scanConfig.setSCAScanTimeoutInMinutes(Integer.valueOf(cmd.getOptionValue(SCA_TIMEOUT)));
+                }
             } else {
                 scanConfig.setProjectName(extractProjectName(cmd.getOptionValue(FULL_PROJECT_PATH), false));
                 scanConfig.setTeamPath(extractTeamPath(cmd.getOptionValue(FULL_PROJECT_PATH), false));
@@ -180,16 +180,16 @@ public final class CxConfigHelper {
         return scanConfig;
     }
 
-    
+
     private String apiFormat(String customFields) {
-    	if(StringUtils.isNotEmpty(customFields)) {
-			customFields = customFields.replaceAll(":", "\":\"");
-			customFields = customFields.replaceAll(",", "\",\"");
-			customFields = "{\"".concat(customFields).concat("\"}");
-    	}
-    	return customFields;
-	}
-    
+        if (StringUtils.isNotEmpty(customFields)) {
+            customFields = customFields.replaceAll(":", "\":\"");
+            customFields = customFields.replaceAll(",", "\",\"");
+            customFields = "{\"".concat(customFields).concat("\"}");
+        }
+        return customFields;
+    }
+
     private void checkForConfigAsCode(CxScanConfig scanConfig) throws CLIParsingException, IOException, ConfigurationException {
         if (StringUtils.isNotEmpty(scanConfig.getRemoteSrcUrl()) && RemoteSourceTypes.GIT == scanConfig.getRemoteType()) {
             resolveConfigAsCodeFromRemote(scanConfig);
@@ -203,9 +203,9 @@ public final class CxConfigHelper {
     private void resolveConfigAsCodeLocal(CxScanConfig scanConfig) throws CLIParsingException, IOException, ConfigurationException {
         log.info("loading config file from local working directory ..");
 
-            ConfigAsCode configAsCodeFromFile = getConfigAsCodeFromFile(
-                    scanConfig.getSourceDir() + File.separator + ".checkmarx" + File.separator + CONFIG_AS_CODE_FILE_NAME);
-            overrideConfigAsCode(configAsCodeFromFile, scanConfig);
+        ConfigAsCode configAsCodeFromFile = getConfigAsCodeFromFile(
+                scanConfig.getSourceDir() + File.separator + ".checkmarx" + File.separator + CONFIG_AS_CODE_FILE_NAME);
+        overrideConfigAsCode(configAsCodeFromFile, scanConfig);
 
     }
 
@@ -249,7 +249,7 @@ public final class CxConfigHelper {
         configProvider.init(CX_ORIGIN, reader);
 
         if (!configProvider.hasAnyConfiguration(CX_ORIGIN))
-            throw new ConfigurationException(String.format(CONFIG_FILE_S_NOT_FOUND_OR_COULDN_T_BE_LOADED, ".checkmarx/"+CONFIG_AS_CODE_FILE_NAME));
+            throw new ConfigurationException(String.format(CONFIG_FILE_S_NOT_FOUND_OR_COULDN_T_BE_LOADED, ".checkmarx/" + CONFIG_AS_CODE_FILE_NAME));
 
 
         ConfigAsCode configAsCodeFromFile = new ConfigAsCode();
@@ -417,7 +417,6 @@ public final class CxConfigHelper {
     }
 
     private void mapProjectConfiguration(Optional<ProjectConfig> project, CxScanConfig scanConfig, Map<String, String> overridesResults) throws CLIParsingException {
-
         String projectName = project.map(ProjectConfig::getFullPath).orElse(null);
 
         if ((command.equals(Command.SCA_SCAN)) || (command.equals(Command.ASYNC_SCA_SCAN))) {
@@ -427,7 +426,6 @@ public final class CxConfigHelper {
             scanConfig.setProjectName(extractProjectName(projectName, false));
             scanConfig.setTeamPath(extractTeamPath(projectName, false));
         }
-
 
         if (projectName != null)
             overridesResults.put("Project Name", projectName);
@@ -442,14 +440,10 @@ public final class CxConfigHelper {
     }
 
     private ConfigAsCode getConfigAsCodeFromFile(String filePath) throws ConfigurationException, IOException {
-
         com.checkmarx.configprovider.readers.FileReader reader = new FileReader(ResourceType.YAML, filePath);
 
         return getConfigAsCode(reader);
-
-
     }
-
 
     private URIish prepareRemoteUrl(String remoteSrcUrl, int remoteSrcPort) throws URISyntaxException {
         URIish urIish = new URIish(remoteSrcUrl);
@@ -466,12 +460,39 @@ public final class CxConfigHelper {
         }
 
         if (scanConfig.isOsaEnabled()) {
+            setOSAEnv();
             setOsaSpecificConfig(scanConfig);
         } else if (scanConfig.isAstScaEnabled()) {
             setScaSpecificConfig(scanConfig);
         }
 
         setSharedDependencyScanConfig(scanConfig);
+    }
+
+    private void setOSAEnv() {
+        System.setProperty("FSA_ENRICH_ERR_LOGS", "true");
+
+        String[] fsaConfArr = commandLine.getOptionValues(OSA_FSA_CONF);
+        if (fsaConfArr != null && !Arrays.asList(fsaConfArr).isEmpty()) {
+            StringBuilder sb = new StringBuilder();
+            String prefix = "";
+            for (String arg : fsaConfArr) {
+                arg = arg.trim();
+                if (StringUtils.isNotEmpty(arg)) {
+                    sb.append(prefix + arg);
+                    prefix = ";";
+                }
+            }
+            String fsaConf = sb.toString().trim();
+            if (StringUtils.isNotEmpty(fsaConf)) {
+                System.setProperty("FSA_CONFIGURATION", fsaConf);
+            }
+        }
+
+        String errLogDir = commandLine.getOptionValue(OSA_ERR_LOG_DIR);
+        if (StringUtils.isNotEmpty(errLogDir)) {
+            System.setProperty("FSA_ERR_LOGS_PATH", errLogDir);
+        }
     }
 
     private String getRelevantCommand() {
@@ -487,6 +508,19 @@ public final class CxConfigHelper {
 
     private void setOsaSpecificConfig(CxScanConfig scanConfig) {
         scanConfig.setOsaRunInstall(commandLine.hasOption(INSTALL_PACKAGE_MANAGER));
+        scanConfig.setOsaFailOnError(commandLine.hasOption(OSA_FAIL_ON_ERROR));
+
+        String osaJsonFile = commandLine.getOptionValue(OSA_SCAN_JSON);
+        if (StringUtils.isNotEmpty(osaJsonFile)) {
+            if (verifyOsaJson(osaJsonFile)) {
+                String json = getFileContent(new File(osaJsonFile));
+                scanConfig.setOsaDependenciesJson(json);
+                log.info("FSA resolver override SUCCESS, OSA dependencies json used: " + osaJsonFile);
+            } else {
+                log.error("FSA resolver override: FAILED, OSA dependencies json used: " + osaJsonFile);
+                scanConfig.setOsaDependenciesJson(EMPTY_JSON);
+            }
+        }
 
         String reportDir = commandLine.getOptionValue(OSA_JSON_REPORT);
         scanConfig.setReportsDir(reportDir != null ? new File(reportDir) : null);
@@ -499,6 +533,31 @@ public final class CxConfigHelper {
         scanConfig.setOsaScanDepth(osaScanDepth);
     }
 
+    private boolean verifyOsaJson(String osaJsonFile) {
+        try {
+            File jsonFile = new File(osaJsonFile);
+            if (jsonFile.exists()) {
+                ObjectMapper jsonMapper = new ObjectMapper();
+                String json = getFileContent(jsonFile);
+                Collection<AgentProjectInfo> dependenciesObj = jsonMapper.readValue(json, jsonMapper.getTypeFactory().constructCollectionType(Collection.class, AgentProjectInfo.class));
+                if (dependenciesObj != null) {
+                    return true;
+                }
+            }
+        } catch (Exception e) {
+            log.error("Fail parse dependencies json file.");
+        }
+        return false;
+    }
+
+    private String getFileContent(File file) {
+        try {
+            return IOUtils.toString(file.toURI(), StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            log.error("Fail to get file content.");
+            return "";
+        }
+    }
 
     private void setScaSpecificConfig(CxScanConfig scanConfig) throws CLIParsingException {
         AstScaConfig sca = new AstScaConfig();
@@ -513,29 +572,28 @@ public final class CxConfigHelper {
         sca.setWebAppUrl(webAppUrl);
 
         String envVariables = getOptionalParam(ENV_VARIABLE, "");
-        if(StringUtils.isNotEmpty(envVariables))
-        {
+        if (StringUtils.isNotEmpty(envVariables)) {
             sca.setEnvVariables(CxSCAFileSystemUtils.convertStringToKeyValueMap(envVariables));
         }
         String configFilePaths = getOptionalParam(SCA_CONFIG_FILE, "");
-		if (StringUtils.isNotEmpty(configFilePaths)) {
-			sca.setConfigFilePaths(Arrays.asList(configFilePaths.split("\\s*,\\s*")));
-		}
+        if (StringUtils.isNotEmpty(configFilePaths)) {
+            sca.setConfigFilePaths(Arrays.asList(configFilePaths.split("\\s*,\\s*")));
+        }
         configureScaWithSastDetails(sca);
-        
-		if (commandLine.hasOption(SCA_INCLUDE_SOURCE_FLAG)) {
-			sca.setIncludeSources(true);
-		}
-		
-		if (commandLine.hasOption(ENABLE_SCA_RESOLVER)) {
-			sca.setEnableScaResolver(true);
+
+        if (commandLine.hasOption(SCA_INCLUDE_SOURCE_FLAG)) {
+            sca.setIncludeSources(true);
+        }
+
+        if (commandLine.hasOption(ENABLE_SCA_RESOLVER)) {
+            sca.setEnableScaResolver(true);
             String pathToResolver = getRequiredParam(commandLine, PATH_TO_RESOLVER, null);
             String additionalParams = getRequiredParam(commandLine, SCA_RESOLVER_ADD_PARAMETERS, null);
             validateSCAResolverParams();
             sca.setPathToScaResolver(pathToResolver);
             sca.setScaResolverAddParameters(additionalParams);
 
-		}
+        }
 
         sca.setUsername(getRequiredParam(commandLine, SCA_USERNAME, null));
         sca.setPassword(getRequiredParam(commandLine, SCA_PASSWORD, null));
@@ -561,77 +619,76 @@ public final class CxConfigHelper {
                 throw new CLIParsingException(reportDir + " directory doesn't exist.");
             }
         }
+
         scanConfig.setAstScaConfig(sca);
     }
 
-	private void configureScaWithSastDetails(AstScaConfig sca) throws CLIParsingException 
-	{
-	    //We are in SCA function whether SCA alone or with SAST scan, start with SCA specific SAST params
-		String serverURL = getOptionalParam(SAST_SERVER_URL, "");
-		String user = 		getOptionalParam(SAST_USER, "");
-		String password 	= getOptionalParam(SAST_PASSWORD, "");
-		String projectId 	= getOptionalParam(SAST_PROJECT_ID, "");
-		String projectName 	= getOptionalParam(SAST_PROJECT_NAME, "");
+    private void configureScaWithSastDetails(AstScaConfig sca) throws CLIParsingException {
+        //We are in SCA function whether SCA alone or with SAST scan, start with SCA specific SAST params
+        String serverURL = getOptionalParam(SAST_SERVER_URL, "");
+        String user = getOptionalParam(SAST_USER, "");
+        String password = getOptionalParam(SAST_PASSWORD, "");
+        String projectId = getOptionalParam(SAST_PROJECT_ID, "");
+        String projectName = getOptionalParam(SAST_PROJECT_NAME, "");
 
 
-		//SCA alone scan
-		if ((!commandLine.hasOption(SCA_ENABLED))) {
-			if (exploitablePathParamsIncomplete(serverURL, user, password, projectId, projectName)) {
-				if (!exploitablePathParamsEmpty(serverURL, user, password, projectId, projectName))
-					throw new CLIParsingException(
-							"[CxConsole] For SCA exploitable path, CxSAST server details like url, user, password and full project path or project id are required. Received partial parameters.");
-			}
-			// set the SCA Params after the above validation is done for only
-			// SCA
-			else {
-				prepareExpPathScaConfig(sca, serverURL, user, password, projectId, projectName);
-			}
-		}
-			//SCA with SAST
-	    else if (exploitablePathParamsEmpty(serverURL, user, password, projectId, projectName) || exploitablePathParamsIncomplete(serverURL,user,password,projectId,projectName)) {
-			// assign SAST values to scaconfig
-			prepareExpPathScaConfig(sca, getOptionalParam(SERVER_URL, ""), getOptionalParam(USER_NAME, ""),
-					getOptionalParam(USER_PASSWORD, ""), "", commandLine.getOptionValue(FULL_PROJECT_PATH));
-			if (StringUtils.isNotEmpty(projectId)) {
-				// override SCA's SAST project ID
-				sca.setSastProjectId(projectId);
-			}
-			if (StringUtils.isNotEmpty(projectName)) {
-				// override SCA's SAST project Name
-				sca.setSastProjectName(projectName);
-			}
-		} else {
-			prepareExpPathScaConfig(sca, serverURL, user, password, projectId, projectName);
-		}
-	}
+        //SCA alone scan
+        if ((!commandLine.hasOption(SCA_ENABLED))) {
+            if (exploitablePathParamsIncomplete(serverURL, user, password, projectId, projectName)) {
+                if (!exploitablePathParamsEmpty(serverURL, user, password, projectId, projectName))
+                    throw new CLIParsingException(
+                            "[CxConsole] For SCA exploitable path, CxSAST server details like url, user, password and full project path or project id are required. Received partial parameters.");
+            }
+            // set the SCA Params after the above validation is done for only
+            // SCA
+            else {
+                prepareExpPathScaConfig(sca, serverURL, user, password, projectId, projectName);
+            }
+        }
+        //SCA with SAST
+        else if (exploitablePathParamsEmpty(serverURL, user, password, projectId, projectName) || exploitablePathParamsIncomplete(serverURL, user, password, projectId, projectName)) {
+            // assign SAST values to scaconfig
+            prepareExpPathScaConfig(sca, getOptionalParam(SERVER_URL, ""), getOptionalParam(USER_NAME, ""),
+                    getOptionalParam(USER_PASSWORD, ""), "", commandLine.getOptionValue(FULL_PROJECT_PATH));
+            if (StringUtils.isNotEmpty(projectId)) {
+                // override SCA's SAST project ID
+                sca.setSastProjectId(projectId);
+            }
+            if (StringUtils.isNotEmpty(projectName)) {
+                // override SCA's SAST project Name
+                sca.setSastProjectName(projectName);
+            }
+        } else {
+            prepareExpPathScaConfig(sca, serverURL, user, password, projectId, projectName);
+        }
+    }
 
-	private void prepareExpPathScaConfig(AstScaConfig sca, String serverURL, String user, String password,
-			String projectId, String projectName) {
-		sca.setSastServerUrl(serverURL);
-		sca.setSastUsername(user);
-		sca.setSastPassword(password);
-		sca.setSastProjectName(projectName);
-		sca.setSastProjectId(projectId);
+    private void prepareExpPathScaConfig(AstScaConfig sca, String serverURL, String user, String password,
+                                         String projectId, String projectName) {
+        sca.setSastServerUrl(serverURL);
+        sca.setSastUsername(user);
+        sca.setSastPassword(password);
+        sca.setSastProjectName(projectName);
+        sca.setSastProjectId(projectId);
 
-	}
+    }
 
-	private boolean exploitablePathParamsEmpty(String serverURL, String user, String password, String projectId,
-			String projectName) {
-		return StringUtils.isEmpty(serverURL) && StringUtils.isEmpty(user) && StringUtils.isEmpty(password)
-				&& (StringUtils.isEmpty(projectId) && StringUtils.isEmpty(projectName)) ? true : false;
+    private boolean exploitablePathParamsEmpty(String serverURL, String user, String password, String projectId,
+                                               String projectName) {
+        return StringUtils.isEmpty(serverURL) && StringUtils.isEmpty(user) && StringUtils.isEmpty(password)
+                && (StringUtils.isEmpty(projectId) && StringUtils.isEmpty(projectName)) ? true : false;
+    }
 
-	}
-
-	private boolean exploitablePathParamsIncomplete(String serverURL, String user, String password, String projectId,
-			String projectName) {
-		boolean partialParams = false;
-		partialParams = StringUtils.isNotEmpty(serverURL) && !partialParams ? false : true;
-		partialParams = StringUtils.isNotEmpty(user) && !partialParams ? false : true;
-		partialParams = StringUtils.isNotEmpty(password) && !partialParams ? false : true;
-		partialParams = (StringUtils.isNotEmpty(projectId) || StringUtils.isNotEmpty(projectName)) && !partialParams
-				? false : true;
-		return partialParams;
-	}
+    private boolean exploitablePathParamsIncomplete(String serverURL, String user, String password, String projectId,
+                                                    String projectName) {
+        boolean partialParams = false;
+        partialParams = StringUtils.isNotEmpty(serverURL) && !partialParams ? false : true;
+        partialParams = StringUtils.isNotEmpty(user) && !partialParams ? false : true;
+        partialParams = StringUtils.isNotEmpty(password) && !partialParams ? false : true;
+        partialParams = (StringUtils.isNotEmpty(projectId) || StringUtils.isNotEmpty(projectName)) && !partialParams
+                ? false : true;
+        return partialParams;
+    }
 
     private void setSharedDependencyScanConfig(CxScanConfig scanConfig) {
         setDependencyScanThresholds(scanConfig);
@@ -842,11 +899,11 @@ public final class CxConfigHelper {
             throw new CLIParsingException("[CxConsole] No project path was specified");
         }
         int lastIdx = getLastIndexOfTeam(fullPath, isScaScan);
-        if(lastIdx == -1)
-        	return "";
+        if (lastIdx == -1)
+            return "";
         else
-        	return fullPath.substring(0, lastIdx);
-        
+            return fullPath.substring(0, lastIdx);
+
     }
 
     public static void printConfig(CommandLine commandLine) {
@@ -898,36 +955,35 @@ public final class CxConfigHelper {
 
     /**
      * This method validates SCA Resolver flow parameters
+     *
      * @return
      * @throws CLIParsingException
      */
-    private boolean  validateSCAResolverParams()throws CLIParsingException {
+    private boolean validateSCAResolverParams() throws CLIParsingException {
         boolean isValidParams = true;
 
         String pathToResolver = commandLine.getOptionValue(PATH_TO_RESOLVER);
         String additionalParams = commandLine.getOptionValue(SCA_RESOLVER_ADD_PARAMETERS);
-        
+
         pathToResolver = pathToResolver + File.separator + "ScaResolver";
-		if(!SystemUtils.IS_OS_UNIX)
-			pathToResolver = pathToResolver + ".exe";
-		
+        if (!SystemUtils.IS_OS_UNIX)
+            pathToResolver = pathToResolver + ".exe";
+
         File file = new File(pathToResolver);
-        if(!file.exists())
-        {
-            throw new CLIParsingException("SCA Resolver path does not exist. Path="+file.getAbsolutePath());
+        if (!file.exists()) {
+            throw new CLIParsingException("SCA Resolver path does not exist. Path=" + file.getAbsolutePath());
         }
         String[] arguments = additionalParams.split(" ");
         String dirPath;
-        for (int i = 0; i <  arguments.length ; i++) {
-            if (arguments[i].equals("-r")  || arguments[i].equals("-s") ) {
+        for (int i = 0; i < arguments.length; i++) {
+            if (arguments[i].equals("-r") || arguments[i].equals("-s")) {
                 dirPath = arguments[i + 1];
-                if(dirPath.endsWith(File.separator)){
-                    dirPath = dirPath.substring(0,dirPath.length()-2);
+                if (dirPath.endsWith(File.separator)) {
+                    dirPath = dirPath.substring(0, dirPath.length() - 2);
                 }
                 File resultPath = new File(dirPath);
-                if(!resultPath.exists())
-                { 
-                    if(arguments[i].equals("-s") ) {
+                if (!resultPath.exists()) {
+                    if (arguments[i].equals("-s")) {
                         throw new CLIParsingException("Source code path does not exist. " + resultPath.getAbsolutePath());
                     }
                 }
