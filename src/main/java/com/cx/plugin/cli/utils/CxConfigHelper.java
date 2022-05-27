@@ -330,7 +330,8 @@ public final class CxConfigHelper {
                     scanConfig.setOsaLowThreshold(pValue);
                     overridesResults.put("Sca Low", String.valueOf(pValue));
                 });
-
+        
+        
         //build include/exclude file pattern
         if (!fileExclude.get().isEmpty() || !fileInclude.get().isEmpty())
             setDependencyScanFilterPattern(scanConfig, fileInclude.get(), fileExclude.get());
@@ -414,6 +415,13 @@ public final class CxConfigHelper {
                     scanConfig.setSastFilterPattern(pValue);
                     overridesResults.put("Include/Exclude pattern", pValue);
                 });
+        
+        
+        sast.map(SastConfig::isOverrideProjectSetting)
+        .ifPresent(pValue -> {
+            scanConfig.setIsOverrideProjectSetting(pValue);
+            overridesResults.put("Is Overridable", String.valueOf(pValue));
+        });
     }
 
     private void mapProjectConfiguration(Optional<ProjectConfig> project, CxScanConfig scanConfig, Map<String, String> overridesResults) throws CLIParsingException {
