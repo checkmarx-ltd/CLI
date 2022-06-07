@@ -171,6 +171,10 @@
                     <groupId>org.springframework</groupId>
                     <artifactId>spring-core</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>net.lingala.zip4j</groupId>
+    				<artifactId>zip4j</artifactId>
+                </exclusion>
 
             </exclusions>
         </dependency>
@@ -194,7 +198,7 @@
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-codec-http</artifactId>
-            <version>4.1.75.Final</version>
+            <version>4.1.77.Final</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -233,8 +237,14 @@
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-codec</artifactId>
-            <version>4.1.75.Final</version>
+            <version>4.1.77.Final</version>
         </dependency>
+        <dependency>
+    		<groupId>net.lingala.zip4j</groupId>
+    		<artifactId>zip4j</artifactId>
+    		<version>2.10.0</version>
+		</dependency>
+        
         <!-- end of excluded dependencies -->
         <dependency>
             <groupId>commons-cli</groupId>
