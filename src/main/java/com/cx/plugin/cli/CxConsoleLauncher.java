@@ -13,14 +13,7 @@ import com.cx.restclient.dto.ScanResults;
 import com.cx.restclient.dto.ScannerType;
 import com.cx.restclient.dto.scansummary.ScanSummary;
 import com.cx.restclient.exception.CxClientException;
-
-
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.*;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -37,15 +30,14 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.cx.plugin.cli.constants.Parameters.*;
-import static com.cx.plugin.cli.errorsconstants.ErrorMessages.INVALID_COMMAND_COUNT;
-import static com.cx.plugin.cli.errorsconstants.ErrorMessages.INVALID_COMMAND_ERROR;
+import static com.cx.plugin.cli.errorsconstants.ErrorMessages.*;
+import static com.cx.plugin.cli.utils.CxConfigHelper.EMPTY_JSON;
 
 /**
  * Created by idanA on 11/4/2018.
@@ -92,6 +84,7 @@ public class CxConsoleLauncher {
             log.error(String.format("%n%n[CxConsole] Error parsing command: %n%s%n%n", e));
             exitCode = ErrorParsingHelper.parseError(e.getMessage());
         } catch (CxClientException | IOException | InterruptedException e) {
+            log.error("CLI process terminated, error: " + e.getMessage());
             exitCode = ErrorParsingHelper.parseError(e.getMessage());
         }
 
@@ -212,12 +205,19 @@ public class CxConsoleLauncher {
         return exitCode;
     }
 
-    private static void validateScanParameters(CxScanConfig cxScanConfig) throws CLIParsingException {
+    private static void validateScanParameters(CxScanConfig cxScanConfig) throws CLIParsingException, CxClientException {
         if (cxScanConfig == null)
             return;
 
-        if (cxScanConfig.isAstScaEnabled() && checkContainsSpecialChars(cxScanConfig.getProjectName(), SCA_PROJECT_NAME_INVALID_CHARS))
+        if (cxScanConfig.isOsaEnabled() &&
+                cxScanConfig.getOsaDependenciesJson() != null &&
+                cxScanConfig.getOsaDependenciesJson().equals(EMPTY_JSON)) {
+            throw new CxClientException(OSA_NO_DEPENDENCIES_ERROR_MSG);
+        }
+
+        if (cxScanConfig.isAstScaEnabled() && checkContainsSpecialChars(cxScanConfig.getProjectName(), SCA_PROJECT_NAME_INVALID_CHARS)) {
             throw new CLIParsingException("[CxConsole] SCA project name cannot contain special characters.");
+        }
     }
 
     private static boolean checkContainsSpecialChars(String valueToCheck, String regex) {
@@ -284,20 +284,20 @@ public class CxConsoleLauncher {
     private static String[] convertParamToLowerCase(String[] args) {
         return Arrays
                 .stream(args)
-                .map(arg -> arg.startsWith("-") && isCliCmdOption(arg)? arg.toLowerCase() : arg)
+                .map(arg -> arg.startsWith("-") && isCliCmdOption(arg) ? arg.toLowerCase() : arg)
                 .toArray(String[]::new);
     }
 
     private static boolean isCliCmdOption(String argName) {
-    	
-    	Option argfound = Command.getOptions().getOption(argName.toLowerCase());    	
-    	if(argfound != null && !StringUtils.isEmpty(argfound.getOpt().toString()))
-    		return true;
-    	else
-    		return false;    		    	
+
+        Option argfound = Command.getOptions().getOption(argName.toLowerCase());
+        if (argfound != null && !StringUtils.isEmpty(argfound.getOpt().toString()))
+            return true;
+        else
+            return false;
     }
-    
-    
+
+
     private static void initFileLogging(String logLocation, String logLevel) {
         System.setProperty("cliLogPath", logLocation);
         System.setProperty("logLevel", logLevel);
