@@ -932,7 +932,18 @@ public final class CxConfigHelper {
                 value = param.getValue();
                 log.debug("{}: {}", name, value);
                 value = DigestUtils.sha256Hex(param.getValue());
-            } else if (param.hasArg()) {
+            } else if (param.getOpt().equalsIgnoreCase(LOCATION_URL)) {
+            	String value1 = param.getValue();
+            	String[] arrOfStr = value1.split("@"); 
+            	value = "";
+            	for (int i = 0; i < arrOfStr[0].length(); i++) {
+					value+="*";
+				}
+            	value+="@";
+            	value+=arrOfStr[1];
+            	
+            } 
+            else if (param.hasArg()) {
                 value = param.getValue();
             } else {
                 value = "true";

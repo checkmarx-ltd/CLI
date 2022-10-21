@@ -1,0 +1,27 @@
+# Gradle
+# Build your Java project and run tests with Gradle using a Gradle wrapper script.
+# Add steps that analyze code, save build artifacts, deploy, and more :
+# https://docs.microsoft.com/azure/devops/pipelines/languages/java
+
+
+trigger:
+  batch: true
+  branches:
+    include:
+    - master
+
+pr: none
+
+pool: 
+  name: 'Jenkins'
+  vmImage: 'jenkins-agent'
+
+steps:
+- task: JenkinsQueueJob@2
+  inputs:
+    serverEndpoint: 'Jenkins'
+    jobName: 'Plugin-CLI_LTD_ByCommit'
+    captureConsole: true
+    capturePipeline: true
+    isParameterizedJob: true
+    jobParameters: Commit=$(Build.SourceVersion)
