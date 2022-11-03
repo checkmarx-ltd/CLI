@@ -13,8 +13,9 @@ class UsageExamples {
             " -locationurl http://vsts2003:8080 -locationuser dm\\matys -locationpassword XYZ -preset default -reportxml a.xml -reportpdf b.pdf" +
             " -incremental -forcescan\nCxConsole Scan -projectname SP\\Cx\\Engine\\AST -cxserver http://localhost -cxuser admin@cx -cxpassword admin -locationtype share" +
             " -locationpath '\\\\storage\\path1;\\\\storage\\path2' -locationuser dm\\matys -locationpassword XYZ -preset \"Sans 25\" -reportxls a.xls -reportpdf b.pdf -private -verbose -log a.log\n" +
-            " -LocationPathExclude test*, *log* -LocationFilesExclude web.config , *.class\n";
-
+            " -LocationPathExclude test*, *log* -LocationFilesExclude web.config , *.class\n" + 
+            "-periodicfullscan number like 4,5,etc";
+    
     static final String TOKEN_GEN = "runCxConsole.cmd GenerateToken -CxServer http://localhost -cxuser admin@company -cxpassword admin -v";
 
     static final String TOKEN_REVOKE = "runCxConsole.cmd RevokeToken -CxToken 1241513513tsfrg42 -CxServer http://localhost -v";

@@ -22,9 +22,10 @@ public class SastConfig {
     @Optional
     private int high;
     @Optional
-    private boolean isOverrideProjectSetting;
-
-
+    private boolean isOverrideProjectSetting;    
+    @Optional
+    private int periodicFullScan;
+    
     public SastConfig() {
     }
 
@@ -108,6 +109,12 @@ public class SastConfig {
 		this.isOverrideProjectSetting = isOverrideProjectSetting;
 	}
 
+	public int getPeriodicFullScan() {
+		return this.periodicFullScan;
+	}
 
+	public void setPeriodicFullScan(Integer periodicFullScan) {
+		this.periodicFullScan = periodicFullScan;
+	}
     
 }
