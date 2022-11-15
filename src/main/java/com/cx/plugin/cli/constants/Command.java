@@ -172,6 +172,8 @@ public enum Command {
         options.addOption(SCA_CONFIG_FILE, true, ArgDescriptions.SCA_CONFIG_FILE);
         options.addOption(SCA_INCLUDE_SOURCE_FLAG, false, ArgDescriptions.SCA_INCLUDE_SOURCE_FLAG);
         options.addOption(SCA_TIMEOUT, true, ArgDescriptions.SCA_TIME_OUT);
+        options.addOption(ENABLE_SAST_BRANCHING, false, ArgDescriptions.ENABLE_SAST_BRANCHING);
+        options.addOption(MASTER_BRANCH_PROJ_NAME, true, ArgDescriptions.MASTER_BRANCH_PROJ_NAME);
 
         return options;
     }

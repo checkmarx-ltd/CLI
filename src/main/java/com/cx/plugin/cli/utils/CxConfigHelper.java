@@ -160,6 +160,10 @@ public final class CxConfigHelper {
         setScanReports(scanConfig);
         scanConfig.setIncremental(cmd.hasOption(IS_INCREMENTAL));
         scanConfig.setForceScan(cmd.hasOption(IS_FORCE_SCAN));
+        boolean val = cmd.hasOption(ENABLE_SAST_BRANCHING);
+        scanConfig.setEnableSASTBranching(cmd.hasOption(ENABLE_SAST_BRANCHING));
+        String str = cmd.getOptionValue(MASTER_BRANCH_PROJ_NAME);
+        scanConfig.setMasterBranchProjName(cmd.getOptionValue(MASTER_BRANCH_PROJ_NAME));
         setSASTThresholds(scanConfig);
 
         String dsLocationPath = getSharedDependencyScanOption(scanConfig, OSA_LOCATION_PATH, SCA_LOCATION_PATH);
@@ -421,6 +425,18 @@ public final class CxConfigHelper {
         .ifPresent(pValue -> {
             scanConfig.setIsOverrideProjectSetting(pValue);
             overridesResults.put("Is Overridable", String.valueOf(pValue));
+        });
+        
+        sast.map(SastConfig::isEnableSASTBranching)
+        .ifPresent(pValue -> {
+            scanConfig.setEnableSASTBranching(pValue);
+            overridesResults.put("Enable SAST Branching", String.valueOf(pValue));
+        });
+        
+        sast.map(SastConfig::getMasterBranchProjName)
+        .ifPresent(pValue -> {
+            scanConfig.setMasterBranchProjName(pValue);
+            overridesResults.put("Master Branch Project Name", String.valueOf(pValue));
         });
     }
 
