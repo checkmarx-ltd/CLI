@@ -159,11 +159,16 @@ public final class CxConfigHelper {
         scanConfig.setScanComment(cmd.getOptionValue(SCAN_COMMENT));
         setScanReports(scanConfig);
         scanConfig.setIncremental(cmd.hasOption(IS_INCREMENTAL));
-        scanConfig.setForceScan(cmd.hasOption(IS_FORCE_SCAN));
-        boolean val = cmd.hasOption(ENABLE_SAST_BRANCHING);
+        scanConfig.setForceScan(cmd.hasOption(IS_FORCE_SCAN));        
         scanConfig.setEnableSASTBranching(cmd.hasOption(ENABLE_SAST_BRANCHING));
-        String str = cmd.getOptionValue(MASTER_BRANCH_PROJ_NAME);
-        scanConfig.setMasterBranchProjName(cmd.getOptionValue(MASTER_BRANCH_PROJ_NAME));
+        if(cmd.hasOption(ENABLE_SAST_BRANCHING)) {
+        	if (!cmd.hasOption(MASTER_BRANCH_PROJ_NAME)) {
+        		getRequiredParam(cmd, MASTER_BRANCH_PROJ_NAME, null);	
+        	}        
+        	else {
+        			scanConfig.setMasterBranchProjName(cmd.getOptionValue(MASTER_BRANCH_PROJ_NAME));    	
+        			}
+        }
         setSASTThresholds(scanConfig);
 
         String dsLocationPath = getSharedDependencyScanOption(scanConfig, OSA_LOCATION_PATH, SCA_LOCATION_PATH);
