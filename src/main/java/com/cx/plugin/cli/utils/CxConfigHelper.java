@@ -97,7 +97,15 @@ public final class CxConfigHelper {
             return scanConfig;
         }
 
-        scanConfig.setProxyConfig(genProxyConfig());
+        ProxyConfig proxyConfig = genProxyConfig();
+        if (proxyConfig != null) {
+            scanConfig.setProxy(true);
+            scanConfig.setScaProxy(true);
+            scanConfig.setProxyConfig(proxyConfig);
+            scanConfig.setScaProxyConfig(proxyConfig);
+            log.info("Proxy configuration have been provided");
+        }
+
         scanConfig.setNTLM(cmd.hasOption(NTLM));
 
         if (command.equals(Command.SCAN) || command.equals(Command.ASYNC_SCAN)) {
@@ -330,8 +338,7 @@ public final class CxConfigHelper {
                     scanConfig.setOsaLowThreshold(pValue);
                     overridesResults.put("Sca Low", String.valueOf(pValue));
                 });
-        
-        
+
         //build include/exclude file pattern
         if (!fileExclude.get().isEmpty() || !fileInclude.get().isEmpty())
             setDependencyScanFilterPattern(scanConfig, fileInclude.get(), fileExclude.get());
@@ -415,13 +422,12 @@ public final class CxConfigHelper {
                     scanConfig.setSastFilterPattern(pValue);
                     overridesResults.put("Include/Exclude pattern", pValue);
                 });
-        
-        
+
         sast.map(SastConfig::isOverrideProjectSetting)
-        .ifPresent(pValue -> {
-            scanConfig.setIsOverrideProjectSetting(pValue);
-            overridesResults.put("Is Overridable", String.valueOf(pValue));
-        });
+                .ifPresent(pValue -> {
+                    scanConfig.setIsOverrideProjectSetting(pValue);
+                    overridesResults.put("Is Overridable", String.valueOf(pValue));
+                });
     }
 
     private void mapProjectConfiguration(Optional<ProjectConfig> project, CxScanConfig scanConfig, Map<String, String> overridesResults) throws CLIParsingException {
@@ -1042,16 +1048,21 @@ public final class CxConfigHelper {
         return rawValue.startsWith("http") ? rawValue : "http://" + rawValue;
     }
 
-    private ProxyConfig genProxyConfig() {
-        final String HTTP_HOST = System.getProperty("http.proxyHost");
-        final String HTTP_PORT = System.getProperty("http.proxyPort");
-        final String HTTP_USERNAME = System.getProperty("http.proxyUser");
-        final String HTTP_PASSWORD = System.getProperty("http.proxyPassword");
+    private String getVariable(String var) {
+        String value = StringUtils.isNotEmpty(System.getenv(var)) ? System.getenv(var) : System.getProperty(var);
+        return StringUtils.isNotEmpty(value) ? value.trim() : null;
+    }
 
-        final String HTTPS_HOST = System.getProperty("https.proxyHost");
-        final String HTTPS_PORT = System.getProperty("https.proxyPort");
-        final String HTTPS_USERNAME = System.getProperty("https.proxyUser");
-        final String HTTPS_PASSWORD = System.getProperty("https.proxyPassword");
+    private ProxyConfig genProxyConfig() {
+        final String HTTP_HOST = getVariable("http.proxyHost");
+        final String HTTP_PORT = getVariable("http.proxyPort");
+        final String HTTP_USERNAME = getVariable("http.proxyUser");
+        final String HTTP_PASSWORD = getVariable("http.proxyPassword");
+
+        final String HTTPS_HOST = getVariable("https.proxyHost");
+        final String HTTPS_PORT = getVariable("https.proxyPort");
+        final String HTTPS_USERNAME = getVariable("https.proxyUser");
+        final String HTTPS_PASSWORD = getVariable("https.proxyPassword");
 
         ProxyConfig proxyConfig = null;
         try {
