@@ -170,9 +170,8 @@ public final class CxConfigHelper {
         	}
         			else {
         	        	String periodicFullScan = cmd.getOptionValue(PERIODIC_FULL_SCAN);
-        	        	this.fullScanCycle = Integer.valueOf(periodicFullScan);
-        	            scanConfig.setPeriodicFullScan(this.fullScanCycle);            
-        	            boolean isIncremental = isThisBuildIncremental(this.fullScanCycle, cmd);            
+        	        	this.fullScanCycle = Integer.valueOf(periodicFullScan);        	                       
+        	            boolean isIncremental = isThisBuildIncremental();            
         	            scanConfig.setIncremental(isIncremental);
         	        }
         }
@@ -440,11 +439,6 @@ public final class CxConfigHelper {
             overridesResults.put("Is Overridable", String.valueOf(pValue));
         });
         
-        sast.map(SastConfig::getPeriodicFullScan)
-        .ifPresent(pValue -> {
-            scanConfig.setPeriodicFullScan(pValue);
-            overridesResults.put("Periodic Full Scan", String.valueOf(pValue));
-        });
     }
 
     private void mapProjectConfiguration(Optional<ProjectConfig> project, CxScanConfig scanConfig, Map<String, String> overridesResults) throws CLIParsingException {
@@ -1117,21 +1111,17 @@ public final class CxConfigHelper {
         }
         return false;
     }
-    private boolean isThisBuildIncremental(int periodicFullScan, CommandLine cmd) {    	
-        boolean askedForIncremental = cmd.hasOption(IS_INCREMENTAL);                
+    
+    //function to test whether build will be incremental or full scan
+    private boolean isThisBuildIncremental() {
         int buildNumber = 0;
         Map<String, String> env = System.getenv();
         for (String envName : env.keySet()) {        	
         	if(envName.equals("BUILD_NUMBER")) {
             buildNumber = Integer.valueOf(env.get(envName));            
         	}
-        }       
-        
-        if (!askedForIncremental) {
-            return false;
-        }
-
-        int askedForPeriodicFullScans = periodicFullScan;
+        } 
+        int askedForPeriodicFullScans = fullScanCycle;
         if (askedForPeriodicFullScans == 0) {
             return true;
         }

@@ -108,13 +108,5 @@ public class SastConfig {
 	public void setOverrideProjectSetting(boolean isOverrideProjectSetting) {
 		this.isOverrideProjectSetting = isOverrideProjectSetting;
 	}
-
-	public int getPeriodicFullScan() {
-		return this.periodicFullScan;
-	}
-
-	public void setPeriodicFullScan(Integer periodicFullScan) {
-		this.periodicFullScan = periodicFullScan;
-	}
     
 }
