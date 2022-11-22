@@ -24,6 +24,11 @@
             <name>libs-snapshot</name>
             <url>~/.m2</url>
         </repository>
+		<repository>
+<id>local-repo</id>
+<name>Local Repository</name>
+<url>file:C:\Users\swatia\.m2\repository</url>
+</repository>
     </repositories>
 
     <properties>
@@ -132,7 +137,7 @@
         <dependency>
             <groupId>com.checkmarx</groupId>
             <artifactId>cx-client-common</artifactId>
-            <version>2022.2.14</version>
+            <version>1.1.1</version>
             <!-- Remove these excludes once latest FSA is used -->
             <exclusions>
                 <exclusion>

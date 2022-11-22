@@ -91,9 +91,15 @@ class ArgDescriptions {
     static final String SCAN_COMMENT = "Saves a comment with the scan results. For example: -comment 'important scan1'. Optional. Not supported in AsyncScan mode";
     static final String IS_SSO = "Single Sign-On: Use Windows credentials of current user to log into CxSAST. Optional.";
 
+
+    
+    static final String GENERATE_SCA_REPORT = "Set Generate Sca Report. Optional.";
+    static final String SCA_REPORT_FORMAT = "Set Sca Report Format. Optional.";
+    
     static final String HIGH = "high";
     static final String MEDIUM = "medium";
     static final String LOW = "low";
+    
 
     static final String SAST_HIGH = String.format(THRESHOLD_TEMPLATE, CX_SAST, HIGH);
     static final String SAST_MEDIUM = String.format(THRESHOLD_TEMPLATE, CX_SAST, MEDIUM);
