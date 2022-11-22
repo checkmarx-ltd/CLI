@@ -1058,11 +1058,13 @@ public final class CxConfigHelper {
         final String HTTP_PORT = getVariable("http.proxyPort");
         final String HTTP_USERNAME = getVariable("http.proxyUser");
         final String HTTP_PASSWORD = getVariable("http.proxyPassword");
+        final String HTTP_NON_HOSTS = getVariable("http.nonProxyHosts");
 
         final String HTTPS_HOST = getVariable("https.proxyHost");
         final String HTTPS_PORT = getVariable("https.proxyPort");
         final String HTTPS_USERNAME = getVariable("https.proxyUser");
         final String HTTPS_PASSWORD = getVariable("https.proxyPassword");
+        final String HTTPS_NON_HOSTS = getVariable("https.nonProxyHosts");
 
         ProxyConfig proxyConfig = null;
         try {
@@ -1071,6 +1073,7 @@ public final class CxConfigHelper {
                 proxyConfig.setUseHttps(false);
                 proxyConfig.setHost(HTTP_HOST);
                 proxyConfig.setPort(Integer.parseInt(HTTP_PORT));
+                proxyConfig.setNoproxyHosts(StringUtils.isEmpty(HTTP_NON_HOSTS) ? "" : HTTP_NON_HOSTS);
                 if (isNotEmpty(HTTP_USERNAME) && isNotEmpty(HTTP_PASSWORD)) {
                     proxyConfig.setUsername(HTTP_USERNAME);
                     proxyConfig.setPassword(HTTP_PASSWORD);
@@ -1080,6 +1083,7 @@ public final class CxConfigHelper {
                 proxyConfig.setUseHttps(true);
                 proxyConfig.setHost(HTTPS_HOST);
                 proxyConfig.setPort(Integer.parseInt(HTTPS_PORT));
+                proxyConfig.setNoproxyHosts(StringUtils.isEmpty(HTTPS_NON_HOSTS) ? "" : HTTPS_NON_HOSTS);
                 if (isNotEmpty(HTTPS_USERNAME) && isNotEmpty(HTTPS_PASSWORD)) {
                     proxyConfig.setUsername(HTTPS_USERNAME);
                     proxyConfig.setPassword(HTTPS_PASSWORD);
