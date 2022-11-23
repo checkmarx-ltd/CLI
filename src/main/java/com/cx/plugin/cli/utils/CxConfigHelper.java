@@ -73,7 +73,10 @@ public final class CxConfigHelper {
 
     private Command command;
     private CommandLine commandLine;
-
+    private int fullScanCycle;
+    public static final int FULL_SCAN_CYCLE_MIN = 1;
+    public static final int FULL_SCAN_CYCLE_MAX = 99;
+    
     public CxConfigHelper(String configFilePath) {
         props = PropertiesManager.getProps(configFilePath);
     }
@@ -166,10 +169,23 @@ public final class CxConfigHelper {
         scanConfig.setSastFilterPattern(sastFilterPattern);
         scanConfig.setScanComment(cmd.getOptionValue(SCAN_COMMENT));
         setScanReports(scanConfig);
-        scanConfig.setIncremental(cmd.hasOption(IS_INCREMENTAL));
+        if (cmd.hasOption(IS_INCREMENTAL)) {
+        	scanConfig.setIncremental(cmd.hasOption(IS_INCREMENTAL));
+        }
+        if (cmd.hasOption(PERIODIC_FULL_SCAN)) {        	
+        			if (!cmd.hasOption(IS_INCREMENTAL)) {            
+        					getRequiredParam(cmd, IS_INCREMENTAL, null);
+        	}
+        			else {
+        	        	String periodicFullScan = cmd.getOptionValue(PERIODIC_FULL_SCAN);
+        	        	this.fullScanCycle = Integer.valueOf(periodicFullScan);        	                       
+        	            boolean isIncremental = isThisBuildIncremental();            
+        	            scanConfig.setIncremental(isIncremental);
+        	        }
+        }
         scanConfig.setForceScan(cmd.hasOption(IS_FORCE_SCAN));
-        setSASTThresholds(scanConfig);
-
+        setSASTThresholds(scanConfig);      
+        
         String dsLocationPath = getSharedDependencyScanOption(scanConfig, OSA_LOCATION_PATH, SCA_LOCATION_PATH);
         if (scanConfig.isSastEnabled() || dsLocationPath == null) {
             ScanSourceConfigurator locator = new ScanSourceConfigurator();
@@ -428,6 +444,7 @@ public final class CxConfigHelper {
                     scanConfig.setIsOverrideProjectSetting(pValue);
                     overridesResults.put("Is Overridable", String.valueOf(pValue));
                 });
+                
     }
 
     private void mapProjectConfiguration(Optional<ProjectConfig> project, CxScanConfig scanConfig, Map<String, String> overridesResults) throws CLIParsingException {
@@ -1119,4 +1136,30 @@ public final class CxConfigHelper {
         }
         return false;
     }
+    
+    //function to test whether build will be incremental or full scan
+    private boolean isThisBuildIncremental() {
+        int buildNumber = 0;
+        Map<String, String> env = System.getenv();
+        for (String envName : env.keySet()) {        	
+        	if(envName.equals("BUILD_NUMBER")) {
+            buildNumber = Integer.valueOf(env.get(envName));            
+        	}
+        } 
+        int askedForPeriodicFullScans = fullScanCycle;
+        if (askedForPeriodicFullScans == 0) {
+            return true;
+        }
+
+        // if user entered invalid value for full scan cycle - all scans will be incremental;
+        if (fullScanCycle < FULL_SCAN_CYCLE_MIN || fullScanCycle > FULL_SCAN_CYCLE_MAX) {
+            return true;
+        }
+
+        // If user asked to perform full scan after every 9 incremental scans -
+        // it means that every 10th scan should be full,
+        // that is the ordinal numbers of full scans will be "1", "11", "21" and so on...
+        boolean shouldBeFullScan = buildNumber % (fullScanCycle + 1) == 1;        
+        return !shouldBeFullScan;
+    }    
 }
