@@ -15,8 +15,7 @@ class UsageExamples {
             " -locationpath '\\\\storage\\path1;\\\\storage\\path2' -locationuser dm\\matys -locationpassword XYZ -preset \"Sans 25\" -reportxls a.xls -reportpdf b.pdf -private -verbose -log a.log\n" +
             " -LocationPathExclude test*, *log* -LocationFilesExclude web.config , *.class\n" +
             "-enablesastbranching to check if branching support is enabled\n" +
-            "-masterbranchprojname master branch project name\n" +
-            " -LocationPathExclude test*, *log* -LocationFilesExclude web.config , *.class\n" + 
+            "-masterbranchprojname master branch project name\n" +            
             "-periodicfullscan number like 4,5,etc";
     
     static final String TOKEN_GEN = "runCxConsole.cmd GenerateToken -CxServer http://localhost -cxuser admin@company -cxpassword admin -v";
