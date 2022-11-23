@@ -109,7 +109,11 @@ public final class Parameters {
     public static final String SAST_PASSWORD = "cxsastpass";
     public static final String SAST_USER = "cxsastuser";
     public static final String SCA_TIMEOUT = "scatimeout";
+
     public static final String ENABLE_SAST_BRANCHING = "enablesastbranching";
     public static final String MASTER_BRANCH_PROJ_NAME = "masterbranchprojname";
+
+
+    public static final String PERIODIC_FULL_SCAN = "periodicfullscan";
 
 }

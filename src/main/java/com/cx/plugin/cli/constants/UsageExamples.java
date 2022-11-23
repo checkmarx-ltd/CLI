@@ -16,7 +16,9 @@ class UsageExamples {
             " -LocationPathExclude test*, *log* -LocationFilesExclude web.config , *.class\n" +
             "-enablesastbranching" +
             "-masterbranchprojname master branch project name";
-
+            " -LocationPathExclude test*, *log* -LocationFilesExclude web.config , *.class\n" + 
+            "-periodicfullscan number like 4,5,etc";
+    
     static final String TOKEN_GEN = "runCxConsole.cmd GenerateToken -CxServer http://localhost -cxuser admin@company -cxpassword admin -v";
 
     static final String TOKEN_REVOKE = "runCxConsole.cmd RevokeToken -CxToken 1241513513tsfrg42 -CxServer http://localhost -v";

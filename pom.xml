@@ -171,11 +171,6 @@
                     <groupId>org.springframework</groupId>
                     <artifactId>spring-core</artifactId>
                 </exclusion>
-                <exclusion>
-                    <groupId>net.lingala.zip4j</groupId>
-    				<artifactId>zip4j</artifactId>
-                </exclusion>
-
             </exclusions>
         </dependency>
         <!-- excluded dependencies from cx-client-common -->
@@ -239,12 +234,7 @@
             <artifactId>netty-codec</artifactId>
             <version>4.1.77.Final</version>
         </dependency>
-        <dependency>
-    		<groupId>net.lingala.zip4j</groupId>
-    		<artifactId>zip4j</artifactId>
-    		<version>2.10.0</version>
-		</dependency>
-        
+
         <!-- end of excluded dependencies -->
         <dependency>
             <groupId>commons-cli</groupId>
