@@ -14,8 +14,8 @@ class UsageExamples {
             " -incremental -forcescan\nCxConsole Scan -projectname SP\\Cx\\Engine\\AST -cxserver http://localhost -cxuser admin@cx -cxpassword admin -locationtype share" +
             " -locationpath '\\\\storage\\path1;\\\\storage\\path2' -locationuser dm\\matys -locationpassword XYZ -preset \"Sans 25\" -reportxls a.xls -reportpdf b.pdf -private -verbose -log a.log\n" +
             " -LocationPathExclude test*, *log* -LocationFilesExclude web.config , *.class\n" +
-            "-enablesastbranching" +
-            "-masterbranchprojname master branch project name";
+            "-enablesastbranching to check if branching support is enabled\n" +
+            "-masterbranchprojname master branch project name\n" +
             " -LocationPathExclude test*, *log* -LocationFilesExclude web.config , *.class\n" + 
             "-periodicfullscan number like 4,5,etc";
     
