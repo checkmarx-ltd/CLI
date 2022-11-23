@@ -23,7 +23,10 @@ public class SastConfig {
     private int high;
     @Optional
     private boolean isOverrideProjectSetting;
-
+    @Optional
+    private boolean enableSastBranching;
+    @Optional
+    private String masterBranchProjName;
 
     public SastConfig() {
     }
@@ -107,7 +110,22 @@ public class SastConfig {
 	public void setOverrideProjectSetting(boolean isOverrideProjectSetting) {
 		this.isOverrideProjectSetting = isOverrideProjectSetting;
 	}
+	
+	public boolean isEnableSASTBranching() {
+		return enableSastBranching;
+	}
 
+	public void setEnableSASTBranching(boolean enableSASTBranching) {
+		this.enableSastBranching = enableSASTBranching;
+	}
+
+	public String getMasterBranchProjName() {
+		return masterBranchProjName;
+	}
+
+	public void setMasterBranchProjName(String masterBranchProjName) {
+		this.masterBranchProjName = masterBranchProjName;
+	}
 
     
 }
