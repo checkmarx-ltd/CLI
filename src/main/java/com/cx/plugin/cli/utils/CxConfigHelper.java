@@ -169,6 +169,18 @@ public final class CxConfigHelper {
         scanConfig.setSastFilterPattern(sastFilterPattern);
         scanConfig.setScanComment(cmd.getOptionValue(SCAN_COMMENT));
         setScanReports(scanConfig);
+        scanConfig.setIncremental(cmd.hasOption(IS_INCREMENTAL));
+        scanConfig.setForceScan(cmd.hasOption(IS_FORCE_SCAN));        
+        scanConfig.setEnableSASTBranching(cmd.hasOption(ENABLE_SAST_BRANCHING));
+        if(cmd.hasOption(ENABLE_SAST_BRANCHING)) {
+        	if (!cmd.hasOption(MASTER_BRANCH_PROJ_NAME)) {
+        		getRequiredParam(cmd, MASTER_BRANCH_PROJ_NAME, null);	
+        	}        
+        	else {
+        			scanConfig.setMasterBranchProjName(cmd.getOptionValue(MASTER_BRANCH_PROJ_NAME));    	
+        			}
+        }
+        
         if (cmd.hasOption(IS_INCREMENTAL)) {
         	scanConfig.setIncremental(cmd.hasOption(IS_INCREMENTAL));
         }
@@ -182,8 +194,7 @@ public final class CxConfigHelper {
         	            boolean isIncremental = isThisBuildIncremental();            
         	            scanConfig.setIncremental(isIncremental);
         	        }
-        }
-        scanConfig.setForceScan(cmd.hasOption(IS_FORCE_SCAN));
+        }        
         setSASTThresholds(scanConfig);      
         
         String dsLocationPath = getSharedDependencyScanOption(scanConfig, OSA_LOCATION_PATH, SCA_LOCATION_PATH);
@@ -440,11 +451,23 @@ public final class CxConfigHelper {
                 });
 
         sast.map(SastConfig::isOverrideProjectSetting)
-                .ifPresent(pValue -> {
-                    scanConfig.setIsOverrideProjectSetting(pValue);
-                    overridesResults.put("Is Overridable", String.valueOf(pValue));
-                });
-                
+        .ifPresent(pValue -> {
+            scanConfig.setIsOverrideProjectSetting(pValue);
+            overridesResults.put("Is Overridable", String.valueOf(pValue));
+        });
+        
+        sast.map(SastConfig::isEnableSASTBranching)
+        .ifPresent(pValue -> {
+            scanConfig.setEnableSASTBranching(pValue);
+            overridesResults.put("Enable SAST Branching", String.valueOf(pValue));
+        });
+        
+        sast.map(SastConfig::getMasterBranchProjName)
+        .ifPresent(pValue -> {
+            scanConfig.setMasterBranchProjName(pValue);
+            overridesResults.put("Master Branch Project Name", String.valueOf(pValue));
+        });
+
     }
 
     private void mapProjectConfiguration(Optional<ProjectConfig> project, CxScanConfig scanConfig, Map<String, String> overridesResults) throws CLIParsingException {

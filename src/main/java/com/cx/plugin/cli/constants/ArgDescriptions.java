@@ -144,5 +144,10 @@ class ArgDescriptions {
     static final String SCA_INCLUDE_SOURCE_FLAG = "Flag to include the entire source code for the SCA scan.";
     static final String SCA_TIME_OUT = "Timeout duration for SCA scan.";
     static final String SCAN_LEVEL_CUSTOM_FIELDS = "Scan level custom fields";
+
+    static final String ENABLE_SAST_BRANCHING = "Enable to create child project";
+    static final String MASTER_BRANCH_PROJ_NAME = "Master branch project name";
+
     static final String PERIODIC_FULL_SCAN = "Run a full scan after X incremental scans . Scans all files, (-Incremental should be enable). Optional.";    
+
 }
