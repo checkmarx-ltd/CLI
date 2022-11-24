@@ -59,6 +59,10 @@ public final class Parameters {
     public static final String PDF_REPORT = "reportpdf";
     public static final String XML_REPORT = "reportxml";
     public static final String CSV_REPORT = "reportcsv";
+    
+    public static final String GENERATE_SCA_REPORT = "generateScaReport";
+    public static final String SCA_REPORT_FORMAT = "scareportformat";
+    
     public static final String RTF_REPORT = "reportrtf";
     public static final String IS_INCREMENTAL = "incremental";
     public static final String IS_FORCE_SCAN = "forcescan";

@@ -169,6 +169,11 @@ public final class CxConfigHelper {
         scanConfig.setSastFilterPattern(sastFilterPattern);
         scanConfig.setScanComment(cmd.getOptionValue(SCAN_COMMENT));
         setScanReports(scanConfig);
+        scanConfig.setGenerateScaReport(cmd.hasOption(GENERATE_SCA_REPORT));
+        scanConfig.setHasScaReportFormat(cmd.hasOption(SCA_REPORT_FORMAT));
+        if(scanConfig.isHasScaReportFormat()) {
+        scanConfig.setScaReportFormat(cmd.getOptionValue(SCA_REPORT_FORMAT));
+        }
         scanConfig.setIncremental(cmd.hasOption(IS_INCREMENTAL));
         scanConfig.setForceScan(cmd.hasOption(IS_FORCE_SCAN));        
         scanConfig.setEnableSASTBranching(cmd.hasOption(ENABLE_SAST_BRANCHING));
@@ -848,6 +853,7 @@ public final class CxConfigHelper {
         if (reportPath != null) {
             scanConfig.addRTFReport(reportPath);
         }
+        
     }
 
     private String getReportPath(String optionName) {
