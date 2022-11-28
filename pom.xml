@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.cx.plugin</groupId>
     <artifactId>CxConsolePlugin</artifactId>
-    <version>1.1.14</version>
+    <version>1.1.16</version>
     <packaging>jar</packaging>
 
     <repositories>
@@ -132,7 +132,7 @@
         <dependency>
             <groupId>com.checkmarx</groupId>
             <artifactId>cx-client-common</artifactId>
-            <version>1.1.1</version>
+            <version>2022.4.4</version>
             <!-- Remove these excludes once latest FSA is used -->
             <exclusions>
                 <exclusion>
@@ -170,11 +170,7 @@
                 <exclusion>
                     <groupId>org.springframework</groupId>
                     <artifactId>spring-core</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>net.lingala.zip4j</groupId>
-    				<artifactId>zip4j</artifactId>
-                </exclusion>
+                </exclusion>                
 				<exclusion>
                     <groupId>org.yaml</groupId>
                     <artifactId>snakeyaml</artifactId>
@@ -253,12 +249,7 @@
             <groupId>io.netty</groupId>
             <artifactId>netty-codec</artifactId>
             <version>4.1.77.Final</version>
-        </dependency>
-        <dependency>
-    		<groupId>net.lingala.zip4j</groupId>
-    		<artifactId>zip4j</artifactId>
-    		<version>2.10.0</version>
-		</dependency>
+        </dependency>     
         <dependency>
     		<groupId>org.yaml</groupId>
     		<artifactId>snakeyaml</artifactId>
