@@ -44,7 +44,10 @@ public class PropertiesManager {
     static final String KEY_SCA_INCLUDED_FILES = "scan.sca.include.files";
     static final String KEY_SCA_EXCLUDED_FILES = "scan.sca.exclude.files";
     static final String KEY_SCA_PROGRESS_INTERVAL = "scan.sca.job.progress.interval";
+    static final String KEY_CUSTOM_TRUSTSTORE = "trustStore";
+    static final String KEY_CUSTOM_TRUSTSTORE_PASSWORD = "trustStorePassword";
 
+	    
     private final String SEPARATOR = FileSystems.getDefault().getSeparator();
     private String userDir = System.getProperty("user.dir");
 
@@ -128,7 +131,10 @@ public class PropertiesManager {
         applicationProperties.put(KEY_USE_KERBEROS_AUTH, "false");
         applicationProperties.put(KEY_SCA_API_URL, "https://api-sca.checkmarx.net");
         applicationProperties.put(KEY_SCA_ACCESS_CONTROL_URL, "https://platform.checkmarx.net");
-        applicationProperties.put(KEY_SCA_WEB_APP_URL, "https://sca.checkmarx.net");
+        applicationProperties.put(KEY_SCA_WEB_APP_URL, "https://sca.checkmarx.net");        
+        String userHomeDir = System.getProperty("user.home") + "\\certificate" ;
+        applicationProperties.put(KEY_CUSTOM_TRUSTSTORE, userHomeDir);
+        applicationProperties.put(KEY_CUSTOM_TRUSTSTORE_PASSWORD, null);
 
         File propsFile = new File(defaultPath);
         if (!propsFile.exists()) {

@@ -16,6 +16,14 @@ import java.io.IOException;
 
 import static com.cx.plugin.cli.constants.Parameters.*;
 import static com.cx.plugin.cli.utils.PropertiesManager.KEY_MAX_ZIP_SIZE;
+import static com.cx.plugin.cli.utils.PropertiesManager.KEY_CUSTOM_TRUSTSTORE;
+import static com.cx.plugin.cli.utils.PropertiesManager.KEY_CUSTOM_TRUSTSTORE_PASSWORD;
+
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+
+import javax.net.ssl.X509TrustManager;
+import com.cx.plugin.cli.utils.CxConfigHelper;
 
 class ScanSourceConfigurator {
     private static final String SVN_DEFAULT_PORT = "80";
@@ -93,9 +101,19 @@ class ScanSourceConfigurator {
     private void setLocalSourceLocation(String locationPath, PropertiesManager props) throws CLIParsingException {
         if (Strings.isNullOrEmpty(locationPath)) {
             throw new CLIParsingException(String.format(LOCATION_PATH_EXCEPTION, "folder"));
-        }
+        }        
         scanConfig.setSourceDir(locationPath);
         scanConfig.setMaxZipSize(props.getIntProperty(KEY_MAX_ZIP_SIZE));
+        if(scanConfig.isSastEnabled()) {
+        	if(scanConfig.getUrl().toLowerCase().startsWith("https")) {        		
+        String customTrustStore = props.getProperty(KEY_CUSTOM_TRUSTSTORE);
+        String customTrustStorePassword = props.getProperty(KEY_CUSTOM_TRUSTSTORE_PASSWORD);
+        if(customTrustStore != null && (!customTrustStore.isEmpty()) && customTrustStorePassword != null && (!customTrustStorePassword.isEmpty())) { 
+        System.setProperty("javax.net.ssl.trustStore", customTrustStore);
+        System.setProperty("javax.net.ssl.trustStorePassword", customTrustStorePassword);        
+        }
+    }
+        }
     }
 
     private void setSharedSourceLocation(String locationPath, String locationUser, String locationPass) throws CLIParsingException {
