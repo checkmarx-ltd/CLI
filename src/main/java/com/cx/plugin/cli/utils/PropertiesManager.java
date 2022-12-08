@@ -82,7 +82,7 @@ public class PropertiesManager {
 
             log.info("Default configuration file location: {}", defaultPath);
         } catch (Exception ex) {
-            log.warn("Error occurred during loading configuration file.");
+            log.warn("Error occurred during loading configuration file.", ex);
         }
     }
 
