@@ -94,6 +94,9 @@ public final class CxConfigHelper {
 
         checkForAmbiguousArgs();
 
+        //pass trust store
+        setSystemProperties();
+        
         CxScanConfig scanConfig = new CxScanConfig();
 
         if (testConnection(scanConfig)) {
@@ -218,6 +221,21 @@ public final class CxConfigHelper {
             checkForConfigAsCode(scanConfig);
 
         return scanConfig;
+    }
+    
+    
+    /*
+     * Sets JSSE JVM properties to pass custom trust store and its password
+     */
+    public void setSystemProperties() {
+    	
+    	String customTrustStore = props.getProperty(KEY_CUSTOM_TRUSTSTORE);
+        String customTrustStorePassword = props.getProperty(KEY_CUSTOM_TRUSTSTORE_PASSWORD);
+        if(customTrustStore != null && !customTrustStore.isEmpty()) { 
+        	System.setProperty("javax.net.ssl.trustStore", customTrustStore);
+        	System.setProperty("javax.net.ssl.trustStorePassword", customTrustStorePassword);
+        	System.setProperty("javax.net.ssl.trustStoreType", "JKS");
+        }
     }
 
 
