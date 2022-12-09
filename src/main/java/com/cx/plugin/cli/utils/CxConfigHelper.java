@@ -55,6 +55,9 @@ import static com.cx.plugin.cli.constants.Parameters.*;
 import static com.cx.plugin.cli.utils.PropertiesManager.*;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
+import static com.cx.plugin.cli.utils.PropertiesManager.KEY_CUSTOM_TRUSTSTORE;
+import static com.cx.plugin.cli.utils.PropertiesManager.KEY_CUSTOM_TRUSTSTORE_PASSWORD;
+
 /**
  * Created by idanA on 11/5/2018.
  */

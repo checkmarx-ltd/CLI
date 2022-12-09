@@ -44,6 +44,9 @@ public class PropertiesManager {
     static final String KEY_SCA_INCLUDED_FILES = "scan.sca.include.files";
     static final String KEY_SCA_EXCLUDED_FILES = "scan.sca.exclude.files";
     static final String KEY_SCA_PROGRESS_INTERVAL = "scan.sca.job.progress.interval";
+    
+    static final String KEY_CUSTOM_TRUSTSTORE = "trustStore";
+    static final String KEY_CUSTOM_TRUSTSTORE_PASSWORD = "trustStorePassword";
 
     private final String SEPARATOR = FileSystems.getDefault().getSeparator();
     private String userDir = System.getProperty("user.dir");
