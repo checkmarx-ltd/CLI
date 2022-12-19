@@ -175,37 +175,37 @@ public final class CxConfigHelper {
         scanConfig.setSastFilterPattern(sastFilterPattern);
         scanConfig.setScanComment(cmd.getOptionValue(SCAN_COMMENT));
         setScanReports(scanConfig);
-        scanConfig.setGenerateScaReport(cmd.hasOption(GENERATE_SCA_REPORT));
-        scanConfig.setHasScaReportFormat(cmd.hasOption(SCA_REPORT_FORMAT));
-        if(scanConfig.isHasScaReportFormat()) {
+        scanConfig.setGenerateScaReport(cmd.hasOption(GENERATE_SCA_REPORT));        
         scanConfig.setScaReportFormat(cmd.getOptionValue(SCA_REPORT_FORMAT));
-        }
+        if(scanConfig.isGenerateScaReport())
+        	throwForInvalidScaReportFormat(scanConfig.getScaReportFormat());
+        
         scanConfig.setIncremental(cmd.hasOption(IS_INCREMENTAL));
         scanConfig.setForceScan(cmd.hasOption(IS_FORCE_SCAN));        
-        scanConfig.setEnableSASTBranching(cmd.hasOption(ENABLE_SAST_BRANCHING));
-        if(cmd.hasOption(ENABLE_SAST_BRANCHING)) {
-        	if (!cmd.hasOption(MASTER_BRANCH_PROJ_NAME)) {
-        		getRequiredParam(cmd, MASTER_BRANCH_PROJ_NAME, null);	
-        	}        
-        	else {
-        			scanConfig.setMasterBranchProjName(cmd.getOptionValue(MASTER_BRANCH_PROJ_NAME));    	
-        			}
-        }
+		scanConfig.setEnableSASTBranching(cmd.hasOption(ENABLE_SAST_BRANCHING));
+		if (cmd.hasOption(ENABLE_SAST_BRANCHING)) {
+			if (!cmd.hasOption(MASTER_BRANCH_PROJ_NAME)) {
+				getRequiredParam(cmd, MASTER_BRANCH_PROJ_NAME, null);
+			} else {
+				scanConfig.setMasterBranchProjName(cmd.getOptionValue(MASTER_BRANCH_PROJ_NAME));
+			}
+		}
         
         if (cmd.hasOption(IS_INCREMENTAL)) {
         	scanConfig.setIncremental(cmd.hasOption(IS_INCREMENTAL));
         }
-        if (cmd.hasOption(PERIODIC_FULL_SCAN)) {        	
-        			if (!cmd.hasOption(IS_INCREMENTAL)) {            
-        					getRequiredParam(cmd, IS_INCREMENTAL, null);
-        	}
-        			else {
-        	        	String periodicFullScan = cmd.getOptionValue(PERIODIC_FULL_SCAN);
-        	        	this.fullScanCycle = Integer.valueOf(periodicFullScan);        	                       
-        	            boolean isIncremental = isThisBuildIncremental();            
-        	            scanConfig.setIncremental(isIncremental);
-        	        }
-        }        
+        
+		if (cmd.hasOption(PERIODIC_FULL_SCAN)) {
+			if (!cmd.hasOption(IS_INCREMENTAL)) {
+				getRequiredParam(cmd, IS_INCREMENTAL, null);
+			} else {
+				String periodicFullScan = cmd.getOptionValue(PERIODIC_FULL_SCAN);
+				this.fullScanCycle = Integer.valueOf(periodicFullScan);
+				boolean isIncremental = isThisBuildIncremental();
+				scanConfig.setIncremental(isIncremental);
+			}
+		}
+        
         setSASTThresholds(scanConfig);      
         
         String dsLocationPath = getSharedDependencyScanOption(scanConfig, OSA_LOCATION_PATH, SCA_LOCATION_PATH);
@@ -1191,13 +1191,12 @@ public final class CxConfigHelper {
     private boolean isThisBuildIncremental() {
         int buildNumber = 0;
         Map<String, String> env = System.getenv();
-        for (String envName : env.keySet()) {        	
-        	if(envName.equals("BUILD_NUMBER")) {
-            buildNumber = Integer.valueOf(env.get(envName));            
-        	}
-        } 
-        int askedForPeriodicFullScans = fullScanCycle;
-        if (askedForPeriodicFullScans == 0) {
+             
+        if(env.get("BUILD_NUMBER") != null) {
+            buildNumber = Integer.valueOf(env.get("BUILD_NUMBER"));            
+        }        
+        
+        if (fullScanCycle == 0) {
             return true;
         }
 
@@ -1211,5 +1210,13 @@ public final class CxConfigHelper {
         // that is the ordinal numbers of full scans will be "1", "11", "21" and so on...
         boolean shouldBeFullScan = buildNumber % (fullScanCycle + 1) == 1;        
         return !shouldBeFullScan;
-    }    
+    }
+    
+    private void throwForInvalidScaReportFormat(String format) throws ConfigurationException {
+    	boolean valid = false;
+    	List<String> supportedFormats = Arrays.asList(new String[] {"json", "xml", "pdf", "csv", "cyclonedxjson", "cyclonedxxml"});
+    	
+    	if(format == null || !supportedFormats.contains(format.toLowerCase()))
+    		throw new ConfigurationException("Invalid SCA report format:" + format +". Supported formats are:" + supportedFormats.toString());
+    }
 }
