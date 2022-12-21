@@ -1009,11 +1009,18 @@ public final class CxConfigHelper {
             	String value1 = param.getValue();
             	String[] arrOfStr = value1.split("@"); 
             	value = "";
-            	for (int i = 0; i < arrOfStr[0].length(); i++) {
-					value+="*";
-				}
-            	value+="@";
-            	value+=arrOfStr[1];
+            	if(arrOfStr.length==1) {
+	            	for (int i = 0; i < arrOfStr[0].length(); i++) {
+						value+="*";
+					}
+            	}
+            	else {
+            		for (int i = 0; i < arrOfStr[0].length(); i++) {
+						value+="*";
+					}
+            		value+="@";
+                	value+=arrOfStr[1];
+            	}
             	
             }else if (param.hasArg()) {
                 value = param.getValue();
