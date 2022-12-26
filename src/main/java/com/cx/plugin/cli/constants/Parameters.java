@@ -59,6 +59,10 @@ public final class Parameters {
     public static final String PDF_REPORT = "reportpdf";
     public static final String XML_REPORT = "reportxml";
     public static final String CSV_REPORT = "reportcsv";
+    
+    public static final String GENERATE_SCA_REPORT = "generateScaReport";
+    public static final String SCA_REPORT_FORMAT = "scareportformat";
+    
     public static final String RTF_REPORT = "reportrtf";
     public static final String IS_INCREMENTAL = "incremental";
     public static final String IS_FORCE_SCAN = "forcescan";
@@ -109,5 +113,11 @@ public final class Parameters {
     public static final String SAST_PASSWORD = "cxsastpass";
     public static final String SAST_USER = "cxsastuser";
     public static final String SCA_TIMEOUT = "scatimeout";
+
+    public static final String ENABLE_SAST_BRANCHING = "enablesastbranching";
+    public static final String MASTER_BRANCH_PROJ_NAME = "masterbranchprojname";
+
+
+    public static final String PERIODIC_FULL_SCAN = "periodicfullscan";
 
 }

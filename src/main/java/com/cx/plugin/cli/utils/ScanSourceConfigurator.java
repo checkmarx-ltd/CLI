@@ -95,7 +95,7 @@ class ScanSourceConfigurator {
             throw new CLIParsingException(String.format(LOCATION_PATH_EXCEPTION, "folder"));
         }
         scanConfig.setSourceDir(locationPath);
-        scanConfig.setMaxZipSize(props.getIntProperty(KEY_MAX_ZIP_SIZE));
+        scanConfig.setMaxZipSize(props.getIntProperty(KEY_MAX_ZIP_SIZE));        
     }
 
     private void setSharedSourceLocation(String locationPath, String locationUser, String locationPass) throws CLIParsingException {

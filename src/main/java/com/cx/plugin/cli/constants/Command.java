@@ -123,6 +123,10 @@ public enum Command {
         options.addOption(CSV_REPORT, true, ArgDescriptions.CSV_REPORT);
         options.addOption(RTF_REPORT, true, ArgDescriptions.RTF_REPORT);
 
+        
+        options.addOption(GENERATE_SCA_REPORT, false, ArgDescriptions.GENERATE_SCA_REPORT);
+        options.addOption(SCA_REPORT_FORMAT, true, ArgDescriptions.SCA_REPORT_FORMAT);
+        
         options.addOption(IS_INCREMENTAL, false, ArgDescriptions.IS_INCREMENTAL);
         options.addOption(IS_FORCE_SCAN, false, ArgDescriptions.IS_FORCE_SCAN);
         options.addOption(IS_PRIVATE, false, ArgDescriptions.IS_PRIVATE);
@@ -172,6 +176,11 @@ public enum Command {
         options.addOption(SCA_CONFIG_FILE, true, ArgDescriptions.SCA_CONFIG_FILE);
         options.addOption(SCA_INCLUDE_SOURCE_FLAG, false, ArgDescriptions.SCA_INCLUDE_SOURCE_FLAG);
         options.addOption(SCA_TIMEOUT, true, ArgDescriptions.SCA_TIME_OUT);
+
+        options.addOption(ENABLE_SAST_BRANCHING, false, ArgDescriptions.ENABLE_SAST_BRANCHING);
+        options.addOption(MASTER_BRANCH_PROJ_NAME, true, ArgDescriptions.MASTER_BRANCH_PROJ_NAME);
+
+        options.addOption(PERIODIC_FULL_SCAN, true, ArgDescriptions.PERIODIC_FULL_SCAN);
 
         return options;
     }

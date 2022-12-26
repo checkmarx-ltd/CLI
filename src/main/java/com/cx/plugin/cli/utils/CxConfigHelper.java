@@ -55,6 +55,9 @@ import static com.cx.plugin.cli.constants.Parameters.*;
 import static com.cx.plugin.cli.utils.PropertiesManager.*;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
+import static com.cx.plugin.cli.utils.PropertiesManager.KEY_CUSTOM_TRUSTSTORE;
+import static com.cx.plugin.cli.utils.PropertiesManager.KEY_CUSTOM_TRUSTSTORE_PASSWORD;
+
 /**
  * Created by idanA on 11/5/2018.
  */
@@ -73,7 +76,10 @@ public final class CxConfigHelper {
 
     private Command command;
     private CommandLine commandLine;
-
+    private int fullScanCycle;
+    public static final int FULL_SCAN_CYCLE_MIN = 1;
+    public static final int FULL_SCAN_CYCLE_MAX = 99;
+    
     public CxConfigHelper(String configFilePath) {
         props = PropertiesManager.getProps(configFilePath);
     }
@@ -91,13 +97,24 @@ public final class CxConfigHelper {
 
         checkForAmbiguousArgs();
 
+        //pass trust store
+        setSystemProperties();
+        
         CxScanConfig scanConfig = new CxScanConfig();
 
         if (testConnection(scanConfig)) {
             return scanConfig;
         }
 
-        scanConfig.setProxyConfig(genProxyConfig());
+        ProxyConfig proxyConfig = genProxyConfig();
+        if (proxyConfig != null) {
+            scanConfig.setProxy(true);
+            scanConfig.setScaProxy(true);
+            scanConfig.setProxyConfig(proxyConfig);
+            scanConfig.setScaProxyConfig(proxyConfig);
+            log.info("Proxy configuration have been provided");
+        }
+
         scanConfig.setNTLM(cmd.hasOption(NTLM));
 
         if (command.equals(Command.SCAN) || command.equals(Command.ASYNC_SCAN)) {
@@ -158,10 +175,39 @@ public final class CxConfigHelper {
         scanConfig.setSastFilterPattern(sastFilterPattern);
         scanConfig.setScanComment(cmd.getOptionValue(SCAN_COMMENT));
         setScanReports(scanConfig);
+        scanConfig.setGenerateScaReport(cmd.hasOption(GENERATE_SCA_REPORT));        
+        scanConfig.setScaReportFormat(cmd.getOptionValue(SCA_REPORT_FORMAT));
+        if(scanConfig.isGenerateScaReport())
+        	throwForInvalidScaReportFormat(scanConfig.getScaReportFormat());
+        
         scanConfig.setIncremental(cmd.hasOption(IS_INCREMENTAL));
-        scanConfig.setForceScan(cmd.hasOption(IS_FORCE_SCAN));
-        setSASTThresholds(scanConfig);
-
+        scanConfig.setForceScan(cmd.hasOption(IS_FORCE_SCAN));        
+		scanConfig.setEnableSASTBranching(cmd.hasOption(ENABLE_SAST_BRANCHING));
+		if (cmd.hasOption(ENABLE_SAST_BRANCHING)) {
+			if (!cmd.hasOption(MASTER_BRANCH_PROJ_NAME)) {
+				getRequiredParam(cmd, MASTER_BRANCH_PROJ_NAME, null);
+			} else {
+				scanConfig.setMasterBranchProjName(cmd.getOptionValue(MASTER_BRANCH_PROJ_NAME));
+			}
+		}
+        
+        if (cmd.hasOption(IS_INCREMENTAL)) {
+        	scanConfig.setIncremental(cmd.hasOption(IS_INCREMENTAL));
+        }
+        
+		if (cmd.hasOption(PERIODIC_FULL_SCAN)) {
+			if (!cmd.hasOption(IS_INCREMENTAL)) {
+				getRequiredParam(cmd, IS_INCREMENTAL, null);
+			} else {
+				String periodicFullScan = cmd.getOptionValue(PERIODIC_FULL_SCAN);
+				this.fullScanCycle = Integer.valueOf(periodicFullScan);
+				boolean isIncremental = isThisBuildIncremental();
+				scanConfig.setIncremental(isIncremental);
+			}
+		}
+        
+        setSASTThresholds(scanConfig);      
+        
         String dsLocationPath = getSharedDependencyScanOption(scanConfig, OSA_LOCATION_PATH, SCA_LOCATION_PATH);
         if (scanConfig.isSastEnabled() || dsLocationPath == null) {
             ScanSourceConfigurator locator = new ScanSourceConfigurator();
@@ -178,6 +224,21 @@ public final class CxConfigHelper {
             checkForConfigAsCode(scanConfig);
 
         return scanConfig;
+    }
+    
+    
+    /*
+     * Sets JSSE JVM properties to pass custom trust store and its password
+     */
+    public void setSystemProperties() {
+    	
+    	String customTrustStore = props.getProperty(KEY_CUSTOM_TRUSTSTORE);
+        String customTrustStorePassword = props.getProperty(KEY_CUSTOM_TRUSTSTORE_PASSWORD);
+        if(customTrustStore != null && !customTrustStore.isEmpty()) { 
+        	System.setProperty("javax.net.ssl.trustStore", customTrustStore);
+        	System.setProperty("javax.net.ssl.trustStorePassword", customTrustStorePassword);
+        	System.setProperty("javax.net.ssl.trustStoreType", "JKS");
+        }
     }
 
 
@@ -330,8 +391,7 @@ public final class CxConfigHelper {
                     scanConfig.setOsaLowThreshold(pValue);
                     overridesResults.put("Sca Low", String.valueOf(pValue));
                 });
-        
-        
+
         //build include/exclude file pattern
         if (!fileExclude.get().isEmpty() || !fileInclude.get().isEmpty())
             setDependencyScanFilterPattern(scanConfig, fileInclude.get(), fileExclude.get());
@@ -415,13 +475,25 @@ public final class CxConfigHelper {
                     scanConfig.setSastFilterPattern(pValue);
                     overridesResults.put("Include/Exclude pattern", pValue);
                 });
-        
-        
+
         sast.map(SastConfig::isOverrideProjectSetting)
         .ifPresent(pValue -> {
             scanConfig.setIsOverrideProjectSetting(pValue);
             overridesResults.put("Is Overridable", String.valueOf(pValue));
         });
+        
+        sast.map(SastConfig::isEnableSASTBranching)
+        .ifPresent(pValue -> {
+            scanConfig.setEnableSASTBranching(pValue);
+            overridesResults.put("Enable SAST Branching", String.valueOf(pValue));
+        });
+        
+        sast.map(SastConfig::getMasterBranchProjName)
+        .ifPresent(pValue -> {
+            scanConfig.setMasterBranchProjName(pValue);
+            overridesResults.put("Master Branch Project Name", String.valueOf(pValue));
+        });
+
     }
 
     private void mapProjectConfiguration(Optional<ProjectConfig> project, CxScanConfig scanConfig, Map<String, String> overridesResults) throws CLIParsingException {
@@ -802,6 +874,7 @@ public final class CxConfigHelper {
         if (reportPath != null) {
             scanConfig.addRTFReport(reportPath);
         }
+        
     }
 
     private String getReportPath(String optionName) {
@@ -932,7 +1005,24 @@ public final class CxConfigHelper {
                 value = param.getValue();
                 log.debug("{}: {}", name, value);
                 value = DigestUtils.sha256Hex(param.getValue());
-            } else if (param.hasArg()) {
+            }else if (param.getOpt().equalsIgnoreCase(LOCATION_URL)) {
+            	String value1 = param.getValue();
+            	String[] arrOfStr = value1.split("@"); 
+            	value = "";
+            	if(arrOfStr.length==1) {
+	            	for (int i = 0; i < arrOfStr[0].length(); i++) {
+						value+="*";
+					}
+            	}
+            	else {
+            		for (int i = 0; i < arrOfStr[0].length(); i++) {
+						value+="*";
+					}
+            		value+="@";
+                	value+=arrOfStr[1];
+            	}
+            	
+            }else if (param.hasArg()) {
                 value = param.getValue();
             } else {
                 value = "true";
@@ -1042,16 +1132,23 @@ public final class CxConfigHelper {
         return rawValue.startsWith("http") ? rawValue : "http://" + rawValue;
     }
 
-    private ProxyConfig genProxyConfig() {
-        final String HTTP_HOST = System.getProperty("http.proxyHost");
-        final String HTTP_PORT = System.getProperty("http.proxyPort");
-        final String HTTP_USERNAME = System.getProperty("http.proxyUser");
-        final String HTTP_PASSWORD = System.getProperty("http.proxyPassword");
+    private String getVariable(String var) {
+        String value = StringUtils.isNotEmpty(System.getenv(var)) ? System.getenv(var) : System.getProperty(var);
+        return StringUtils.isNotEmpty(value) ? value.trim() : null;
+    }
 
-        final String HTTPS_HOST = System.getProperty("https.proxyHost");
-        final String HTTPS_PORT = System.getProperty("https.proxyPort");
-        final String HTTPS_USERNAME = System.getProperty("https.proxyUser");
-        final String HTTPS_PASSWORD = System.getProperty("https.proxyPassword");
+    private ProxyConfig genProxyConfig() {
+        final String HTTP_HOST = getVariable("http.proxyHost");
+        final String HTTP_PORT = getVariable("http.proxyPort");
+        final String HTTP_USERNAME = getVariable("http.proxyUser");
+        final String HTTP_PASSWORD = getVariable("http.proxyPassword");
+        final String HTTP_NON_HOSTS = getVariable("http.nonProxyHosts");
+
+        final String HTTPS_HOST = getVariable("https.proxyHost");
+        final String HTTPS_PORT = getVariable("https.proxyPort");
+        final String HTTPS_USERNAME = getVariable("https.proxyUser");
+        final String HTTPS_PASSWORD = getVariable("https.proxyPassword");
+        final String HTTPS_NON_HOSTS = getVariable("https.nonProxyHosts");
 
         ProxyConfig proxyConfig = null;
         try {
@@ -1060,6 +1157,7 @@ public final class CxConfigHelper {
                 proxyConfig.setUseHttps(false);
                 proxyConfig.setHost(HTTP_HOST);
                 proxyConfig.setPort(Integer.parseInt(HTTP_PORT));
+                proxyConfig.setNoproxyHosts(StringUtils.isEmpty(HTTP_NON_HOSTS) ? "" : HTTP_NON_HOSTS);
                 if (isNotEmpty(HTTP_USERNAME) && isNotEmpty(HTTP_PASSWORD)) {
                     proxyConfig.setUsername(HTTP_USERNAME);
                     proxyConfig.setPassword(HTTP_PASSWORD);
@@ -1069,6 +1167,7 @@ public final class CxConfigHelper {
                 proxyConfig.setUseHttps(true);
                 proxyConfig.setHost(HTTPS_HOST);
                 proxyConfig.setPort(Integer.parseInt(HTTPS_PORT));
+                proxyConfig.setNoproxyHosts(StringUtils.isEmpty(HTTPS_NON_HOSTS) ? "" : HTTPS_NON_HOSTS);
                 if (isNotEmpty(HTTPS_USERNAME) && isNotEmpty(HTTPS_PASSWORD)) {
                     proxyConfig.setUsername(HTTPS_USERNAME);
                     proxyConfig.setPassword(HTTPS_PASSWORD);
@@ -1093,5 +1192,38 @@ public final class CxConfigHelper {
             return true;
         }
         return false;
+    }
+    
+    //function to test whether build will be incremental or full scan
+    private boolean isThisBuildIncremental() {
+        int buildNumber = 0;
+        Map<String, String> env = System.getenv();
+             
+        if(env.get("BUILD_NUMBER") != null) {
+            buildNumber = Integer.valueOf(env.get("BUILD_NUMBER"));            
+        }        
+        
+        if (fullScanCycle == 0) {
+            return true;
+        }
+
+        // if user entered invalid value for full scan cycle - all scans will be incremental;
+        if (fullScanCycle < FULL_SCAN_CYCLE_MIN || fullScanCycle > FULL_SCAN_CYCLE_MAX) {
+            return true;
+        }
+
+        // If user asked to perform full scan after every 9 incremental scans -
+        // it means that every 10th scan should be full,
+        // that is the ordinal numbers of full scans will be "1", "11", "21" and so on...
+        boolean shouldBeFullScan = buildNumber % (fullScanCycle + 1) == 1;        
+        return !shouldBeFullScan;
+    }
+    
+    private void throwForInvalidScaReportFormat(String format) throws ConfigurationException {
+    	boolean valid = false;
+    	List<String> supportedFormats = Arrays.asList(new String[] {"json", "xml", "pdf", "csv", "cyclonedxjson", "cyclonedxxml"});
+    	
+    	if(format == null || !supportedFormats.contains(format.toLowerCase()))
+    		throw new ConfigurationException("Invalid SCA report format:" + format +". Supported formats are:" + supportedFormats.toString());
     }
 }

@@ -91,9 +91,15 @@ class ArgDescriptions {
     static final String SCAN_COMMENT = "Saves a comment with the scan results. For example: -comment 'important scan1'. Optional. Not supported in AsyncScan mode";
     static final String IS_SSO = "Single Sign-On: Use Windows credentials of current user to log into CxSAST. Optional.";
 
+
+    
+    static final String GENERATE_SCA_REPORT = "Set Generate Sca Report. Optional.";
+    static final String SCA_REPORT_FORMAT = "Set Sca Report Format. Optional.";
+    
     static final String HIGH = "high";
     static final String MEDIUM = "medium";
     static final String LOW = "low";
+    
 
     static final String SAST_HIGH = String.format(THRESHOLD_TEMPLATE, CX_SAST, HIGH);
     static final String SAST_MEDIUM = String.format(THRESHOLD_TEMPLATE, CX_SAST, MEDIUM);
@@ -144,4 +150,10 @@ class ArgDescriptions {
     static final String SCA_INCLUDE_SOURCE_FLAG = "Flag to include the entire source code for the SCA scan.";
     static final String SCA_TIME_OUT = "Timeout duration for SCA scan.";
     static final String SCAN_LEVEL_CUSTOM_FIELDS = "Scan level custom fields";
+
+    static final String ENABLE_SAST_BRANCHING = "Enable to create child project";
+    static final String MASTER_BRANCH_PROJ_NAME = "Master branch project name";
+
+    static final String PERIODIC_FULL_SCAN = "Run a full scan after X incremental scans . Scans all files, (-Incremental should be enable). Optional.";    
+
 }
