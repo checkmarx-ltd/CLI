@@ -132,9 +132,18 @@
         <dependency>
             <groupId>com.checkmarx</groupId>
             <artifactId>cx-client-common</artifactId>
-            <version>2022.4.4</version>
+            <version>2023.1.7</version>
             <!-- Remove these excludes once latest FSA is used -->
             <exclusions>
+				<exclusion>
+				    <groupId>com.google.guava</groupId>
+				    <artifactId>guava</artifactId>
+				</exclusion>
+				<exclusion>
+				    <groupId>org.json</groupId>
+    				<artifactId>json</artifactId>
+				</exclusion>
+				
                 <exclusion>
                     <groupId>org.freemarker</groupId>
                     <artifactId>freemarker</artifactId>
@@ -201,6 +210,16 @@
                 </exclusion>
             </exclusions>
         </dependency>
+         <dependency>
+			    <groupId>com.google.guava</groupId>
+			    <artifactId>guava</artifactId>
+			    <version>31.1-jre</version>
+			</dependency>
+			<dependency>
+				<groupId>org.json</groupId>
+				<artifactId>json</artifactId>
+				<version>20220924</version>
+			</dependency>
         <dependency>
             <groupId>org.freemarker</groupId>
             <artifactId>freemarker</artifactId>
@@ -297,6 +316,11 @@
                     <groupId>commons-io</groupId>
                     <artifactId>commons-io</artifactId>
                 </exclusion>
+                
+               <exclusion>
+				    <groupId>com.google.guava</groupId>
+				    <artifactId>guava</artifactId>
+				</exclusion>
                 <exclusion>
                     <groupId>com.fasterxml.jackson.core</groupId>
                     <artifactId>jackson-databind</artifactId>
