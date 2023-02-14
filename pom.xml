@@ -144,6 +144,10 @@
                     <artifactId>google-collections</artifactId>
                 </exclusion>
                 <exclusion>
+	                <groupId>jakarta.xml.bind</groupId>
+	            	<artifactId>jakarta.xml.bind-api</artifactId>
+            	</exclusion>
+                <exclusion>
 				    <groupId>org.json</groupId>
     				<artifactId>json</artifactId>
 				</exclusion>
@@ -211,8 +215,14 @@
 			<dependency>
 			    <groupId>com.google.guava</groupId>
 			    <artifactId>guava</artifactId>
-			    <version>27.0-jre</version>
+			    <version>31.1-jre</version>
 			</dependency>
+			
+			<dependency>
+	            <groupId>jakarta.xml.bind</groupId>
+	            <artifactId>jakarta.xml.bind-api</artifactId>
+            	<version>3.0.1</version>
+        	</dependency>
         <dependency>
             <groupId>com.github.junrar</groupId>
             <artifactId>junrar</artifactId>
