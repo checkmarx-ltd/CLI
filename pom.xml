@@ -132,7 +132,7 @@
         <dependency>
             <groupId>com.checkmarx</groupId>
             <artifactId>cx-client-common</artifactId>
-            <version>2023.1.7</version>
+            <version>2022.4.4</version>
             <!-- Remove these excludes once latest FSA is used -->
             <exclusions>
 				<exclusion>
@@ -143,16 +143,14 @@
                     <groupId>com.google.collections</groupId>
                     <artifactId>google-collections</artifactId>
                 </exclusion>
-                <exclusion>
-	                <groupId>jakarta.xml.bind</groupId>
-	            	<artifactId>jakarta.xml.bind-api</artifactId>
-            	</exclusion>
+                
                 <exclusion>
 				    <groupId>org.json</groupId>
     				<artifactId>json</artifactId>
 				</exclusion>
 				
                 <exclusion>
+		
                     <groupId>org.freemarker</groupId>
                     <artifactId>freemarker</artifactId>
                 </exclusion>
@@ -218,11 +216,7 @@
 			    <version>31.1-jre</version>
 			</dependency>
 			
-			<dependency>
-	            <groupId>jakarta.xml.bind</groupId>
-	            <artifactId>jakarta.xml.bind-api</artifactId>
-            	<version>3.0.1</version>
-        	</dependency>
+			
         <dependency>
             <groupId>com.github.junrar</groupId>
             <artifactId>junrar</artifactId>
