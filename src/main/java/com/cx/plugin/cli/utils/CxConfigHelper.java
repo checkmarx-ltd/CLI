@@ -192,9 +192,12 @@ public final class CxConfigHelper {
 		}
         
         if (cmd.hasOption(IS_INCREMENTAL)) {
-        	scanConfig.setIncremental(cmd.hasOption(IS_INCREMENTAL));
+        	scanConfig.setIncremental(cmd.hasOption(IS_INCREMENTAL) && (!cmd.hasOption(IS_FORCE_SCAN)));
         }
-        
+        boolean isFullScan = (cmd.hasOption(IS_INCREMENTAL)) && (cmd.hasOption(IS_FORCE_SCAN));
+        if(isFullScan) {
+        	log.info("Configuration is set to incremental true and force scan true, hence the scan will be full.");
+        }
 		if (cmd.hasOption(PERIODIC_FULL_SCAN)) {
 			if (!cmd.hasOption(IS_INCREMENTAL)) {
 				getRequiredParam(cmd, IS_INCREMENTAL, null);
