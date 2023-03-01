@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.cx.plugin</groupId>
     <artifactId>CxConsolePlugin</artifactId>
-    <version>1.1.18</version>
+    <version>1.1.21</version>
     <packaging>jar</packaging>
 
     <repositories>
@@ -135,7 +135,22 @@
             <version>2022.4.4</version>
             <!-- Remove these excludes once latest FSA is used -->
             <exclusions>
+				<exclusion>
+				    <groupId>com.google.guava</groupId>
+				    <artifactId>guava</artifactId>
+				</exclusion>
+				<exclusion>
+                    <groupId>com.google.collections</groupId>
+                    <artifactId>google-collections</artifactId>
+                </exclusion>
+                
                 <exclusion>
+				    <groupId>org.json</groupId>
+    				<artifactId>json</artifactId>
+				</exclusion>
+				
+                <exclusion>
+		
                     <groupId>org.freemarker</groupId>
                     <artifactId>freemarker</artifactId>
                 </exclusion>
@@ -191,6 +206,18 @@
         </dependency>
         <!-- excluded dependencies from cx-client-common -->
         <dependency>
+				<groupId>org.json</groupId>
+				<artifactId>json</artifactId>
+				<version>20220924</version>
+			</dependency>
+			<dependency>
+			    <groupId>com.google.guava</groupId>
+			    <artifactId>guava</artifactId>
+			    <version>31.1-jre</version>
+			</dependency>
+			
+			
+        <dependency>
             <groupId>com.github.junrar</groupId>
             <artifactId>junrar</artifactId>
             <version>7.4.1</version>
@@ -229,7 +256,7 @@
         <dependency>
             <groupId>io.vertx</groupId>
             <artifactId>vertx-web</artifactId>
-            <version>4.0.2</version>
+            <version>4.3.8</version>
             <exclusions>
                 <exclusion>
                     <groupId>io.netty</groupId>
@@ -297,6 +324,7 @@
                     <groupId>commons-io</groupId>
                     <artifactId>commons-io</artifactId>
                 </exclusion>
+                
                 <exclusion>
                     <groupId>com.fasterxml.jackson.core</groupId>
                     <artifactId>jackson-databind</artifactId>
