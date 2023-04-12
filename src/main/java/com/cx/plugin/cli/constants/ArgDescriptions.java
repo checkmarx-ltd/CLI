@@ -154,6 +154,8 @@ class ArgDescriptions {
     static final String ENABLE_SAST_BRANCHING = "Enable to create child project";
     static final String MASTER_BRANCH_PROJ_NAME = "Master branch project name";
 
+    static final String POST_SCAN_ACTION = "Post Scan Action name that is to be performed automatically after a scan.";
+    
     static final String PERIODIC_FULL_SCAN = "Run a full scan after X incremental scans . Scans all files, (-Incremental should be enable). Optional.";    
 
 }

@@ -181,6 +181,8 @@ public final class CxConfigHelper {
         	throwForInvalidScaReportFormat(scanConfig.getScaReportFormat());
         
         scanConfig.setIncremental(cmd.hasOption(IS_INCREMENTAL));
+        String postScanAction = cmd.getOptionValue(POST_SCAN_ACTION);
+        	scanConfig.setPostScanName(postScanAction);
         scanConfig.setForceScan(cmd.hasOption(IS_FORCE_SCAN));        
 		scanConfig.setEnableSASTBranching(cmd.hasOption(ENABLE_SAST_BRANCHING));
 		if (cmd.hasOption(ENABLE_SAST_BRANCHING)) {
