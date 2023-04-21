@@ -318,7 +318,7 @@
         <dependency>
             <groupId>com.checkmarx</groupId>
             <artifactId>cx-config-provider</artifactId>
-            <version>1.0.13</version>
+            <version>1.0.14</version>
             <exclusions>
                 <exclusion>
                     <groupId>commons-io</groupId>
