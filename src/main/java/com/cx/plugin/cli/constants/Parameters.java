@@ -117,7 +117,7 @@ public final class Parameters {
     public static final String ENABLE_SAST_BRANCHING = "enablesastbranching";
     public static final String MASTER_BRANCH_PROJ_NAME = "masterbranchprojname";
 
-    public static final String POST_SCAN_ACTION = "postscanactionid";
+    public static final String POST_SCAN_ACTION = "postscanaction";
 
     public static final String PERIODIC_FULL_SCAN = "periodicfullscan";
 
