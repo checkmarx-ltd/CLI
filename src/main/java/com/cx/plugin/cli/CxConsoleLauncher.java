@@ -23,6 +23,7 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.config.ConfigurationSource;
 import org.apache.logging.log4j.core.config.Configurator;
 import org.apache.logging.slf4j.Log4jLoggerFactory;
+import org.awaitility.core.ConditionTimeoutException;
 
 import javax.naming.ConfigurationException;
 import java.io.File;
@@ -86,6 +87,10 @@ public class CxConsoleLauncher {
         } catch (CxClientException | IOException | InterruptedException e) {
             log.error("CLI process terminated, error: " + e.getMessage());
             exitCode = ErrorParsingHelper.parseError(e.getMessage());
+        }  catch(ConditionTimeoutException e) {
+        	log.error(e.getMessage());
+            exitCode = ErrorParsingHelper.parseError(e.getMessage());
+            log.debug("Exit code for Scan Timeout: "+exitCode);
         }
 
         System.exit(exitCode);
