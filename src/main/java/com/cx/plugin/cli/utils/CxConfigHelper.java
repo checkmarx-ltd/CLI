@@ -175,6 +175,11 @@ public final class CxConfigHelper {
         scanConfig.setSastFilterPattern(sastFilterPattern);
         scanConfig.setScanComment(cmd.getOptionValue(SCAN_COMMENT));
         setScanReports(scanConfig);
+        String reportPath = getReportPath(SCA_REPORT_PATH);
+        if(reportPath != null && !reportPath.isEmpty()) {
+        	File reportDir = new File(reportPath);
+        	scanConfig.setReportsDir(reportDir);
+        }
         scanConfig.setGenerateScaReport(cmd.hasOption(GENERATE_SCA_REPORT));        
         scanConfig.setScaReportFormat(cmd.getOptionValue(SCA_REPORT_FORMAT));
         if(scanConfig.isGenerateScaReport())

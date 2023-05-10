@@ -126,6 +126,7 @@ public enum Command {
         
         options.addOption(GENERATE_SCA_REPORT, false, ArgDescriptions.GENERATE_SCA_REPORT);
         options.addOption(SCA_REPORT_FORMAT, true, ArgDescriptions.SCA_REPORT_FORMAT);
+        options.addOption(SCA_REPORT_PATH, true, ArgDescriptions.SCA_REPORT_PATH);
         
         options.addOption(IS_INCREMENTAL, false, ArgDescriptions.IS_INCREMENTAL);
         options.addOption(IS_FORCE_SCAN, false, ArgDescriptions.IS_FORCE_SCAN);
