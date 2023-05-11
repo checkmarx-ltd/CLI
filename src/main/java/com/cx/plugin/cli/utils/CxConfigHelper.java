@@ -161,7 +161,11 @@ public final class CxConfigHelper {
                 if (cmd.hasOption(SCA_TIMEOUT)) {
                     scanConfig.setSCAScanTimeoutInMinutes(Integer.valueOf(cmd.getOptionValue(SCA_TIMEOUT)));
                 }
-            } else {
+            }
+            else {
+            	if(cmd.hasOption(SCA_ENABLED) &&  cmd.hasOption(SCA_TIMEOUT)) {
+            			scanConfig.setSCAScanTimeoutInMinutes(Integer.valueOf(cmd.getOptionValue(SCA_TIMEOUT)));
+            	}
                 scanConfig.setProjectName(extractProjectName(cmd.getOptionValue(FULL_PROJECT_PATH), false));
                 scanConfig.setTeamPath(extractTeamPath(cmd.getOptionValue(FULL_PROJECT_PATH), false));
             }
@@ -721,7 +725,13 @@ public final class CxConfigHelper {
 
         //SCA alone scan
         if ((!commandLine.hasOption(SCA_ENABLED))) {
-            if (exploitablePathParamsIncomplete(serverURL, user, password, projectId, projectName)) {
+        	if (exploitablePathParamsIncomplete(serverURL, user, password, projectId, projectName)) { 
+        		serverURL = StringUtils.isEmpty(serverURL)  ? getOptionalParam(SERVER_URL, "") : serverURL;
+            	user = StringUtils.isEmpty(user)  ? getOptionalParam(USER_NAME, "") : user;
+            	password = StringUtils.isEmpty(password)  ? getOptionalParam(USER_PASSWORD, "") : password;
+            	projectName = StringUtils.isEmpty(projectName)  ? getOptionalParam(FULL_PROJECT_PATH, "") : projectName;            	        	
+        	}
+            if (exploitablePathParamsIncomplete(serverURL, user, password, projectId, projectName)) {      	
                 if (!exploitablePathParamsEmpty(serverURL, user, password, projectId, projectName))
                     throw new CLIParsingException(
                             "[CxConsole] For SCA exploitable path, CxSAST server details like url, user, password and full project path or project id are required. Received partial parameters.");
@@ -1152,38 +1162,6 @@ public final class CxConfigHelper {
                 addParams += " -s " + locationPath;
             } else
                 throw new CLIParsingException("locationpath command line option must be specified");
-        }
-        if(cmdLine.hasOption(SCA_ENABLED) && !addParams.contains("--cxserver ")) {
-            String cxserver = cmdLine.getOptionValue(SERVER_URL);
-            if(StringUtils.isNotEmpty(cxserver)) {
-                cxserver = cxserver.trim();
-                addParams += " --cxserver " + cxserver;
-            } else
-                throw new CLIParsingException("cxserver command line option must be specified");
-        }
-        if(cmdLine.hasOption(SCA_ENABLED) && !addParams.contains("--cxuser ")) {
-            String cxuser = cmdLine.getOptionValue(USER_NAME);
-            if(StringUtils.isNotEmpty(cxuser)) {
-                cxuser = cxuser.trim();
-                addParams += " --cxuser " + cxuser;
-            } else
-                throw new CLIParsingException("cxuser command line option must be specified");
-        }
-        if(cmdLine.hasOption(SCA_ENABLED) && !addParams.contains("--cxpassword ")) {
-            String cxpassword = cmdLine.getOptionValue(USER_PASSWORD);
-            if(StringUtils.isNotEmpty(cxpassword)) {
-                cxpassword = cxpassword.trim();
-                addParams += " --cxpassword " + cxpassword;
-            } else
-                throw new CLIParsingException("cxpassword command line option must be specified");
-        }
-        if(cmdLine.hasOption(SCA_ENABLED) && !addParams.contains("--cxprojectname ")) {
-            String cxprojectname = cmdLine.getOptionValue(FULL_PROJECT_PATH);
-            if(StringUtils.isNotEmpty(cxprojectname)) {
-                cxprojectname = cxprojectname.trim();
-                addParams += " --cxprojectname " + cxprojectname;
-            } else
-                throw new CLIParsingException("cxprojectname command line option must be specified");
         }
         return addParams;
     }

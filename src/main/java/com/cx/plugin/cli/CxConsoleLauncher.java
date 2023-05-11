@@ -87,12 +87,7 @@ public class CxConsoleLauncher {
         } catch (CxClientException | IOException | InterruptedException e) {
             log.error("CLI process terminated, error: " + e.getMessage());
             exitCode = ErrorParsingHelper.parseError(e.getMessage());
-        }  catch(ConditionTimeoutException e) {
-        	log.error(e.getMessage());
-            exitCode = ErrorParsingHelper.parseError(e.getMessage());
-            log.debug("Exit code for Scan Timeout: "+exitCode);
-        }
-
+        } 
         System.exit(exitCode);
     }
 
@@ -205,6 +200,7 @@ public class CxConsoleLauncher {
             }
         } else {
             getScanResultExceptionIfExists(results);
+            log.info("Scan is Running in Asynchronous mode. Not waiting for scan to finish.");
         }
 
         return exitCode;
