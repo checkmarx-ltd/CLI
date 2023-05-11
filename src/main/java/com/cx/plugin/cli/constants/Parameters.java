@@ -62,6 +62,7 @@ public final class Parameters {
     
     public static final String GENERATE_SCA_REPORT = "generateScaReport";
     public static final String SCA_REPORT_FORMAT = "scareportformat";
+    public static final String SCA_REPORT_PATH = "scareportpath";
     
     public static final String RTF_REPORT = "reportrtf";
     public static final String IS_INCREMENTAL = "incremental";
