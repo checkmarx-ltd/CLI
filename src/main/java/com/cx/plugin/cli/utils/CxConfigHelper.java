@@ -730,12 +730,15 @@ public final class CxConfigHelper {
 
         //SCA alone scan
         if ((!commandLine.hasOption(SCA_ENABLED))) {
-        	if (exploitablePathParamsIncomplete(serverURL, user, password, projectId, projectName)) { 
-        		serverURL = StringUtils.isEmpty(serverURL)  ? getOptionalParam(SERVER_URL, "") : serverURL;
-            	user = StringUtils.isEmpty(user)  ? getOptionalParam(USER_NAME, "") : user;
-            	password = StringUtils.isEmpty(password)  ? getOptionalParam(USER_PASSWORD, "") : password;
-            	projectName = StringUtils.isEmpty(projectName)  ? getOptionalParam(FULL_PROJECT_PATH, "") : projectName;            	        	
-        	}
+			if (commandLine.hasOption(SAST_PROJECT_NAME) || commandLine.hasOption(SAST_PROJECT_ID)) {
+				if (exploitablePathParamsIncomplete(serverURL, user, password, projectId, projectName)) {
+					serverURL = StringUtils.isEmpty(serverURL) ? getOptionalParam(SERVER_URL, "") : serverURL;
+					user = StringUtils.isEmpty(user) ? getOptionalParam(USER_NAME, "") : user;
+					password = StringUtils.isEmpty(password) ? getOptionalParam(USER_PASSWORD, "") : password;
+					projectName = StringUtils.isEmpty(projectName) ? getOptionalParam(FULL_PROJECT_PATH, "")
+							: projectName;
+				}
+			}
             if (exploitablePathParamsIncomplete(serverURL, user, password, projectId, projectName)) {      	
                 if (!exploitablePathParamsEmpty(serverURL, user, password, projectId, projectName))
                     throw new CLIParsingException(
