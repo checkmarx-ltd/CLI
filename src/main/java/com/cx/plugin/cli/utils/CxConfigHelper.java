@@ -186,8 +186,12 @@ public final class CxConfigHelper {
         }
         scanConfig.setGenerateScaReport(cmd.hasOption(GENERATE_SCA_REPORT));        
         scanConfig.setScaReportFormat(cmd.getOptionValue(SCA_REPORT_FORMAT));
-        if(scanConfig.isGenerateScaReport())
+        if(scanConfig.isGenerateScaReport()) {
         	throwForInvalidScaReportFormat(scanConfig.getScaReportFormat());
+    			if (!cmd.hasOption(SCA_REPORT_PATH)) {
+    				throw new CLIParsingException("Report path must be mentioned in case of generate SCA Report");
+    			}
+        }
         
         scanConfig.setIncremental(cmd.hasOption(IS_INCREMENTAL));
         String postScanAction = cmd.getOptionValue(POST_SCAN_ACTION);
