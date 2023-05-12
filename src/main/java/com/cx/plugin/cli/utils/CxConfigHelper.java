@@ -1165,10 +1165,15 @@ public final class CxConfigHelper {
         }
         if(!addParams.contains("-s ")) {
             String locationPath = cmdLine.getOptionValue(LOCATION_PATH);
+            String scaLocationPath = cmdLine.getOptionValue(SCA_LOCATION_PATH);
             if(StringUtils.isNotEmpty(locationPath)) {
                 locationPath = locationPath.trim();
                 addParams += " -s " + locationPath;
-            } else
+            } else if(StringUtils.isNotEmpty(scaLocationPath)) {
+                scaLocationPath = scaLocationPath.trim();
+                addParams += " -s " + scaLocationPath;
+            }
+            else
                 throw new CLIParsingException("locationpath command line option must be specified");
         }
         return addParams;
