@@ -189,7 +189,7 @@ public final class CxConfigHelper {
         if(scanConfig.isGenerateScaReport()) {
         	throwForInvalidScaReportFormat(scanConfig.getScaReportFormat());
     			if (!cmd.hasOption(SCA_REPORT_PATH)) {
-    				throw new CLIParsingException("Report path must be mentioned in case of generate SCA Report");
+    				throw new CLIParsingException("scareportpath command line option must be specified.");
     			}
         }
         
