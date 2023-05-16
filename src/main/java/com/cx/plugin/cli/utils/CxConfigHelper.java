@@ -1182,7 +1182,7 @@ public final class CxConfigHelper {
 				throw new CLIParsingException("locationpath command line option must be specified");
 		}
 		if (cmdLine.hasOption(SCA_ENABLED)
-				&& (addParams.contains("--cxprojectname ") || addParams.contains("--cxprojectId "))) {
+				&& (addParams.contains("--cxprojectname ") || addParams.contains("--cxprojectid "))) {
 			if (!addParams.contains("--cxserver ")) {
 				String cxserver = cmdLine.getOptionValue(SERVER_URL);
 				if (StringUtils.isNotEmpty(cxserver)) {
@@ -1207,15 +1207,7 @@ public final class CxConfigHelper {
 				} else
 					throw new CLIParsingException("cxpassword command line option must be specified");
 			}
-			if (!addParams.contains("--cxprojectname ")) {
-				String cxprojectname = cmdLine.getOptionValue(FULL_PROJECT_PATH);
-				if (StringUtils.isNotEmpty(cxprojectname)) {
-					cxprojectname = cxprojectname.trim();
-					addParams += " --cxprojectname " + cxprojectname;
-				} else
-					throw new CLIParsingException("cxprojectname command line option must be specified");
-			}
-		} else if (addParams.contains("--cxprojectname ") || addParams.contains("--cxprojectId ")) {
+		} else if (addParams.contains("--cxprojectname ") || addParams.contains("--cxprojectid ")) {
 			if (!addParams.contains("--cxserver ") || !addParams.contains("--cxuser ")
 					|| !addParams.contains("--cxpassword ")) {
 				throw new CLIParsingException(
