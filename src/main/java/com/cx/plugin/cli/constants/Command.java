@@ -126,6 +126,7 @@ public enum Command {
         
         options.addOption(GENERATE_SCA_REPORT, false, ArgDescriptions.GENERATE_SCA_REPORT);
         options.addOption(SCA_REPORT_FORMAT, true, ArgDescriptions.SCA_REPORT_FORMAT);
+        options.addOption(SCA_REPORT_PATH, true, ArgDescriptions.SCA_REPORT_PATH);
         
         options.addOption(IS_INCREMENTAL, false, ArgDescriptions.IS_INCREMENTAL);
         options.addOption(IS_FORCE_SCAN, false, ArgDescriptions.IS_FORCE_SCAN);
@@ -179,6 +180,8 @@ public enum Command {
 
         options.addOption(ENABLE_SAST_BRANCHING, false, ArgDescriptions.ENABLE_SAST_BRANCHING);
         options.addOption(MASTER_BRANCH_PROJ_NAME, true, ArgDescriptions.MASTER_BRANCH_PROJ_NAME);
+        
+        options.addOption(POST_SCAN_ACTION, true, ArgDescriptions.POST_SCAN_ACTION);
 
         options.addOption(PERIODIC_FULL_SCAN, true, ArgDescriptions.PERIODIC_FULL_SCAN);
 

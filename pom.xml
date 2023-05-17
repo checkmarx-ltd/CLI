@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.cx.plugin</groupId>
     <artifactId>CxConsolePlugin</artifactId>
-    <version>1.1.21</version>
+    <version>1.1.26</version>
     <packaging>jar</packaging>
 
     <repositories>
@@ -24,6 +24,8 @@
             <name>libs-snapshot</name>
             <url>~/.m2</url>
         </repository>
+        
+        
     </repositories>
 
     <properties>
@@ -132,7 +134,7 @@
         <dependency>
             <groupId>com.checkmarx</groupId>
             <artifactId>cx-client-common</artifactId>
-            <version>2022.4.4</version>
+            <version>2023.2.5</version>
             <!-- Remove these excludes once latest FSA is used -->
             <exclusions>
 				<exclusion>
@@ -208,7 +210,7 @@
         <dependency>
 				<groupId>org.json</groupId>
 				<artifactId>json</artifactId>
-				<version>20220924</version>
+				<version>20230227</version>
 			</dependency>
 			<dependency>
 			    <groupId>com.google.guava</groupId>
@@ -241,7 +243,17 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>2.14.0</version>
+            <version>2.15.0-rc1</version>
+        </dependency>
+         <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>2.15.0-rc1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-yaml</artifactId>
+            <version>2.15.0-rc1</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -277,11 +289,7 @@
             <artifactId>netty-codec</artifactId>
             <version>4.1.86.Final</version>
         </dependency>     
-        <dependency>
-    		<groupId>org.yaml</groupId>
-    		<artifactId>snakeyaml</artifactId>
-    		<version>1.33</version>
-		</dependency>
+        
         <dependency>
     		<groupId>org.jsoup</groupId>
     		<artifactId>jsoup</artifactId>
@@ -318,7 +326,7 @@
         <dependency>
             <groupId>com.checkmarx</groupId>
             <artifactId>cx-config-provider</artifactId>
-            <version>1.0.13</version>
+            <version>1.0.14</version>
             <exclusions>
                 <exclusion>
                     <groupId>commons-io</groupId>

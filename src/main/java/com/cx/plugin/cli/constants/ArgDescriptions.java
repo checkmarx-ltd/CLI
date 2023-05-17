@@ -84,6 +84,7 @@ class ArgDescriptions {
     static final String XML_REPORT = "Name or path to results report, by type. Optional. Not supported in AsyncScan mode.";
     static final String CSV_REPORT = "Name or path to results report, by type. Optional. Not supported in AsyncScan mode.";
     static final String RTF_REPORT = "Name or path to results report, by type. Optional. Not supported in AsyncScan mode.";
+    static final String SCA_REPORT_PATH = "Path to SCA results report, by type. Optional. Not supported in AsyncScan mode.";
     static final String IS_INCREMENTAL = "Run incremental scan instead of a full scan. Scans only new and modified files, relative to project's last scan(-Incremental will disable any -ForceScan setting). Optional.";
     static final String IS_FORCE_SCAN = "Force scan on source code, which has not been changed since the last scan of the same project (not compatible with -Incremental option). Optional.";
     static final String IS_PRIVATE = "Scan will not be visible to other users. Optional";
@@ -154,6 +155,8 @@ class ArgDescriptions {
     static final String ENABLE_SAST_BRANCHING = "Enable to create child project";
     static final String MASTER_BRANCH_PROJ_NAME = "Master branch project name";
 
+    static final String POST_SCAN_ACTION = "Post Scan Action name that is to be performed automatically after a scan.";
+    
     static final String PERIODIC_FULL_SCAN = "Run a full scan after X incremental scans . Scans all files, (-Incremental should be enable). Optional.";    
 
 }
