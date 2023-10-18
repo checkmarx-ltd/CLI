@@ -121,5 +121,5 @@ public final class Parameters {
     public static final String POST_SCAN_ACTION = "postscanaction";
 
     public static final String PERIODIC_FULL_SCAN = "periodicfullscan";
-
+    public static final String AVOID_DUPLICATE_PROJECT_SCANS = "avoidduplicateprojectscans";
 }

@@ -184,7 +184,8 @@ public enum Command {
         options.addOption(POST_SCAN_ACTION, true, ArgDescriptions.POST_SCAN_ACTION);
 
         options.addOption(PERIODIC_FULL_SCAN, true, ArgDescriptions.PERIODIC_FULL_SCAN);
-
+        options.addOption(AVOID_DUPLICATE_PROJECT_SCANS, false, ArgDescriptions.AVOID_DUPLICATE_PROJECT_SCANS);
+        
         return options;
     }
 
