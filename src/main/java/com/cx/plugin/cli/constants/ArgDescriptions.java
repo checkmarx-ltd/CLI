@@ -159,4 +159,5 @@ class ArgDescriptions {
     
     static final String PERIODIC_FULL_SCAN = "Run a full scan after X incremental scans . Scans all files, (-Incremental should be enable). Optional.";    
 
+    static final String AVOID_DUPLICATE_PROJECT_SCANS = "Avoid duplicate project scans in queue";
 }
