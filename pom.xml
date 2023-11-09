@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.cx.plugin</groupId>
     <artifactId>CxConsolePlugin</artifactId>
-    <version>1.1.26</version>
+    <version>1.1.27</version>
     <packaging>jar</packaging>
 
     <repositories>
@@ -134,7 +134,7 @@
         <dependency>
             <groupId>com.checkmarx</groupId>
             <artifactId>cx-client-common</artifactId>
-            <version>2023.2.5</version>
+            <version>2023.4.1</version>
             <!-- Remove these excludes once latest FSA is used -->
             <exclusions>
 				<exclusion>
@@ -204,18 +204,26 @@
                     <groupId>org.tmatesoft.sqljet</groupId>
                     <artifactId>sqljet</artifactId>
                 </exclusion>
+                <exclusion>
+                	<groupId>org.codehaus.plexus</groupId>
+            		<artifactId>plexus-archiver</artifactId>
+                </exclusion>
+                <exclusion>
+                	<groupId>org.bouncycastle</groupId>
+            		<artifactId>bcprov-jdk15on</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <!-- excluded dependencies from cx-client-common -->
         <dependency>
 				<groupId>org.json</groupId>
 				<artifactId>json</artifactId>
-				<version>20230227</version>
+				<version>20231013</version>
 			</dependency>
 			<dependency>
 			    <groupId>com.google.guava</groupId>
 			    <artifactId>guava</artifactId>
-			    <version>31.1-jre</version>
+			    <version>32.0.0-android</version>
 			</dependency>
 			
 			
@@ -238,7 +246,7 @@
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-codec-http</artifactId>
-            <version>4.1.77.Final</version>
+            <version>4.1.100.Final</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -305,6 +313,26 @@
     		<artifactId>sqljet</artifactId>
     		<version>1.1.15</version>
 		</dependency>
+		<dependency>
+        	<groupId>org.codehaus.plexus</groupId>
+            <artifactId>plexus-archiver</artifactId>
+            <version>4.8.0</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>commons-compress</artifactId>
+                    <groupId>org.apache.commons</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>plexus-utils</artifactId>
+                    <groupId>org.codehaus.plexus</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk15on</artifactId>
+            <version>1.70</version>
+        </dependency>
         <!-- end of excluded dependencies -->
         <dependency>
             <groupId>commons-cli</groupId>
@@ -353,6 +381,10 @@
                     <groupId>org.apache.logging.log4j</groupId>
                     <artifactId>log4j-slf4j-impl</artifactId>
                 </exclusion>
+                <exclusion>
+            		<groupId>org.eclipse.jgit</groupId>
+            		<artifactId>org.eclipse.jgit</artifactId>
+            	</exclusion>	
             </exclusions>
         </dependency>
         <dependency>
@@ -381,6 +413,11 @@
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-slf4j-impl</artifactId>
             <version>2.17.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jgit</groupId>
+            <artifactId>org.eclipse.jgit</artifactId>
+            <version>6.6.1.202309021850-r</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core -->
         <dependency>

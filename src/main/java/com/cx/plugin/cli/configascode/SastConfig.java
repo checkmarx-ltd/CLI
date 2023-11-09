@@ -22,6 +22,8 @@ public class SastConfig {
     @Optional
     private int high;
     @Optional
+	private boolean avoidDuplicateProjectScans;  
+    @Optional
     private boolean isOverrideProjectSetting;
     @Optional
     private boolean enableSastBranching;
@@ -102,11 +104,19 @@ public class SastConfig {
     public void setPrivateScan(boolean privateScan) {
         this.privateScan = privateScan;
     }
+    
+    public boolean isAvoidDuplicateProjectScans() {
+		return avoidDuplicateProjectScans;
+	}
+
+	public void setAvoidDuplicateProjectScans(boolean avoidDuplicateProjectScans) {
+		this.avoidDuplicateProjectScans = avoidDuplicateProjectScans;
+	}
 
 	public boolean isOverrideProjectSetting() {
 		return isOverrideProjectSetting;
 	}
-
+	
 	public void setOverrideProjectSetting(boolean isOverrideProjectSetting) {
 		this.isOverrideProjectSetting = isOverrideProjectSetting;
 	}

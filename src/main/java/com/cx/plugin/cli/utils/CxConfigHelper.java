@@ -223,7 +223,7 @@ public final class CxConfigHelper {
 				scanConfig.setIncremental(isIncremental);
 			}
 		}
-        
+		scanConfig.setAvoidDuplicateProjectScans(cmd.hasOption(AVOID_DUPLICATE_PROJECT_SCANS));
         setSASTThresholds(scanConfig);      
         
         String dsLocationPath = getSharedDependencyScanOption(scanConfig, OSA_LOCATION_PATH, SCA_LOCATION_PATH);
@@ -512,6 +512,11 @@ public final class CxConfigHelper {
             overridesResults.put("Master Branch Project Name", String.valueOf(pValue));
         });
 
+        sast.map(SastConfig::isAvoidDuplicateProjectScans)
+        .ifPresent(pValue -> {
+            scanConfig.setAvoidDuplicateProjectScans(pValue);
+            overridesResults.put("Avoid Duplicate Project Scans", String.valueOf(pValue));
+        });
     }
 
     private void mapProjectConfiguration(Optional<ProjectConfig> project, CxScanConfig scanConfig, Map<String, String> overridesResults) throws CLIParsingException {
