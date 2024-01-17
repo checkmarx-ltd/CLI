@@ -157,9 +157,8 @@ public final class CxConfigHelper {
         scanConfig.setPublic(!cmd.hasOption(IS_PRIVATE));
 		if (cmd.hasOption(SCA_ENABLED) || command.equals(Command.SCA_SCAN)) {
 			scanConfig.setEnablePolicyViolationsSCA(cmd.hasOption(IS_CHECKED_POLICY));
-		} 
-		if(scanConfig.isSastEnabled() && (cmd.hasOption(SCA_ENABLED) || command.equals(Command.SCA_SCAN))){
-			scanConfig.setEnablePolicyViolationsSCA(cmd.hasOption(IS_CHECKED_POLICY));
+		}
+		if (scanConfig.isSastEnabled() || command.equals(Command.OSA_SCAN) || cmd.hasOption(OSA_ENABLED)) {
 			scanConfig.setEnablePolicyViolations(cmd.hasOption(IS_CHECKED_POLICY));
 		}
 
