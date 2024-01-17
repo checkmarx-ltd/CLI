@@ -184,6 +184,10 @@ public class CxConsoleLauncher {
         if (cxScanConfig.getSynchronous()) {
             final ScanResults scanResults = clientDelegator.waitForScanResults();
             results.add(scanResults);
+            
+            if (((cxScanConfig.isSastEnabled()||cxScanConfig.isOsaEnabled()) && cxScanConfig.getEnablePolicyViolations()) || (cxScanConfig.isAstScaEnabled() && cxScanConfig.getEnablePolicyViolationsSCA())) {
+            	clientDelegator.printIsProjectViolated(scanResults);
+            }
 
             getScanResultExceptionIfExists(results);
 

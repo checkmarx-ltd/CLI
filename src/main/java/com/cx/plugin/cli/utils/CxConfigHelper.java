@@ -155,7 +155,11 @@ public final class CxConfigHelper {
         scanConfig.setDisableCertificateValidation(cmd.hasOption(TRUSTED_CERTIFICATES));
 
         scanConfig.setPublic(!cmd.hasOption(IS_PRIVATE));
-        scanConfig.setEnablePolicyViolations(cmd.hasOption(IS_CHECKED_POLICY));
+		if (cmd.hasOption(SCA_ENABLED) || command.equals(Command.SCA_SCAN)) {
+			scanConfig.setEnablePolicyViolationsSCA(cmd.hasOption(IS_CHECKED_POLICY));
+		} else {
+			scanConfig.setEnablePolicyViolations(cmd.hasOption(IS_CHECKED_POLICY));
+		}
 
         if (!commandLine.hasOption(CONFIG_AS_CODE)) {
             if ((command.equals(Command.SCA_SCAN)) || (command.equals(Command.ASYNC_SCA_SCAN))) {
