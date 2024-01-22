@@ -186,6 +186,10 @@ public class CxConsoleLauncher {
             results.add(scanResults);
 
             getScanResultExceptionIfExists(results);
+            
+            if (((cxScanConfig.isSastEnabled()||cxScanConfig.isOsaEnabled()) && cxScanConfig.getEnablePolicyViolations()) || (cxScanConfig.isAstScaEnabled() && cxScanConfig.getEnablePolicyViolationsSCA())) {
+            	clientDelegator.printIsProjectViolated(scanResults);
+            }
 
             ScanSummary scanSummary = new ScanSummary(
                     cxScanConfig,

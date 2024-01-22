@@ -32,6 +32,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
+import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jgit.transport.URIish;
@@ -41,6 +42,7 @@ import javax.annotation.Nullable;
 import javax.naming.ConfigurationException;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -153,7 +155,13 @@ public final class CxConfigHelper {
         scanConfig.setDisableCertificateValidation(cmd.hasOption(TRUSTED_CERTIFICATES));
 
         scanConfig.setPublic(!cmd.hasOption(IS_PRIVATE));
-        scanConfig.setEnablePolicyViolations(cmd.hasOption(IS_CHECKED_POLICY));
+		if (cmd.hasOption(SCA_ENABLED) || command.equals(Command.SCA_SCAN)) {
+			scanConfig.setEnablePolicyViolationsSCA(cmd.hasOption(IS_CHECKED_POLICY));
+		}
+		if (scanConfig.isSastEnabled() || command.equals(Command.OSA_SCAN) || cmd.hasOption(OSA_ENABLED)) {
+			scanConfig.setEnablePolicyViolations(cmd.hasOption(IS_CHECKED_POLICY));
+		}
+
         if (!commandLine.hasOption(CONFIG_AS_CODE)) {
             if ((command.equals(Command.SCA_SCAN)) || (command.equals(Command.ASYNC_SCA_SCAN))) {
                 scanConfig.setProjectName(extractProjectName(cmd.getOptionValue(FULL_PROJECT_PATH), true));
@@ -1020,11 +1028,29 @@ public final class CxConfigHelper {
             return fullPath.substring(0, lastIdx);
 
     }
-
-    public static void printConfig(CommandLine commandLine) {
+    
+    public static String getPluginVersion() {
+    	   String version = "";
+    	   try {
+    	       InputStream is = CxConfigHelper.class.getClassLoader().getResourceAsStream("META-INF/maven/com.cx.plugin/CxConsolePlugin/pom.xml");
+    	       if (is != null) {
+    	           MavenXpp3Reader reader = new MavenXpp3Reader();
+    	           org.apache.maven.model.Model model = reader.read(is);
+    	           version = model.getVersion();
+    	       }
+    	   } catch (Exception e) {
+    	   }
+    	   return version;
+    	}
+    
+    
+	public static void printConfig(CommandLine commandLine) {
         log.info("-----------------------------------------------------------------------------------------");
         log.info("CxConsole Configuration: ");
         log.info("--------------------");
+        
+        String pluginVersion = getPluginVersion();
+		log.info("plugin version: {}", pluginVersion);
         for (Option param : commandLine.getOptions()) {
             String name = param.getLongOpt() != null ? param.getLongOpt() : param.getOpt();
             String value;
