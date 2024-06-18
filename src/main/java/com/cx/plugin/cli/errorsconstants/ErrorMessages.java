@@ -25,6 +25,7 @@ public final class ErrorMessages {
     public static final String THRESHOLD_PARAMETER_IN_ASYNC_SCAN = "Asynchronous run does not support threshold. Please remove the threshold parameters and run again";
     public static final String SERVER_CONNECTIVITY_VALIDATION_ERROR = "Failed to validate server connectivity: ";
 
+    public static final String SAST_CRITICAL_THRESHOLD_ERROR_MSG = "SAST critical vulnerability threshold exceeded";
     public static final String SAST_HIGH_THRESHOLD_ERROR_MSG = "SAST high vulnerability threshold exceeded";
     public static final String SAST_MEDIUM_THRESHOLD_ERROR_MSG = "SAST medium vulnerability threshold exceeded";
     public static final String SAST_LOW_THRESHOLD_ERROR_MSG = "SAST low vulnerability threshold exceeded";

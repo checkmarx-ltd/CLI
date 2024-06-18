@@ -35,9 +35,10 @@ class CxConfigHelperTests {
                 FILE_EXCLUDE = "excludedfiles",
                 PATH_EXCLUDE = "excludedpath";
 
-        final Integer HIGH = 1,
-                MEDIUM = 2,
-                LOW = 3;
+        final Integer CRITICAL = 1,
+        		HIGH = 2,
+                MEDIUM = 3,
+                LOW = 4;
 
         final String[] DEFAULT_ARGS = {
                 "-projectname", "CxServer\\SP\\myprojectname",

@@ -73,6 +73,7 @@ public final class Parameters {
     public static final String SCAN_COMMENT = "comment";
     public static final String IS_SSO = "usesso";
 
+    public static final String SAST_CRITICAL = "sastcritical";
     public static final String SAST_HIGH = "sasthigh";
     public static final String SAST_MEDIUM = "sastmedium";
     public static final String SAST_LOW = "sastlow";

@@ -467,6 +467,15 @@ public final class CxConfigHelper {
                     scanConfig.setSastHighThreshold(pValue);
                     overridesResults.put("High", String.valueOf(pValue));
                 });
+        
+        sast.map(SastConfig::getCritical)
+        .filter(n -> n > 0)
+        .ifPresent(pValue -> {
+            scanConfig.setSastThresholdsEnabled(true);
+            scanConfig.setSastCriticalThreshold(pValue);
+            overridesResults.put("Critical", String.valueOf(pValue));
+        });
+        
         sast.map(SastConfig::getPreset)
                 .filter(StringUtils::isNotBlank)
                 .ifPresent(pValue -> {
@@ -930,11 +939,17 @@ public final class CxConfigHelper {
     }
 
     private CxScanConfig setSASTThresholds(CxScanConfig scanConfig) {
+    	String sastCritical = commandLine.getOptionValue(SAST_CRITICAL);
         String sastHigh = commandLine.getOptionValue(SAST_HIGH);
         String sastMedium = commandLine.getOptionValue(SAST_MEDIUM);
         String sastLow = commandLine.getOptionValue(SAST_LOW);
 
         scanConfig.setSastThresholdsEnabled(false);
+        
+        if (!Strings.isNullOrEmpty(sastCritical)) {
+            scanConfig.setSastCriticalThreshold(Integer.valueOf(sastHigh));
+            scanConfig.setSastThresholdsEnabled(true);
+        }
         if (!Strings.isNullOrEmpty(sastHigh)) {
             scanConfig.setSastHighThreshold(Integer.valueOf(sastHigh));
             scanConfig.setSastThresholdsEnabled(true);

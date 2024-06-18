@@ -97,11 +97,13 @@ class ArgDescriptions {
     static final String GENERATE_SCA_REPORT = "Set Generate Sca Report. Optional.";
     static final String SCA_REPORT_FORMAT = "Set Sca Report Format. Optional.";
     
+    static final String CRITICAL = "critical";
     static final String HIGH = "high";
     static final String MEDIUM = "medium";
     static final String LOW = "low";
     
 
+    static final String SAST_CRITICAL = String.format(THRESHOLD_TEMPLATE, CX_SAST, CRITICAL);
     static final String SAST_HIGH = String.format(THRESHOLD_TEMPLATE, CX_SAST, HIGH);
     static final String SAST_MEDIUM = String.format(THRESHOLD_TEMPLATE, CX_SAST, MEDIUM);
     static final String SAST_LOW = String.format(THRESHOLD_TEMPLATE, CX_SAST, LOW);

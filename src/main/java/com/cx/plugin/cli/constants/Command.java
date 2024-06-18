@@ -134,6 +134,7 @@ public enum Command {
         options.addOption(Option.builder(PRESET).desc(ArgDescriptions.PRESET).hasArg(true).argName("preset").build());
         options.addOption(Option.builder(SCAN_COMMENT).desc(ArgDescriptions.SCAN_COMMENT).hasArg(true).argName("text").build());
         options.addOption(Option.builder(IS_SSO).desc(ArgDescriptions.IS_SSO).hasArg(false).build());
+        options.addOption(SAST_CRITICAL, true, ArgDescriptions.SAST_CRITICAL);
         options.addOption(SAST_HIGH, true, ArgDescriptions.SAST_HIGH);
         options.addOption(SAST_MEDIUM, true, ArgDescriptions.SAST_MEDIUM);
         options.addOption(SAST_LOW, true, ArgDescriptions.SAST_LOW);
