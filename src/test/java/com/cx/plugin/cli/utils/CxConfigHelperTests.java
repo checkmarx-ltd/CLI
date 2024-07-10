@@ -49,6 +49,7 @@ class CxConfigHelperTests {
                 "-scausername", USERNAME,
                 "-scapassword", PASSWORD,
                 "-scaaccount", ACCOUNT,
+                "-scacritical", String.valueOf(CRITICAL),
                 "-scahigh", String.valueOf(HIGH),
                 "-scamedium", String.valueOf(MEDIUM),
                 "-scalow", String.valueOf(LOW),
@@ -67,6 +68,7 @@ class CxConfigHelperTests {
         assertTrue(StringUtils.isNotEmpty(config.getTeamPath()));
         assertEquals(LOCATION_PATH, config.getOsaLocationPath());
 
+        assertEquals(CRITICAL, config.getOsaCriticalThreshold());
         assertEquals(HIGH, config.getOsaHighThreshold());
         assertEquals(MEDIUM, config.getOsaMediumThreshold());
         assertEquals(LOW, config.getOsaLowThreshold());

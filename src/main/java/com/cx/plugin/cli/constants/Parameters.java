@@ -78,6 +78,7 @@ public final class Parameters {
     public static final String SAST_MEDIUM = "sastmedium";
     public static final String SAST_LOW = "sastlow";
 
+    public static final String OSA_CRITICAL = "osacritical";
     public static final String OSA_HIGH = "osahigh";
     public static final String OSA_MEDIUM = "osamedium";
     public static final String OSA_LOW = "osalow";
@@ -94,6 +95,7 @@ public final class Parameters {
 	public static final String PATH_TO_RESOLVER = "pathtoresolver";
     public static final String SCA_RESOLVER_ADD_PARAMETERS = "scaresolveraddparameters";
 
+    public static final String SCA_CRITICAL = "scacritical";
     public static final String SCA_HIGH = "scahigh";
     public static final String SCA_MEDIUM = "scamedium";
     public static final String SCA_LOW = "scalow";

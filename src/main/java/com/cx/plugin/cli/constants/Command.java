@@ -138,6 +138,7 @@ public enum Command {
         options.addOption(SAST_HIGH, true, ArgDescriptions.SAST_HIGH);
         options.addOption(SAST_MEDIUM, true, ArgDescriptions.SAST_MEDIUM);
         options.addOption(SAST_LOW, true, ArgDescriptions.SAST_LOW);
+        options.addOption(OSA_CRITICAL, true, ArgDescriptions.OSA_CRITICAL);
         options.addOption(OSA_HIGH, true, ArgDescriptions.OSA_HIGH);
         options.addOption(OSA_MEDIUM, true, ArgDescriptions.OSA_MEDIUM);
         options.addOption(OSA_LOW, true, ArgDescriptions.OSA_LOW);
@@ -153,6 +154,7 @@ public enum Command {
         options.addOption(PATH_TO_RESOLVER, true, ArgDescriptions.PATH_TO_RESOLVER);//path to resolver
         options.addOption(SCA_RESOLVER_ADD_PARAMETERS, true, ArgDescriptions.SCA_RESOLVER_ADD_PARAMETERS);//path to resolver
 
+        options.addOption(SCA_CRITICAL, true, ArgDescriptions.SCA_CRITICAL);
         options.addOption(SCA_HIGH, true, ArgDescriptions.SCA_HIGH);
         options.addOption(SCA_MEDIUM, true, ArgDescriptions.SCA_MEDIUM);
         options.addOption(SCA_LOW, true, ArgDescriptions.SCA_LOW);

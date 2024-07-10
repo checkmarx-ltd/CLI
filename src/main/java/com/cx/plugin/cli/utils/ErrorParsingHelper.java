@@ -41,6 +41,7 @@ public class ErrorParsingHelper {
         // Generic threshold
         messageToCodeMap.put(GENERIC_THRESHOLD_FAILURE_ERROR_MSG, Errors.GENERIC_THRESHOLD_FAILURE_ERROR.getCode());
         // OSA thresholds
+        messageToCodeMap.put(OSA_CRITICAL_THRESHOLD_ERROR_MSG, Errors.OSA_CRITICAL_THRESHOLD_ERROR.getCode());
         messageToCodeMap.put(OSA_HIGH_THRESHOLD_ERROR_MSG, Errors.OSA_HIGH_THRESHOLD_ERROR.getCode());
         messageToCodeMap.put(OSA_MEDIUM_THRESHOLD_ERROR_MSG, Errors.OSA_MEDIUM_THRESHOLD_ERROR.getCode());
         messageToCodeMap.put(OSA_LOW_THRESHOLD_ERROR_MSG, Errors.OSA_LOW_THRESHOLD_ERROR.getCode());
@@ -97,7 +98,9 @@ public class ErrorParsingHelper {
             }
         } else {
             switch (error.getSeverity()) {
-                case HIGH:
+            	case CRITICAL:
+                return Errors.OSA_CRITICAL_THRESHOLD_ERROR;
+            	case HIGH:
                     return Errors.OSA_HIGH_THRESHOLD_ERROR;
                 case MEDIUM:
                     return Errors.OSA_MEDIUM_THRESHOLD_ERROR;
