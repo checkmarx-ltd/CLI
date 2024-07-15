@@ -243,6 +243,13 @@ public final class CxConfigHelper {
         scanConfig.setProgressInterval(props.getIntProperty(KEY_PROGRESS_INTERVAL));
         scanConfig.setConnectionRetries(props.getIntProperty(KEY_RETRIES));
         scanConfig.setDefaultProjectName(props.getProperty(KEY_DEF_PROJECT_NAME));
+        
+        boolean isTimeOutProvided = cmd.hasOption(BRANCH_TIMEOUT);
+        if(isTimeOutProvided) {
+        	int timeoutinseconds = Integer.valueOf(cmd.getOptionValue(BRANCH_TIMEOUT));
+        	log.info("=============timeoutinseconds=========="+timeoutinseconds);
+        	scanConfig.setcopyBranchTimeOutInSeconds(timeoutinseconds);
+        }        
 
         configureDependencyScan(scanConfig);
 

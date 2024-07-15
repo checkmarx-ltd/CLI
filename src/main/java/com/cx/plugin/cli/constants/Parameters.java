@@ -122,4 +122,5 @@ public final class Parameters {
 
     public static final String PERIODIC_FULL_SCAN = "periodicfullscan";
     public static final String AVOID_DUPLICATE_PROJECT_SCANS = "avoidduplicateprojectscans";
+    public static final String BRANCH_TIMEOUT = "copybranchtimeoutinseconds";
 }

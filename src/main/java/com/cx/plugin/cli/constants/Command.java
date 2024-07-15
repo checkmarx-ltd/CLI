@@ -185,6 +185,7 @@ public enum Command {
 
         options.addOption(PERIODIC_FULL_SCAN, true, ArgDescriptions.PERIODIC_FULL_SCAN);
         options.addOption(AVOID_DUPLICATE_PROJECT_SCANS, false, ArgDescriptions.AVOID_DUPLICATE_PROJECT_SCANS);
+        options.addOption(BRANCH_TIMEOUT, true, ArgDescriptions.BRANCH_TIMEOUT);
         
         return options;
     }
