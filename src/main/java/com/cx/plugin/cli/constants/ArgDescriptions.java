@@ -97,14 +97,17 @@ class ArgDescriptions {
     static final String GENERATE_SCA_REPORT = "Set Generate Sca Report. Optional.";
     static final String SCA_REPORT_FORMAT = "Set Sca Report Format. Optional.";
     
+    static final String CRITICAL = "critical";
     static final String HIGH = "high";
     static final String MEDIUM = "medium";
     static final String LOW = "low";
     
 
+    static final String SAST_CRITICAL = String.format(THRESHOLD_TEMPLATE, CX_SAST, CRITICAL);
     static final String SAST_HIGH = String.format(THRESHOLD_TEMPLATE, CX_SAST, HIGH);
     static final String SAST_MEDIUM = String.format(THRESHOLD_TEMPLATE, CX_SAST, MEDIUM);
     static final String SAST_LOW = String.format(THRESHOLD_TEMPLATE, CX_SAST, LOW);
+    static final String OSA_CRITICAL = String.format(THRESHOLD_TEMPLATE, CX_OSA, CRITICAL);
     static final String OSA_HIGH = String.format(THRESHOLD_TEMPLATE, CX_OSA, HIGH);
     static final String OSA_MEDIUM = String.format(THRESHOLD_TEMPLATE, CX_OSA, MEDIUM);
     static final String OSA_LOW = String.format(THRESHOLD_TEMPLATE, CX_OSA, LOW);
@@ -124,6 +127,7 @@ class ArgDescriptions {
     static final String PATH_TO_RESOLVER = "Local path to sca resolver installation directory.";
     static final String SCA_RESOLVER_ADD_PARAMETERS = "Arguments to SCA Resolver tool. Mandatory parameters as documented in SCA Resolver documentation to execute it in offline mode must be provided.";
 
+    static final String SCA_CRITICAL = String.format(THRESHOLD_TEMPLATE, CX_SCA, CRITICAL);
     static final String SCA_HIGH = String.format(THRESHOLD_TEMPLATE, CX_SCA, HIGH);
     static final String SCA_MEDIUM = String.format(THRESHOLD_TEMPLATE, CX_SCA, MEDIUM);
     static final String SCA_LOW = String.format(THRESHOLD_TEMPLATE, CX_SCA, LOW);

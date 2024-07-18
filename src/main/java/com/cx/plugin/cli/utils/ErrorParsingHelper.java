@@ -41,10 +41,12 @@ public class ErrorParsingHelper {
         // Generic threshold
         messageToCodeMap.put(GENERIC_THRESHOLD_FAILURE_ERROR_MSG, Errors.GENERIC_THRESHOLD_FAILURE_ERROR.getCode());
         // OSA thresholds
+        messageToCodeMap.put(OSA_CRITICAL_THRESHOLD_ERROR_MSG, Errors.OSA_CRITICAL_THRESHOLD_ERROR.getCode());
         messageToCodeMap.put(OSA_HIGH_THRESHOLD_ERROR_MSG, Errors.OSA_HIGH_THRESHOLD_ERROR.getCode());
         messageToCodeMap.put(OSA_MEDIUM_THRESHOLD_ERROR_MSG, Errors.OSA_MEDIUM_THRESHOLD_ERROR.getCode());
         messageToCodeMap.put(OSA_LOW_THRESHOLD_ERROR_MSG, Errors.OSA_LOW_THRESHOLD_ERROR.getCode());
         // SAST thresholds
+        messageToCodeMap.put(SAST_CRITICAL_THRESHOLD_ERROR_MSG, Errors.SAST_CRITICAL_THRESHOLD_ERROR.getCode());
         messageToCodeMap.put(SAST_HIGH_THRESHOLD_ERROR_MSG, Errors.SAST_HIGH_THRESHOLD_ERROR.getCode());
         messageToCodeMap.put(SAST_MEDIUM_THRESHOLD_ERROR_MSG, Errors.SAST_MEDIUM_THRESHOLD_ERROR.getCode());
         messageToCodeMap.put(SAST_LOW_THRESHOLD_ERROR_MSG, Errors.SAST_LOW_THRESHOLD_ERROR.getCode());
@@ -85,6 +87,8 @@ public class ErrorParsingHelper {
     private static Errors toThresholdErrorCode(ThresholdError error) {
         if (error.getSource() == ErrorSource.SAST) {
             switch (error.getSeverity()) {
+            	case CRITICAL:
+            		return Errors.SAST_CRITICAL_THRESHOLD_ERROR;
                 case HIGH:
                     return Errors.SAST_HIGH_THRESHOLD_ERROR;
                 case MEDIUM:
@@ -94,7 +98,9 @@ public class ErrorParsingHelper {
             }
         } else {
             switch (error.getSeverity()) {
-                case HIGH:
+            	case CRITICAL:
+                return Errors.OSA_CRITICAL_THRESHOLD_ERROR;
+            	case HIGH:
                     return Errors.OSA_HIGH_THRESHOLD_ERROR;
                 case MEDIUM:
                     return Errors.OSA_MEDIUM_THRESHOLD_ERROR;
