@@ -31,7 +31,9 @@ public class SastConfig {
     private boolean enableSastBranching;
     @Optional
     private String masterBranchProjName;
-
+    @Optional
+    private int branchTimeout;
+    
     public SastConfig() {
     }
 
@@ -147,5 +149,12 @@ public class SastConfig {
 		this.masterBranchProjName = masterBranchProjName;
 	}
 
+	public void setBranchTimeout(int branchTimeout) {
+		this.branchTimeout = branchTimeout;
+	}
+	
+	public int getBranchTimeout(){
+		return branchTimeout;
+	}
     
 }
