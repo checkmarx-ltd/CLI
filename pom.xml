@@ -24,6 +24,8 @@
             <name>libs-snapshot</name>
             <url>~/.m2</url>
         </repository>
+        
+        
     </repositories>
 
     <properties>
