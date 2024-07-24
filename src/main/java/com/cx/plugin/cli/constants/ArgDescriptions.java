@@ -107,7 +107,6 @@ class ArgDescriptions {
     static final String SAST_HIGH = String.format(THRESHOLD_TEMPLATE, CX_SAST, HIGH);
     static final String SAST_MEDIUM = String.format(THRESHOLD_TEMPLATE, CX_SAST, MEDIUM);
     static final String SAST_LOW = String.format(THRESHOLD_TEMPLATE, CX_SAST, LOW);
-//    static final String OSA_CRITICAL = String.format(THRESHOLD_TEMPLATE, CX_OSA, CRITICAL);
     static final String OSA_HIGH = String.format(THRESHOLD_TEMPLATE, CX_OSA, HIGH);
     static final String OSA_MEDIUM = String.format(THRESHOLD_TEMPLATE, CX_OSA, MEDIUM);
     static final String OSA_LOW = String.format(THRESHOLD_TEMPLATE, CX_OSA, LOW);
