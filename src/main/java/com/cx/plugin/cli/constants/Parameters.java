@@ -78,7 +78,7 @@ public final class Parameters {
     public static final String SAST_MEDIUM = "sastmedium";
     public static final String SAST_LOW = "sastlow";
 
-    public static final String OSA_CRITICAL = "osacritical";
+//    public static final String OSA_CRITICAL = "osacritical";
     public static final String OSA_HIGH = "osahigh";
     public static final String OSA_MEDIUM = "osamedium";
     public static final String OSA_LOW = "osalow";

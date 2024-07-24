@@ -138,7 +138,7 @@ public enum Command {
         options.addOption(SAST_HIGH, true, ArgDescriptions.SAST_HIGH);
         options.addOption(SAST_MEDIUM, true, ArgDescriptions.SAST_MEDIUM);
         options.addOption(SAST_LOW, true, ArgDescriptions.SAST_LOW);
-        options.addOption(OSA_CRITICAL, true, ArgDescriptions.OSA_CRITICAL);
+//        options.addOption(OSA_CRITICAL, true, ArgDescriptions.OSA_CRITICAL);
         options.addOption(OSA_HIGH, true, ArgDescriptions.OSA_HIGH);
         options.addOption(OSA_MEDIUM, true, ArgDescriptions.OSA_MEDIUM);
         options.addOption(OSA_LOW, true, ArgDescriptions.OSA_LOW);
