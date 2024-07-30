@@ -242,6 +242,13 @@ public final class CxConfigHelper {
         scanConfig.setProgressInterval(props.getIntProperty(KEY_PROGRESS_INTERVAL));
         scanConfig.setConnectionRetries(props.getIntProperty(KEY_RETRIES));
         scanConfig.setDefaultProjectName(props.getProperty(KEY_DEF_PROJECT_NAME));
+        
+        boolean isTimeOutProvided = cmd.hasOption(BRANCH_TIMEOUT);
+        if(isTimeOutProvided) {
+        	int timeoutinseconds = Integer.valueOf(cmd.getOptionValue(BRANCH_TIMEOUT));
+        	log.info("=============timeoutinseconds=========="+timeoutinseconds);
+        	scanConfig.setcopyBranchTimeOutInSeconds(timeoutinseconds);
+        }        
 
         configureDependencyScan(scanConfig);
 
@@ -393,6 +400,12 @@ public final class CxConfigHelper {
                     overridesResults.put("Sca Folder Exclude", pValue);
                 });
 
+        sca.map(ScaConfig::getCritical)
+        .filter(n -> n > 0)
+        .ifPresent(pValue -> {
+            overridesResults.put("Sca Critical", String.valueOf(pValue));
+        });
+        
         sca.map(ScaConfig::getHigh)
                 .filter(n -> n > 0)
                 .ifPresent(pValue -> {
@@ -466,6 +479,15 @@ public final class CxConfigHelper {
                     scanConfig.setSastHighThreshold(pValue);
                     overridesResults.put("High", String.valueOf(pValue));
                 });
+        
+        sast.map(SastConfig::getCritical)
+        .filter(n -> n > 0)
+        .ifPresent(pValue -> {
+            scanConfig.setSastThresholdsEnabled(true);
+            scanConfig.setSastCriticalThreshold(pValue);
+            overridesResults.put("Critical", String.valueOf(pValue));
+        });
+        
         sast.map(SastConfig::getPreset)
                 .filter(StringUtils::isNotBlank)
                 .ifPresent(pValue -> {
@@ -934,11 +956,17 @@ public final class CxConfigHelper {
     }
 
     private CxScanConfig setSASTThresholds(CxScanConfig scanConfig) {
+    	String sastCritical = commandLine.getOptionValue(SAST_CRITICAL);
         String sastHigh = commandLine.getOptionValue(SAST_HIGH);
         String sastMedium = commandLine.getOptionValue(SAST_MEDIUM);
         String sastLow = commandLine.getOptionValue(SAST_LOW);
 
         scanConfig.setSastThresholdsEnabled(false);
+        
+        if (!Strings.isNullOrEmpty(sastCritical)) {
+            scanConfig.setSastCriticalThreshold(Integer.valueOf(sastCritical));
+            scanConfig.setSastThresholdsEnabled(true);
+        }
         if (!Strings.isNullOrEmpty(sastHigh)) {
             scanConfig.setSastHighThreshold(Integer.valueOf(sastHigh));
             scanConfig.setSastThresholdsEnabled(true);
@@ -956,11 +984,14 @@ public final class CxConfigHelper {
     }
 
     private void setDependencyScanThresholds(CxScanConfig scanConfig) {
-        String high = getSharedDependencyScanOption(scanConfig, OSA_HIGH, SCA_HIGH);
+    	if(scanConfig.isAstScaEnabled()) {
+    	String critical = getSharedDependencyScanOption(scanConfig,"",SCA_CRITICAL);}
+    	String high = getSharedDependencyScanOption(scanConfig, OSA_HIGH, SCA_HIGH);
         String medium = getSharedDependencyScanOption(scanConfig, OSA_MEDIUM, SCA_MEDIUM);
         String low = getSharedDependencyScanOption(scanConfig, OSA_LOW, SCA_LOW);
 
         scanConfig.setOsaThresholdsEnabled(false);
+
         if (!Strings.isNullOrEmpty(high)) {
             scanConfig.setOsaHighThreshold(Integer.valueOf(high));
             scanConfig.setOsaThresholdsEnabled(true);
@@ -1059,7 +1090,7 @@ public final class CxConfigHelper {
             String name = param.getLongOpt() != null ? param.getLongOpt() : param.getOpt();
             String value;
             if (param.getOpt().equalsIgnoreCase(Parameters.USER_PASSWORD) ||
-                    param.getOpt().equalsIgnoreCase(SCA_PASSWORD) ||
+                    param.getOpt().equalsIgnoreCase(SCA_PASSWORD) ||	
                     param.getOpt().equalsIgnoreCase(LOCATION_PASSWORD) ||
                     param.getOpt().equalsIgnoreCase(TOKEN)) {
                 value = "********";
