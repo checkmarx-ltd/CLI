@@ -403,6 +403,8 @@ public final class CxConfigHelper {
         sca.map(ScaConfig::getCritical)
         .filter(n -> n > 0)
         .ifPresent(pValue -> {
+          scanConfig.setOsaThresholdsEnabled(true);
+          scanConfig.setOsaCriticalThreshold(pValue);        	
             overridesResults.put("Sca Critical", String.valueOf(pValue));
         });
         
@@ -984,14 +986,16 @@ public final class CxConfigHelper {
     }
 
     private void setDependencyScanThresholds(CxScanConfig scanConfig) {
-    	if(scanConfig.isAstScaEnabled()) {
-    	String critical = getSharedDependencyScanOption(scanConfig,"",SCA_CRITICAL);}
+    	String critical = getSharedDependencyScanOption(scanConfig,"",SCA_CRITICAL);
     	String high = getSharedDependencyScanOption(scanConfig, OSA_HIGH, SCA_HIGH);
         String medium = getSharedDependencyScanOption(scanConfig, OSA_MEDIUM, SCA_MEDIUM);
         String low = getSharedDependencyScanOption(scanConfig, OSA_LOW, SCA_LOW);
 
         scanConfig.setOsaThresholdsEnabled(false);
-
+        if (!Strings.isNullOrEmpty(critical)) {
+        	scanConfig.setOsaCriticalThreshold(Integer.valueOf(critical));
+        	scanConfig.setOsaThresholdsEnabled(true);
+      	}
         if (!Strings.isNullOrEmpty(high)) {
             scanConfig.setOsaHighThreshold(Integer.valueOf(high));
             scanConfig.setOsaThresholdsEnabled(true);
