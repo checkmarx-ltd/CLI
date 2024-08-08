@@ -132,7 +132,7 @@
         <dependency>
             <groupId>com.checkmarx</groupId>
             <artifactId>cx-client-common</artifactId>
-            <version>2024.3.25</version>
+            <version>2024.3.26</version>
             <!-- Remove these excludes once latest FSA is used -->
             <exclusions>
 				<exclusion>
