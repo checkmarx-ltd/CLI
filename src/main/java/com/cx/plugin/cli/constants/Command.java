@@ -134,6 +134,7 @@ public enum Command {
         options.addOption(Option.builder(PRESET).desc(ArgDescriptions.PRESET).hasArg(true).argName("preset").build());
         options.addOption(Option.builder(SCAN_COMMENT).desc(ArgDescriptions.SCAN_COMMENT).hasArg(true).argName("text").build());
         options.addOption(Option.builder(IS_SSO).desc(ArgDescriptions.IS_SSO).hasArg(false).build());
+        options.addOption(SAST_CRITICAL, true, ArgDescriptions.SAST_CRITICAL);
         options.addOption(SAST_HIGH, true, ArgDescriptions.SAST_HIGH);
         options.addOption(SAST_MEDIUM, true, ArgDescriptions.SAST_MEDIUM);
         options.addOption(SAST_LOW, true, ArgDescriptions.SAST_LOW);
@@ -152,6 +153,7 @@ public enum Command {
         options.addOption(PATH_TO_RESOLVER, true, ArgDescriptions.PATH_TO_RESOLVER);//path to resolver
         options.addOption(SCA_RESOLVER_ADD_PARAMETERS, true, ArgDescriptions.SCA_RESOLVER_ADD_PARAMETERS);//path to resolver
 
+        options.addOption(SCA_CRITICAL, true, ArgDescriptions.SCA_CRITICAL);
         options.addOption(SCA_HIGH, true, ArgDescriptions.SCA_HIGH);
         options.addOption(SCA_MEDIUM, true, ArgDescriptions.SCA_MEDIUM);
         options.addOption(SCA_LOW, true, ArgDescriptions.SCA_LOW);
@@ -185,6 +187,7 @@ public enum Command {
 
         options.addOption(PERIODIC_FULL_SCAN, true, ArgDescriptions.PERIODIC_FULL_SCAN);
         options.addOption(AVOID_DUPLICATE_PROJECT_SCANS, false, ArgDescriptions.AVOID_DUPLICATE_PROJECT_SCANS);
+        options.addOption(BRANCH_TIMEOUT, true, ArgDescriptions.BRANCH_TIMEOUT);
         
         return options;
     }

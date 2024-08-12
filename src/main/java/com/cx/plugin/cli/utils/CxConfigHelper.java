@@ -81,7 +81,7 @@ public final class CxConfigHelper {
     private int fullScanCycle;
     public static final int FULL_SCAN_CYCLE_MIN = 1;
     public static final int FULL_SCAN_CYCLE_MAX = 99;
-    
+
     public CxConfigHelper(String configFilePath) {
         props = PropertiesManager.getProps(configFilePath);
     }
@@ -101,7 +101,7 @@ public final class CxConfigHelper {
 
         //pass trust store
         setSystemProperties();
-        
+
         CxScanConfig scanConfig = new CxScanConfig();
 
         if (testConnection(scanConfig)) {
@@ -155,12 +155,12 @@ public final class CxConfigHelper {
         scanConfig.setDisableCertificateValidation(cmd.hasOption(TRUSTED_CERTIFICATES));
 
         scanConfig.setPublic(!cmd.hasOption(IS_PRIVATE));
-		if (cmd.hasOption(SCA_ENABLED) || command.equals(Command.SCA_SCAN)) {
-			scanConfig.setEnablePolicyViolationsSCA(cmd.hasOption(IS_CHECKED_POLICY));
-		}
-		if (scanConfig.isSastEnabled() || command.equals(Command.OSA_SCAN) || cmd.hasOption(OSA_ENABLED)) {
-			scanConfig.setEnablePolicyViolations(cmd.hasOption(IS_CHECKED_POLICY));
-		}
+        if (cmd.hasOption(SCA_ENABLED) || command.equals(Command.SCA_SCAN)) {
+            scanConfig.setEnablePolicyViolationsSCA(cmd.hasOption(IS_CHECKED_POLICY));
+        }
+        if (scanConfig.isSastEnabled() || command.equals(Command.OSA_SCAN) || cmd.hasOption(OSA_ENABLED)) {
+            scanConfig.setEnablePolicyViolations(cmd.hasOption(IS_CHECKED_POLICY));
+        }
 
         if (!commandLine.hasOption(CONFIG_AS_CODE)) {
             if ((command.equals(Command.SCA_SCAN)) || (command.equals(Command.ASYNC_SCA_SCAN))) {
@@ -169,11 +169,10 @@ public final class CxConfigHelper {
                 if (cmd.hasOption(SCA_TIMEOUT)) {
                     scanConfig.setSCAScanTimeoutInMinutes(Integer.valueOf(cmd.getOptionValue(SCA_TIMEOUT)));
                 }
-            }
-            else {
-            	if(cmd.hasOption(SCA_ENABLED) &&  cmd.hasOption(SCA_TIMEOUT)) {
-            			scanConfig.setSCAScanTimeoutInMinutes(Integer.valueOf(cmd.getOptionValue(SCA_TIMEOUT)));
-            	}
+            } else {
+                if (cmd.hasOption(SCA_ENABLED) && cmd.hasOption(SCA_TIMEOUT)) {
+                    scanConfig.setSCAScanTimeoutInMinutes(Integer.valueOf(cmd.getOptionValue(SCA_TIMEOUT)));
+                }
                 scanConfig.setProjectName(extractProjectName(cmd.getOptionValue(FULL_PROJECT_PATH), false));
                 scanConfig.setTeamPath(extractTeamPath(cmd.getOptionValue(FULL_PROJECT_PATH), false));
             }
@@ -188,52 +187,52 @@ public final class CxConfigHelper {
         scanConfig.setScanComment(cmd.getOptionValue(SCAN_COMMENT));
         setScanReports(scanConfig);
         String reportPath = getReportPath(SCA_REPORT_PATH);
-        if(reportPath != null && !reportPath.isEmpty()) {
-        	File reportDir = new File(reportPath);
-        	scanConfig.setReportsDir(reportDir);
+        if (reportPath != null && !reportPath.isEmpty()) {
+            File reportDir = new File(reportPath);
+            scanConfig.setReportsDir(reportDir);
         }
-        scanConfig.setGenerateScaReport(cmd.hasOption(GENERATE_SCA_REPORT));        
+        scanConfig.setGenerateScaReport(cmd.hasOption(GENERATE_SCA_REPORT));
         scanConfig.setScaReportFormat(cmd.getOptionValue(SCA_REPORT_FORMAT));
-        if(scanConfig.isGenerateScaReport()) {
-        	throwForInvalidScaReportFormat(scanConfig.getScaReportFormat());
-    			if (!cmd.hasOption(SCA_REPORT_PATH)) {
-    				throw new CLIParsingException("scareportpath command line option must be specified.");
-    			}
+        if (scanConfig.isGenerateScaReport()) {
+            throwForInvalidScaReportFormat(scanConfig.getScaReportFormat());
+            if (!cmd.hasOption(SCA_REPORT_PATH)) {
+                throw new CLIParsingException("scareportpath command line option must be specified.");
+            }
         }
-        
+
         scanConfig.setIncremental(cmd.hasOption(IS_INCREMENTAL));
         String postScanAction = cmd.getOptionValue(POST_SCAN_ACTION);
-        	scanConfig.setPostScanName(postScanAction);
-        scanConfig.setForceScan(cmd.hasOption(IS_FORCE_SCAN));        
-		scanConfig.setEnableSASTBranching(cmd.hasOption(ENABLE_SAST_BRANCHING));
-		if (cmd.hasOption(ENABLE_SAST_BRANCHING)) {
-			if (!cmd.hasOption(MASTER_BRANCH_PROJ_NAME)) {
-				getRequiredParam(cmd, MASTER_BRANCH_PROJ_NAME, null);
-			} else {
-				scanConfig.setMasterBranchProjName(cmd.getOptionValue(MASTER_BRANCH_PROJ_NAME));
-			}
-		}
-        
+        scanConfig.setPostScanName(postScanAction);
+        scanConfig.setForceScan(cmd.hasOption(IS_FORCE_SCAN));
+        scanConfig.setEnableSASTBranching(cmd.hasOption(ENABLE_SAST_BRANCHING));
+        if (cmd.hasOption(ENABLE_SAST_BRANCHING)) {
+            if (!cmd.hasOption(MASTER_BRANCH_PROJ_NAME)) {
+                getRequiredParam(cmd, MASTER_BRANCH_PROJ_NAME, null);
+            } else {
+                scanConfig.setMasterBranchProjName(cmd.getOptionValue(MASTER_BRANCH_PROJ_NAME));
+            }
+        }
+
         if (cmd.hasOption(IS_INCREMENTAL)) {
-        	scanConfig.setIncremental(!cmd.hasOption(IS_FORCE_SCAN));
+            scanConfig.setIncremental(!cmd.hasOption(IS_FORCE_SCAN));
         }
         boolean isFullScan = (cmd.hasOption(IS_INCREMENTAL)) && (cmd.hasOption(IS_FORCE_SCAN));
-        if(isFullScan) {
-        	log.info("Both incremental scan and Force scan options are provided. Full scan will be performed.");
+        if (isFullScan) {
+            log.info("Both incremental scan and Force scan options are provided. Full scan will be performed.");
         }
-		if (cmd.hasOption(PERIODIC_FULL_SCAN)) {
-			if (!cmd.hasOption(IS_INCREMENTAL)) {
-				getRequiredParam(cmd, IS_INCREMENTAL, null);
-			} else {
-				String periodicFullScan = cmd.getOptionValue(PERIODIC_FULL_SCAN);
-				this.fullScanCycle = Integer.valueOf(periodicFullScan);
-				boolean isIncremental = isThisBuildIncremental();
-				scanConfig.setIncremental(isIncremental);
-			}
-		}
-		scanConfig.setAvoidDuplicateProjectScans(cmd.hasOption(AVOID_DUPLICATE_PROJECT_SCANS));
-        setSASTThresholds(scanConfig);      
-        
+        if (cmd.hasOption(PERIODIC_FULL_SCAN)) {
+            if (!cmd.hasOption(IS_INCREMENTAL)) {
+                getRequiredParam(cmd, IS_INCREMENTAL, null);
+            } else {
+                String periodicFullScan = cmd.getOptionValue(PERIODIC_FULL_SCAN);
+                this.fullScanCycle = Integer.valueOf(periodicFullScan);
+                boolean isIncremental = isThisBuildIncremental();
+                scanConfig.setIncremental(isIncremental);
+            }
+        }
+        scanConfig.setAvoidDuplicateProjectScans(cmd.hasOption(AVOID_DUPLICATE_PROJECT_SCANS));
+        setSASTThresholds(scanConfig);
+
         String dsLocationPath = getSharedDependencyScanOption(scanConfig, OSA_LOCATION_PATH, SCA_LOCATION_PATH);
         if (scanConfig.isSastEnabled() || dsLocationPath == null) {
             ScanSourceConfigurator locator = new ScanSourceConfigurator();
@@ -243,6 +242,13 @@ public final class CxConfigHelper {
         scanConfig.setProgressInterval(props.getIntProperty(KEY_PROGRESS_INTERVAL));
         scanConfig.setConnectionRetries(props.getIntProperty(KEY_RETRIES));
         scanConfig.setDefaultProjectName(props.getProperty(KEY_DEF_PROJECT_NAME));
+        
+        boolean isTimeOutProvided = cmd.hasOption(BRANCH_TIMEOUT);
+        if(isTimeOutProvided) {
+        	int timeoutinseconds = Integer.valueOf(cmd.getOptionValue(BRANCH_TIMEOUT));
+        	log.info("=============timeoutinseconds=========="+timeoutinseconds);
+        	scanConfig.setcopyBranchTimeOutInSeconds(timeoutinseconds);
+        }        
 
         configureDependencyScan(scanConfig);
 
@@ -251,19 +257,19 @@ public final class CxConfigHelper {
 
         return scanConfig;
     }
-    
-    
+
+
     /*
      * Sets JSSE JVM properties to pass custom trust store and its password
      */
     public void setSystemProperties() {
-    	
-    	String customTrustStore = props.getProperty(KEY_CUSTOM_TRUSTSTORE);
+
+        String customTrustStore = props.getProperty(KEY_CUSTOM_TRUSTSTORE);
         String customTrustStorePassword = props.getProperty(KEY_CUSTOM_TRUSTSTORE_PASSWORD);
-        if(customTrustStore != null && !customTrustStore.isEmpty()) { 
-        	System.setProperty("javax.net.ssl.trustStore", customTrustStore);
-        	System.setProperty("javax.net.ssl.trustStorePassword", customTrustStorePassword);
-        	System.setProperty("javax.net.ssl.trustStoreType", "JKS");
+        if (customTrustStore != null && !customTrustStore.isEmpty()) {
+            System.setProperty("javax.net.ssl.trustStore", customTrustStore);
+            System.setProperty("javax.net.ssl.trustStorePassword", customTrustStorePassword);
+            System.setProperty("javax.net.ssl.trustStoreType", "JKS");
         }
     }
 
@@ -394,6 +400,14 @@ public final class CxConfigHelper {
                     overridesResults.put("Sca Folder Exclude", pValue);
                 });
 
+        sca.map(ScaConfig::getCritical)
+        .filter(n -> n > 0)
+        .ifPresent(pValue -> {
+          scanConfig.setOsaThresholdsEnabled(true);
+          scanConfig.setOsaCriticalThreshold(pValue);        	
+            overridesResults.put("Sca Critical", String.valueOf(pValue));
+        });
+        
         sca.map(ScaConfig::getHigh)
                 .filter(n -> n > 0)
                 .ifPresent(pValue -> {
@@ -467,6 +481,15 @@ public final class CxConfigHelper {
                     scanConfig.setSastHighThreshold(pValue);
                     overridesResults.put("High", String.valueOf(pValue));
                 });
+        
+        sast.map(SastConfig::getCritical)
+        .filter(n -> n > 0)
+        .ifPresent(pValue -> {
+            scanConfig.setSastThresholdsEnabled(true);
+            scanConfig.setSastCriticalThreshold(pValue);
+            overridesResults.put("Critical", String.valueOf(pValue));
+        });
+        
         sast.map(SastConfig::getPreset)
                 .filter(StringUtils::isNotBlank)
                 .ifPresent(pValue -> {
@@ -503,28 +526,28 @@ public final class CxConfigHelper {
                 });
 
         sast.map(SastConfig::isOverrideProjectSetting)
-        .ifPresent(pValue -> {
-            scanConfig.setIsOverrideProjectSetting(pValue);
-            overridesResults.put("Is Overridable", String.valueOf(pValue));
-        });
-        
+                .ifPresent(pValue -> {
+                    scanConfig.setIsOverrideProjectSetting(pValue);
+                    overridesResults.put("Is Overridable", String.valueOf(pValue));
+                });
+
         sast.map(SastConfig::isEnableSASTBranching)
-        .ifPresent(pValue -> {
-            scanConfig.setEnableSASTBranching(pValue);
-            overridesResults.put("Enable SAST Branching", String.valueOf(pValue));
-        });
-        
+                .ifPresent(pValue -> {
+                    scanConfig.setEnableSASTBranching(pValue);
+                    overridesResults.put("Enable SAST Branching", String.valueOf(pValue));
+                });
+
         sast.map(SastConfig::getMasterBranchProjName)
-        .ifPresent(pValue -> {
-            scanConfig.setMasterBranchProjName(pValue);
-            overridesResults.put("Master Branch Project Name", String.valueOf(pValue));
-        });
+                .ifPresent(pValue -> {
+                    scanConfig.setMasterBranchProjName(pValue);
+                    overridesResults.put("Master Branch Project Name", String.valueOf(pValue));
+                });
 
         sast.map(SastConfig::isAvoidDuplicateProjectScans)
-        .ifPresent(pValue -> {
-            scanConfig.setAvoidDuplicateProjectScans(pValue);
-            overridesResults.put("Avoid Duplicate Project Scans", String.valueOf(pValue));
-        });
+                .ifPresent(pValue -> {
+                    scanConfig.setAvoidDuplicateProjectScans(pValue);
+                    overridesResults.put("Avoid Duplicate Project Scans", String.valueOf(pValue));
+                });
     }
 
     private void mapProjectConfiguration(Optional<ProjectConfig> project, CxScanConfig scanConfig, Map<String, String> overridesResults) throws CLIParsingException {
@@ -747,16 +770,16 @@ public final class CxConfigHelper {
 
         //SCA alone scan
         if ((!commandLine.hasOption(SCA_ENABLED))) {
-			if (commandLine.hasOption(SAST_PROJECT_NAME) || commandLine.hasOption(SAST_PROJECT_ID)) {
-				if (exploitablePathParamsIncomplete(serverURL, user, password, projectId, projectName)) {
-					serverURL = StringUtils.isEmpty(serverURL) ? getOptionalParam(SERVER_URL, "") : serverURL;
-					user = StringUtils.isEmpty(user) ? getOptionalParam(USER_NAME, "") : user;
-					password = StringUtils.isEmpty(password) ? getOptionalParam(USER_PASSWORD, "") : password;
-					projectName = StringUtils.isEmpty(projectName) ? getOptionalParam(FULL_PROJECT_PATH, "")
-							: projectName;
-				}
-			}
-            if (exploitablePathParamsIncomplete(serverURL, user, password, projectId, projectName)) {      	
+            if (commandLine.hasOption(SAST_PROJECT_NAME) || commandLine.hasOption(SAST_PROJECT_ID)) {
+                if (exploitablePathParamsIncomplete(serverURL, user, password, projectId, projectName)) {
+                    serverURL = StringUtils.isEmpty(serverURL) ? getOptionalParam(SERVER_URL, "") : serverURL;
+                    user = StringUtils.isEmpty(user) ? getOptionalParam(USER_NAME, "") : user;
+                    password = StringUtils.isEmpty(password) ? getOptionalParam(USER_PASSWORD, "") : password;
+                    projectName = StringUtils.isEmpty(projectName) ? getOptionalParam(FULL_PROJECT_PATH, "")
+                            : projectName;
+                }
+            }
+            if (exploitablePathParamsIncomplete(serverURL, user, password, projectId, projectName)) {
                 if (!exploitablePathParamsEmpty(serverURL, user, password, projectId, projectName))
                     throw new CLIParsingException(
                             "[CxConsole] For SCA exploitable path, CxSAST server details like url, user, password and full project path or project id are required. Received partial parameters.");
@@ -900,11 +923,17 @@ public final class CxConfigHelper {
         String reportPath = getReportPath(PDF_REPORT);
         if (reportPath != null) {
             scanConfig.addPDFReport(reportPath);
+            scanConfig.setGeneratePDFReport(true);
+        } else {
+            scanConfig.setGeneratePDFReport(false);
         }
 
         reportPath = getReportPath(XML_REPORT);
         if (reportPath != null) {
             scanConfig.addXMLReport(reportPath);
+            scanConfig.setGenerateXmlReport(true);
+        } else {
+            scanConfig.setGenerateXmlReport(false);
         }
 
         reportPath = getReportPath(CSV_REPORT);
@@ -916,7 +945,6 @@ public final class CxConfigHelper {
         if (reportPath != null) {
             scanConfig.addRTFReport(reportPath);
         }
-        
     }
 
     private String getReportPath(String optionName) {
@@ -930,11 +958,17 @@ public final class CxConfigHelper {
     }
 
     private CxScanConfig setSASTThresholds(CxScanConfig scanConfig) {
+    	String sastCritical = commandLine.getOptionValue(SAST_CRITICAL);
         String sastHigh = commandLine.getOptionValue(SAST_HIGH);
         String sastMedium = commandLine.getOptionValue(SAST_MEDIUM);
         String sastLow = commandLine.getOptionValue(SAST_LOW);
 
         scanConfig.setSastThresholdsEnabled(false);
+        
+        if (!Strings.isNullOrEmpty(sastCritical)) {
+            scanConfig.setSastCriticalThreshold(Integer.valueOf(sastCritical));
+            scanConfig.setSastThresholdsEnabled(true);
+        }
         if (!Strings.isNullOrEmpty(sastHigh)) {
             scanConfig.setSastHighThreshold(Integer.valueOf(sastHigh));
             scanConfig.setSastThresholdsEnabled(true);
@@ -952,11 +986,16 @@ public final class CxConfigHelper {
     }
 
     private void setDependencyScanThresholds(CxScanConfig scanConfig) {
-        String high = getSharedDependencyScanOption(scanConfig, OSA_HIGH, SCA_HIGH);
+    	String critical = getSharedDependencyScanOption(scanConfig,"",SCA_CRITICAL);
+    	String high = getSharedDependencyScanOption(scanConfig, OSA_HIGH, SCA_HIGH);
         String medium = getSharedDependencyScanOption(scanConfig, OSA_MEDIUM, SCA_MEDIUM);
         String low = getSharedDependencyScanOption(scanConfig, OSA_LOW, SCA_LOW);
 
         scanConfig.setOsaThresholdsEnabled(false);
+        if (!Strings.isNullOrEmpty(critical)) {
+        	scanConfig.setOsaCriticalThreshold(Integer.valueOf(critical));
+        	scanConfig.setOsaThresholdsEnabled(true);
+      	}
         if (!Strings.isNullOrEmpty(high)) {
             scanConfig.setOsaHighThreshold(Integer.valueOf(high));
             scanConfig.setOsaThresholdsEnabled(true);
@@ -1028,34 +1067,34 @@ public final class CxConfigHelper {
             return fullPath.substring(0, lastIdx);
 
     }
-    
+
     public static String getPluginVersion() {
-    	   String version = "";
-    	   try {
-    	       InputStream is = CxConfigHelper.class.getClassLoader().getResourceAsStream("META-INF/maven/com.cx.plugin/CxConsolePlugin/pom.xml");
-    	       if (is != null) {
-    	           MavenXpp3Reader reader = new MavenXpp3Reader();
-    	           org.apache.maven.model.Model model = reader.read(is);
-    	           version = model.getVersion();
-    	       }
-    	   } catch (Exception e) {
-    	   }
-    	   return version;
-    	}
-    
-    
-	public static void printConfig(CommandLine commandLine) {
+        String version = "";
+        try {
+            InputStream is = CxConfigHelper.class.getClassLoader().getResourceAsStream("META-INF/maven/com.cx.plugin/CxConsolePlugin/pom.xml");
+            if (is != null) {
+                MavenXpp3Reader reader = new MavenXpp3Reader();
+                org.apache.maven.model.Model model = reader.read(is);
+                version = model.getVersion();
+            }
+        } catch (Exception e) {
+        }
+        return version;
+    }
+
+
+    public static void printConfig(CommandLine commandLine) {
         log.info("-----------------------------------------------------------------------------------------");
         log.info("CxConsole Configuration: ");
         log.info("--------------------");
-        
+
         String pluginVersion = getPluginVersion();
-		log.info("plugin version: {}", pluginVersion);
+        log.info("plugin version: {}", pluginVersion);
         for (Option param : commandLine.getOptions()) {
             String name = param.getLongOpt() != null ? param.getLongOpt() : param.getOpt();
             String value;
             if (param.getOpt().equalsIgnoreCase(Parameters.USER_PASSWORD) ||
-                    param.getOpt().equalsIgnoreCase(SCA_PASSWORD) ||
+                    param.getOpt().equalsIgnoreCase(SCA_PASSWORD) ||	
                     param.getOpt().equalsIgnoreCase(LOCATION_PASSWORD) ||
                     param.getOpt().equalsIgnoreCase(TOKEN)) {
                 value = "********";
@@ -1065,24 +1104,23 @@ public final class CxConfigHelper {
                 value = param.getValue();
                 log.debug("{}: {}", name, value);
                 value = DigestUtils.sha256Hex(param.getValue());
-            }else if (param.getOpt().equalsIgnoreCase(LOCATION_URL)) {
-            	String value1 = param.getValue();
-            	String[] arrOfStr = value1.split("@"); 
-            	value = "";
-            	if(arrOfStr.length==1) {
-	            	for (int i = 0; i < arrOfStr[0].length(); i++) {
-						value+="*";
-					}
-            	}
-            	else {
-            		for (int i = 0; i < arrOfStr[0].length(); i++) {
-						value+="*";
-					}
-            		value+="@";
-                	value+=arrOfStr[1];
-            	}
-            	
-            }else if (param.hasArg()) {
+            } else if (param.getOpt().equalsIgnoreCase(LOCATION_URL)) {
+                String value1 = param.getValue();
+                String[] arrOfStr = value1.split("@");
+                value = "";
+                if (arrOfStr.length == 1) {
+                    for (int i = 0; i < arrOfStr[0].length(); i++) {
+                        value += "*";
+                    }
+                } else {
+                    for (int i = 0; i < arrOfStr[0].length(); i++) {
+                        value += "*";
+                    }
+                    value += "@";
+                    value += arrOfStr[1];
+                }
+
+            } else if (param.hasArg()) {
                 value = param.getValue();
             } else {
                 value = "true";
@@ -1188,66 +1226,66 @@ public final class CxConfigHelper {
         return result;
     }
 
-	public static String checkMissingMandatoryAdditionalParams(CommandLine cmdLine, String addParams)
-			throws CLIParsingException {
-		if (addParams == null)
-			addParams = "";
-		if (!addParams.contains("-n ")) {
-			String projectName = cmdLine.getOptionValue(FULL_PROJECT_PATH);
-			if (StringUtils.isNotEmpty(projectName)) {
-				projectName = projectName.trim();
-				addParams += " -n " + projectName;
-			} else
-				throw new CLIParsingException("projectname command line option must be specified");
-		}
-		if (!addParams.contains("-s ")) {
-			String locationPath = cmdLine.getOptionValue(LOCATION_PATH);
-			String scaLocationPath = cmdLine.getOptionValue(SCA_LOCATION_PATH);
-			if (StringUtils.isNotEmpty(locationPath)) {
-				locationPath = locationPath.trim();
-				addParams += " -s " + locationPath;
-			} else if (StringUtils.isNotEmpty(scaLocationPath)) {
-				scaLocationPath = scaLocationPath.trim();
-				addParams += " -s " + scaLocationPath;
-			} else
-				throw new CLIParsingException("locationpath command line option must be specified");
-		}
-		if (cmdLine.hasOption(SCA_ENABLED)
-				&& (addParams.contains("--cxprojectname ") || addParams.contains("--cxprojectid "))) {
-			if (!addParams.contains("--cxserver ")) {
-				String cxserver = cmdLine.getOptionValue(SERVER_URL);
-				if (StringUtils.isNotEmpty(cxserver)) {
-					cxserver = cxserver.trim();
-					addParams += " --cxserver " + cxserver;
-				} else
-					throw new CLIParsingException("cxserver command line option must be specified");
-			}
-			if (!addParams.contains("--cxuser ")) {
-				String cxuser = cmdLine.getOptionValue(USER_NAME);
-				if (StringUtils.isNotEmpty(cxuser)) {
-					cxuser = cxuser.trim();
-					addParams += " --cxuser " + cxuser;
-				} else
-					throw new CLIParsingException("cxuser command line option must be specified");
-			}
-			if (!addParams.contains("--cxpassword ")) {
-				String cxpassword = cmdLine.getOptionValue(USER_PASSWORD);
-				if (StringUtils.isNotEmpty(cxpassword)) {
-					cxpassword = cxpassword.trim();
-					addParams += " --cxpassword " + cxpassword;
-				} else
-					throw new CLIParsingException("cxpassword command line option must be specified");
-			}
-		} else if (addParams.contains("--cxprojectname ") || addParams.contains("--cxprojectid ")) {
-			if (!addParams.contains("--cxserver ") || !addParams.contains("--cxuser ")
-					|| !addParams.contains("--cxpassword ")) {
-				throw new CLIParsingException(
-						"--cxserver, --cxuser, --cxpassword and --cxprojectname must be specified to use Exploitable Path.");
-			}
+    public static String checkMissingMandatoryAdditionalParams(CommandLine cmdLine, String addParams)
+            throws CLIParsingException {
+        if (addParams == null)
+            addParams = "";
+        if (!addParams.contains("-n ")) {
+            String projectName = cmdLine.getOptionValue(FULL_PROJECT_PATH);
+            if (StringUtils.isNotEmpty(projectName)) {
+                projectName = projectName.trim();
+                addParams += " -n " + projectName;
+            } else
+                throw new CLIParsingException("projectname command line option must be specified");
+        }
+        if (!addParams.contains("-s ")) {
+            String locationPath = cmdLine.getOptionValue(LOCATION_PATH);
+            String scaLocationPath = cmdLine.getOptionValue(SCA_LOCATION_PATH);
+            if (StringUtils.isNotEmpty(locationPath)) {
+                locationPath = locationPath.trim();
+                addParams += " -s " + locationPath;
+            } else if (StringUtils.isNotEmpty(scaLocationPath)) {
+                scaLocationPath = scaLocationPath.trim();
+                addParams += " -s " + scaLocationPath;
+            } else
+                throw new CLIParsingException("locationpath command line option must be specified");
+        }
+        if (cmdLine.hasOption(SCA_ENABLED)
+                && (addParams.contains("--cxprojectname ") || addParams.contains("--cxprojectid "))) {
+            if (!addParams.contains("--cxserver ")) {
+                String cxserver = cmdLine.getOptionValue(SERVER_URL);
+                if (StringUtils.isNotEmpty(cxserver)) {
+                    cxserver = cxserver.trim();
+                    addParams += " --cxserver " + cxserver;
+                } else
+                    throw new CLIParsingException("cxserver command line option must be specified");
+            }
+            if (!addParams.contains("--cxuser ")) {
+                String cxuser = cmdLine.getOptionValue(USER_NAME);
+                if (StringUtils.isNotEmpty(cxuser)) {
+                    cxuser = cxuser.trim();
+                    addParams += " --cxuser " + cxuser;
+                } else
+                    throw new CLIParsingException("cxuser command line option must be specified");
+            }
+            if (!addParams.contains("--cxpassword ")) {
+                String cxpassword = cmdLine.getOptionValue(USER_PASSWORD);
+                if (StringUtils.isNotEmpty(cxpassword)) {
+                    cxpassword = cxpassword.trim();
+                    addParams += " --cxpassword " + cxpassword;
+                } else
+                    throw new CLIParsingException("cxpassword command line option must be specified");
+            }
+        } else if (addParams.contains("--cxprojectname ") || addParams.contains("--cxprojectid ")) {
+            if (!addParams.contains("--cxserver ") || !addParams.contains("--cxuser ")
+                    || !addParams.contains("--cxpassword ")) {
+                throw new CLIParsingException(
+                        "--cxserver, --cxuser, --cxpassword and --cxprojectname must be specified to use Exploitable Path.");
+            }
 
-		}
-		return addParams;
-	}
+        }
+        return addParams;
+    }
 
     private static String normalizeUrl(String rawValue) {
         return rawValue.startsWith("http") ? rawValue : "http://" + rawValue;
@@ -1314,16 +1352,16 @@ public final class CxConfigHelper {
         }
         return false;
     }
-    
+
     //function to test whether build will be incremental or full scan
     private boolean isThisBuildIncremental() {
         int buildNumber = 0;
         Map<String, String> env = System.getenv();
-             
-        if(env.get("BUILD_NUMBER") != null) {
-            buildNumber = Integer.valueOf(env.get("BUILD_NUMBER"));            
-        }        
-        
+
+        if (env.get("BUILD_NUMBER") != null) {
+            buildNumber = Integer.valueOf(env.get("BUILD_NUMBER"));
+        }
+
         if (fullScanCycle == 0) {
             return true;
         }
@@ -1336,15 +1374,15 @@ public final class CxConfigHelper {
         // If user asked to perform full scan after every 9 incremental scans -
         // it means that every 10th scan should be full,
         // that is the ordinal numbers of full scans will be "1", "11", "21" and so on...
-        boolean shouldBeFullScan = buildNumber % (fullScanCycle + 1) == 1;        
+        boolean shouldBeFullScan = buildNumber % (fullScanCycle + 1) == 1;
         return !shouldBeFullScan;
     }
-    
+
     private void throwForInvalidScaReportFormat(String format) throws ConfigurationException {
-    	boolean valid = false;
-    	List<String> supportedFormats = Arrays.asList(new String[] {"json", "xml", "pdf", "csv", "cyclonedxjson", "cyclonedxxml"});
-    	
-    	if(format == null || !supportedFormats.contains(format.toLowerCase()))
-    		throw new ConfigurationException("Invalid SCA report format:" + format +". Supported formats are:" + supportedFormats.toString());
+        boolean valid = false;
+        List<String> supportedFormats = Arrays.asList(new String[]{"json", "xml", "pdf", "csv", "cyclonedxjson", "cyclonedxxml"});
+
+        if (format == null || !supportedFormats.contains(format.toLowerCase()))
+            throw new ConfigurationException("Invalid SCA report format:" + format + ". Supported formats are:" + supportedFormats.toString());
     }
 }

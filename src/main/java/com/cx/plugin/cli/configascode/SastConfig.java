@@ -22,6 +22,8 @@ public class SastConfig {
     @Optional
     private int high;
     @Optional
+    private int critical;
+    @Optional
 	private boolean avoidDuplicateProjectScans;  
     @Optional
     private boolean isOverrideProjectSetting;
@@ -29,7 +31,9 @@ public class SastConfig {
     private boolean enableSastBranching;
     @Optional
     private String masterBranchProjName;
-
+    @Optional
+    private int branchTimeout;
+    
     public SastConfig() {
     }
 
@@ -96,6 +100,14 @@ public class SastConfig {
     public void setHigh(int high) {
         this.high = high;
     }
+    
+    public int getCritical() {
+        return critical;
+    }
+
+    public void setCritical(int critical) {
+        this.critical = critical;
+    }
 
     public boolean isPrivateScan() {
         return privateScan;
@@ -137,5 +149,12 @@ public class SastConfig {
 		this.masterBranchProjName = masterBranchProjName;
 	}
 
+	public void setBranchTimeout(int branchTimeout) {
+		this.branchTimeout = branchTimeout;
+	}
+	
+	public int getBranchTimeout(){
+		return branchTimeout;
+	}
     
 }

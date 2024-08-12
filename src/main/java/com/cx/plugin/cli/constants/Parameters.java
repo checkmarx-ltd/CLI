@@ -73,6 +73,7 @@ public final class Parameters {
     public static final String SCAN_COMMENT = "comment";
     public static final String IS_SSO = "usesso";
 
+    public static final String SAST_CRITICAL = "sastcritical";
     public static final String SAST_HIGH = "sasthigh";
     public static final String SAST_MEDIUM = "sastmedium";
     public static final String SAST_LOW = "sastlow";
@@ -93,6 +94,7 @@ public final class Parameters {
 	public static final String PATH_TO_RESOLVER = "pathtoresolver";
     public static final String SCA_RESOLVER_ADD_PARAMETERS = "scaresolveraddparameters";
 
+    public static final String SCA_CRITICAL = "scacritical";
     public static final String SCA_HIGH = "scahigh";
     public static final String SCA_MEDIUM = "scamedium";
     public static final String SCA_LOW = "scalow";
@@ -122,4 +124,5 @@ public final class Parameters {
 
     public static final String PERIODIC_FULL_SCAN = "periodicfullscan";
     public static final String AVOID_DUPLICATE_PROJECT_SCANS = "avoidduplicateprojectscans";
+    public static final String BRANCH_TIMEOUT = "copybranchtimeoutinseconds";
 }

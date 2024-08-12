@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.cx.plugin</groupId>
     <artifactId>CxConsolePlugin</artifactId>
-    <version>1.1.30</version>
+    <version>1.1.31</version>
     <packaging>jar</packaging>
 
     <repositories>
@@ -23,9 +23,7 @@
             <id>snapshots</id>
             <name>libs-snapshot</name>
             <url>~/.m2</url>
-        </repository>
-        
-        
+        </repository>       
     </repositories>
 
     <properties>
@@ -134,7 +132,7 @@
         <dependency>
             <groupId>com.checkmarx</groupId>
             <artifactId>cx-client-common</artifactId>
-            <version>2024.1.1</version>
+            <version>2024.3.26</version>
             <!-- Remove these excludes once latest FSA is used -->
             <exclusions>
 				<exclusion>
@@ -153,6 +151,22 @@
                     <groupId>org.springframework</groupId>
                     <artifactId>spring-core</artifactId>
                 </exclusion>
+                <exclusion>
+					<groupId>io.vertx</groupId>
+					<artifactId>vertx-core</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.bouncycastle</groupId>
+					<artifactId>bcprov-jdk18on</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.commons</groupId>
+					<artifactId>commons-compress</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>io.netty</groupId>
+					<artifactId>netty-codec-http</artifactId>
+				</exclusion>
             </exclusions>
         </dependency>
         <!-- excluded dependencies from cx-client-common -->
@@ -176,6 +190,26 @@
             <artifactId>spring-core</artifactId>
             <version>5.3.20</version>
         </dependency>
+        <dependency>
+			<groupId>io.vertx</groupId>
+			<artifactId>vertx-core</artifactId>
+			<version>4.5.3</version>
+		</dependency>
+		<dependency>
+			<groupId>org.bouncycastle</groupId>
+			<artifactId>bcprov-jdk18on</artifactId>
+			<version>1.78</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-compress</artifactId>
+			<version>1.26.0</version>
+		</dependency>
+		<dependency>
+			<groupId>io.netty</groupId>
+			<artifactId>netty-codec-http</artifactId>
+			<version>4.1.108.Final</version>
+		</dependency>
         <!-- end of excluded dependencies -->
         <dependency>
             <groupId>commons-cli</groupId>
