@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.cx.plugin</groupId>
     <artifactId>CxConsolePlugin</artifactId>
-    <version>1.1.31</version>
+    <version>1.1.32</version>
     <packaging>jar</packaging>
 
     <repositories>
@@ -167,6 +167,14 @@
 					<groupId>io.netty</groupId>
 					<artifactId>netty-codec-http</artifactId>
 				</exclusion>
+				<exclusion>
+					<groupId>org.mozilla</groupId>
+					<artifactId>rhino</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.iq80.snappy</groupId>
+					<artifactId>snappy</artifactId>
+				</exclusion>
             </exclusions>
         </dependency>
         <!-- excluded dependencies from cx-client-common -->
@@ -193,22 +201,32 @@
         <dependency>
 			<groupId>io.vertx</groupId>
 			<artifactId>vertx-core</artifactId>
-			<version>4.5.3</version>
+			<version>4.5.9</version>
 		</dependency>
 		<dependency>
 			<groupId>org.bouncycastle</groupId>
 			<artifactId>bcprov-jdk18on</artifactId>
-			<version>1.78</version>
+			<version>1.78.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-compress</artifactId>
-			<version>1.26.0</version>
+			<version>1.27.0</version>
 		</dependency>
 		<dependency>
 			<groupId>io.netty</groupId>
 			<artifactId>netty-codec-http</artifactId>
-			<version>4.1.108.Final</version>
+			<version>4.1.112.Final</version>
+		</dependency>
+		<dependency>
+			<groupId>org.mozilla</groupId>
+			<artifactId>rhino</artifactId>
+			<version>1.7.15</version>
+		</dependency>
+		<dependency>
+			<groupId>org.iq80.snappy</groupId>
+			<artifactId>snappy</artifactId>
+			<version>0.5</version>
 		</dependency>
         <!-- end of excluded dependencies -->
         <dependency>
