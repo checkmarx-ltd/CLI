@@ -113,6 +113,7 @@ class ArgDescriptions {
     static final String IS_CHECKED_POLICY = "This parameter will break the build if the CxOSA policy is violated. Optional.";
     static final String VERBOSE = "Turns on verbose mode. All messages and events will be sent to the console or log file.";
     static final String LOG_PATH = "Log file to be created.";
+    static final String LOG_LEVEL = "Log level.";
     static final String TRUSTED_CERTIFICATES = "The ‘TrustedCertificates’ parameter can be used to add certified security to the connection. By default, all certificates are trusted. When disabled, only certificates signed by a trusted certificate authority can be accepted.";
 
     static final String SCA_API_URL = "IP address or resolvable name of a SCA instance.";

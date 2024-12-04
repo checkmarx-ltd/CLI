@@ -164,6 +164,7 @@ public enum Command {
         options.addOption(SCA_FOLDER_EXCLUDE, true, ArgDescriptions.SCA_FOLDER_EXCLUDE);
         options.addOption(VERBOSE, VERBOSE_LONG, false, ArgDescriptions.VERBOSE);
         options.addOption(LOG_PATH, true, ArgDescriptions.LOG_PATH);
+        options.addOption(LOG_LEVEL, true, ArgDescriptions.LOG_LEVEL);
         options.addOption(TRUSTED_CERTIFICATES, false, ArgDescriptions.TRUSTED_CERTIFICATES);
         options.addOption(CONFIGURATION, true, ArgDescriptions.CONFIGURATION);
 

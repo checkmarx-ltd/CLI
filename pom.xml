@@ -197,7 +197,7 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
-            <version>5.3.20</version>
+            <version>5.3.39</version>
         </dependency>
         <dependency>
 			<groupId>io.vertx</groupId>
@@ -370,12 +370,12 @@
 		<dependency>
 			<groupId>io.netty</groupId>
 			<artifactId>netty-resolver-dns</artifactId>
-			<version>4.1.112.Final</version>
+			<version>4.1.115.Final</version>
 		</dependency>
 		<dependency>
 			<groupId>io.netty</groupId>
 			<artifactId>netty-common</artifactId>
-			<version>4.1.112.Final</version>
+			<version>4.1.115.Final</version>
 		</dependency>
         <!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-to-slf4j -->
         <dependency>
