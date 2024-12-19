@@ -231,11 +231,7 @@ public final class CxConfigHelper {
                 scanConfig.setIncremental(isIncremental);
             }
         }
-        scanConfig.setAvoidDuplicateProjectScans(cmd.hasOption(AVOID_DUPLICATE_PROJECT_SCANS));
-        if(cmd.hasOption(AVOID_DUPLICATE_PROJECT_SCANS)) {
-        //TODO: set scanConfig.setAvoidDuplicateProjectScans(false) in releases after 1.1.35
-        log.warn("avoidduplicateprojectscans option will be deprecated in version after v1.1.35. SAST configuration will be used to determine the parallel scan policy.");
-        }
+        scanConfig.setAvoidDuplicateProjectScans(cmd.hasOption(AVOID_DUPLICATE_PROJECT_SCANS));        
         setSASTThresholds(scanConfig);
 
         String dsLocationPath = getSharedDependencyScanOption(scanConfig, OSA_LOCATION_PATH, SCA_LOCATION_PATH);
@@ -259,7 +255,10 @@ public final class CxConfigHelper {
 
         if (cmd.hasOption(CONFIG_AS_CODE))
             checkForConfigAsCode(scanConfig);
-
+        if(scanConfig.getAvoidDuplicateProjectScans()!=null && scanConfig.getAvoidDuplicateProjectScans().booleanValue()) {
+            //TODO: set scanConfig.setAvoidDuplicateProjectScans(false) in releases after 1.1.36
+            log.warn("avoidduplicateprojectscans option will be deprecated in version after v1.1.36. SAST configuration will be used to determine the parallel scan policy.");
+            }
         return scanConfig;
     }
 
