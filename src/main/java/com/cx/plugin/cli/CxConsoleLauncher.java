@@ -306,9 +306,18 @@ public class CxConsoleLauncher {
     private static void initFileLogging(String logLocation, String logLevel) {
         System.setProperty("cliLogPath", logLocation);
         System.setProperty("logLevel", logLevel);
+        log.debug("cliLogPath :"+logLocation);
+        log.debug("logLevel :"+logLevel);  
+        Configurator.reconfigure();        
     }
 
     private static String getLogLevel(CommandLine commandLine) {
-        return commandLine.hasOption(Parameters.VERBOSE) ? "TRACE" : "INFO";
+    	if(commandLine.hasOption(Parameters.VERBOSE)) {
+    		return "TRACE";
+    	}
+    	else if(commandLine.hasOption(Parameters.LOG_LEVEL) && commandLine.getOptionValue(LOG_LEVEL)!=null) {
+    		return commandLine.getOptionValue(LOG_LEVEL).toUpperCase();
+    	}
+    	else return "INFO";
     }
 }

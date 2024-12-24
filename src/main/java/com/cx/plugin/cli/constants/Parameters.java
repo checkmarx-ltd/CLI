@@ -23,6 +23,7 @@ public final class Parameters {
 
     public static final String FULL_PROJECT_PATH = "projectname";
     public static final String LOG_PATH = "log";
+    public static final String LOG_LEVEL = "loglevel";
     public static final String IS_CHECKED_POLICY = "checkpolicy";
 
     public static final String WORKSPACE_MODE = "workspacemode";

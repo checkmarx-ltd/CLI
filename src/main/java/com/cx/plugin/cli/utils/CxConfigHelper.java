@@ -72,7 +72,7 @@ public final class CxConfigHelper {
             "be loaded,please check if file exist's and if file content is valid";
     private static Logger log = LogManager.getLogger(CxConfigHelper.class);
 
-    private static final String DEFAULT_PRESET_NAME = "Checkmarx Default";
+    private static final String DEFAULT_PRESET_NAME = "Project Default";
 
     private static PropertiesManager props;
 
@@ -137,6 +137,7 @@ public final class CxConfigHelper {
 
 
         scanConfig.setCxOrigin(CX_ORIGIN);
+        scanConfig.setPluginVersion(CxConfigHelper.class.getPackage().getImplementationVersion());
 
         if (scanConfig.isSastOrOSAEnabled() || command.equals(Command.GENERATE_TOKEN) || command.equals(Command.REVOKE_TOKEN)) {
             scanConfig.setUrl(getSastOrOsaServerUrl());
@@ -230,7 +231,7 @@ public final class CxConfigHelper {
                 scanConfig.setIncremental(isIncremental);
             }
         }
-        scanConfig.setAvoidDuplicateProjectScans(cmd.hasOption(AVOID_DUPLICATE_PROJECT_SCANS));
+        scanConfig.setAvoidDuplicateProjectScans(cmd.hasOption(AVOID_DUPLICATE_PROJECT_SCANS));        
         setSASTThresholds(scanConfig);
 
         String dsLocationPath = getSharedDependencyScanOption(scanConfig, OSA_LOCATION_PATH, SCA_LOCATION_PATH);
@@ -254,7 +255,10 @@ public final class CxConfigHelper {
 
         if (cmd.hasOption(CONFIG_AS_CODE))
             checkForConfigAsCode(scanConfig);
-
+        if(scanConfig.getAvoidDuplicateProjectScans()!=null && scanConfig.getAvoidDuplicateProjectScans().booleanValue()) {
+            //TODO: set scanConfig.setAvoidDuplicateProjectScans(false) in releases after 1.1.36
+            log.warn("avoidduplicateprojectscans option will be deprecated in version after v1.1.36. SAST configuration will be used to determine the parallel scan policy.");
+            }
         return scanConfig;
     }
 
@@ -1068,27 +1072,13 @@ public final class CxConfigHelper {
 
     }
 
-    public static String getPluginVersion() {
-        String version = "";
-        try {
-            InputStream is = CxConfigHelper.class.getClassLoader().getResourceAsStream("META-INF/maven/com.cx.plugin/CxConsolePlugin/pom.xml");
-            if (is != null) {
-                MavenXpp3Reader reader = new MavenXpp3Reader();
-                org.apache.maven.model.Model model = reader.read(is);
-                version = model.getVersion();
-            }
-        } catch (Exception e) {
-        }
-        return version;
-    }
-
 
     public static void printConfig(CommandLine commandLine) {
         log.info("-----------------------------------------------------------------------------------------");
         log.info("CxConsole Configuration: ");
         log.info("--------------------");
 
-        String pluginVersion = getPluginVersion();
+        String pluginVersion = CxConfigHelper.class.getPackage()!=null ? CxConfigHelper.class.getPackage().getImplementationVersion() : "";
         log.info("plugin version: {}", pluginVersion);
         for (Option param : commandLine.getOptions()) {
             String name = param.getLongOpt() != null ? param.getLongOpt() : param.getOpt();
