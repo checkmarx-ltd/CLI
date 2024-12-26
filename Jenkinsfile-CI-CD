@@ -13,7 +13,10 @@ pipeline {
         stage('Build and generate CLI artifact') {
             steps {
                 echo 'Triggering the Plugin-CLI-ByTag2 pipeline...'
-                build job: 'Plugin-CLI-ByTag2', wait: true
+                build job: 'Plugin-CLI-ByTag2', wait: true, parameters: [
+                      string(name: 'Tag', value: 'automation-run'),
+		      booleanParam(name: 'IsReleaseBuild', value: false)
+                  ]
             }
 			post {
                 failure {
