@@ -1,0 +1,42 @@
+pipeline {
+    agent any
+    stages {
+        stage('Pipeline Info') {
+            steps {
+                script {
+                    env.PIPELINE_STATUS = "Success"
+                    env.STAGE_NAME_FAILED = "None"
+                }
+            }
+        }
+
+        stage('Build and generate CLI artifact') {
+            steps {
+                echo 'Triggering the Plugin-CLI-ByTag2 pipeline...'
+                build job: 'Plugin-CLI-ByTag2', wait: true
+            }
+			post {
+                failure {
+                    script {
+                        env.PIPELINE_STATUS = "Failure"
+                        env.STAGE_NAME_FAILED="${STAGE_NAME}"
+                    }
+                }
+            }
+        }
+        stage('Run CLI Automation Tests') {
+            steps {
+                echo 'Triggering the Plugin-CLI-CI-Tests pipeline...'
+                build job: 'Plugin-CLI-CI-Tests', wait: true
+            }
+			post {
+                        failure {
+                            script {
+                                env.PIPELINE_STATUS = "Failure"
+                                env.STAGE_NAME_FAILED="${STAGE_NAME}"
+                            }
+                        }
+                    }
+        }
+    }
+}
