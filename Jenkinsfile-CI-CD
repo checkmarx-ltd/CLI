@@ -20,11 +20,10 @@ pipeline {
 
         stage('Build and generate CLI artifact') {
             steps {
-		def releaseParam = params.IsReleaseBuild ? true : false
                 echo 'Triggering the Plugin-CLI-ByTag2 pipeline...'
                 build job: 'Plugin-CLI-ByTag2', wait: true, parameters: [
                       string(name: 'Tag', value: ${params.Tag}),
-		      booleanParam(name: 'IsReleaseBuild', value: releaseParam)
+		      booleanParam(name: 'IsReleaseBuild', value: ${params.IsReleaseBuild})
                   ]
             }
 			post {
