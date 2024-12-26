@@ -1,5 +1,13 @@
 pipeline {
     agent any
+
+    parameters {
+        // Define a Boolean parameter for IsReleaseBuild
+        booleanParam(name: 'IsReleaseBuild', defaultValue: false, description: 'Is this a release build?')
+	string(name: 'Tag', defaultValue: '', description: 'Enter the Git Tag to use (e.g., v1.0.0)')
+
+    }
+
     stages {
         stage('Pipeline Info') {
             steps {
@@ -12,10 +20,11 @@ pipeline {
 
         stage('Build and generate CLI artifact') {
             steps {
+		def releaseParam = params.IsReleaseBuild ? true : false
                 echo 'Triggering the Plugin-CLI-ByTag2 pipeline...'
                 build job: 'Plugin-CLI-ByTag2', wait: true, parameters: [
-                      string(name: 'Tag', value: 'automation-run'),
-		      booleanParam(name: 'IsReleaseBuild', value: false)
+                      string(name: 'Tag', value: ${params.Tag}),
+		      booleanParam(name: 'IsReleaseBuild', value: releaseParam)
                   ]
             }
 			post {
