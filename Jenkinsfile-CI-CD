@@ -99,7 +99,7 @@ pipeline {
                         script {
                             def cxCLIsourceFileLocation = ""
                             
-                            copyArtifacts(projectName: 'Plugin-CLI_LTD_ByCommit', flatten: true, filter: "com.cx.plugin/CxConsolePlugin/**/CxConsolePlugin-*.zip")
+                            copyArtifacts(projectName: 'Plugin-CLI-ByTag2', flatten: true, filter: "com.cx.plugin/CxConsolePlugin/**/CxConsolePlugin-*.zip")
 
                             bat """
                             where *.zip > zipFilePath.txt
