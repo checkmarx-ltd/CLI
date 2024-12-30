@@ -19,6 +19,7 @@ def automationBranch = "rahulCLI"
 def TOPOLOGY_FILE = "env/local_port80/topology.xml"
 String extractPluginToPath = "C:\\CI-slave\\cli-plugin"
 def jenkinsLabel = ""
+def JdkVersion = "JDK_WINDOWS_1.8.0_92"
 
 pipeline {
     agent { node { label 'CxSDLC-Slave' } }
