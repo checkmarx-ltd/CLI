@@ -28,7 +28,7 @@ pipeline {
 
     parameters {
         booleanParam(name: 'IsReleaseBuild', defaultValue: false, description: 'Is this a release build?')
-        gitParameter(name: 'Tag',type: 'PT_BRANCH_TAG',defaultValue: '',description: 'Enter the Git Tag to use (e.g., v1.0.0)',branch: '')
+        gitParameter(name: 'Tag',type: 'PT_BRANCH_TAG',defaultValue: '',description: 'Enter the Git Tag to use (e.g., v1.0.0)')
     }
 
     stages {
