@@ -95,9 +95,6 @@ pipeline {
                     }
                 }
                 stage('Extract cli-cx-plugin zip file') {
-                    agent {
-                            node { label jenkinsLabel }
-                    }
                     steps {
                         script {
                             def cxCLIsourceFileLocation = ""
@@ -133,9 +130,6 @@ pipeline {
                     }        
                 }
                 stage('Run CLI sanity tests') {
-                    agent {
-                        node { label jenkinsLabel }
-                    }
                     steps {
                         script {
                             git branch: automationBranch, credentialsId: '15f8e7b7-6ce7-44c0-b151-84f99ffa7aed', poll: false, url: 'http://tfs2013:8080/tfs/DefaultCollection/Automation/_git/Checkmarx-System-Test'
@@ -152,9 +146,7 @@ pipeline {
                     }
                 }
                 stage('Run CLI tests') {
-                    agent {
-                        node { label jenkinsLabel }
-                    }
+                    
                     steps {
                         script {
 
