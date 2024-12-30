@@ -1,5 +1,4 @@
 #!/groovy
-
 @Library('cx-jenkins-pipeline-kit') _
 import java.time.*
 
@@ -25,196 +24,156 @@ def jenkinsLabel96 = vmName + "-9.6-1";
 def JdkVersion = "JDK_WINDOWS_1.8.0_92"
 
 pipeline {
-  agent {
-    node {
-      label 'CxSDLC-Slave'
-    }
-  }
+    agent { node { label 'CxSDLC-Slave' } }
 
-  parameters {
-    booleanParam(name: 'IsReleaseBuild', defaultValue: false, description: 'Is this a release build?')
-    gitParameter(name: 'Tag', type: 'PT_BRANCH_TAG', defaultValue: '', description: 'Enter the Git Tag to use (e.g., v1.0.0)', branch: '', useRepository: 'origin')
-  }
-
-  stages {
-    stage('Pipeline Info') {
-      steps {
-        script {
-          env.PIPELINE_STATUS = "Success"
-          env.STAGE_NAME_FAILED = "None"
-          workspace = pwd()
-          if (env.automationBranch == null) {
-            env.automationBranch = automationBranch
-          }
-          sh 'printenv'
-        }
-      }
+    parameters {
+        booleanParam(name: 'IsReleaseBuild', defaultValue: false, description: 'Is this a release build?')
+        gitParameter(name: 'Tag',type: 'PT_BRANCH_TAG',defaultValue: '',description: 'Enter the Git Tag to use (e.g., v1.0.0)',branch: '', useRepository: 'origin')
     }
 
-    stage('Build and generate CLI artifact') {
-      steps {
-        echo 'Triggering the Plugin-CLI-ByTag2 pipeline...'
-        build job: 'Plugin-CLI-ByTag2', wait: true, parameters: [
-          string(name: 'Tag', value: params.Tag),
-          booleanParam(name: 'IsReleaseBuild', value: params.IsReleaseBuild)
-        ]
-      }
-      post {
-        failure {
-          script {
-            env.PIPELINE_STATUS = "Failure"
-            env.STAGE_NAME_FAILED = "${STAGE_NAME}"
-          }
-        }
-      }
-    }
-    stage('Run CLI Automation Tests') {
-     when {
-                expression {
-                    true
-                }
-            }
-      parallel {
-        stage('9.5') {
-          when {
-            expression {
-              true
-            }
-          }
-          stages {
-            stage('Create VM') {
-              steps {
+    stages {
+        stage('Pipeline Info'){
+            steps {
                 script {
-                  kit.Create_Vm_Terraform(vmName + "-9.5", vmTemplate95, ram, cpu, provider, decommissionPeriod, "Auto", "Plugins-CI", vmwareNetwork)
-                  ipAddress95 = kit.getIpAddress(vmName + "-9.5", provider)
-                }
-              }
-            }
-            stage('Create Jenkins Slave') {
-                agent {
-                  node {
-                    label 'install01'
-                  }
-                }
-                steps {
-                  script {
-                    kit.Create_Jenkins_Slave_On_Master(jenkinsLabel95)
-                    kit.Start_Jenkins_Slave_On_Windows_Pstools(ipAddress95, jenkinsLabel95)
-                  }
-                }
-            }
-            stage('Extract cli-cx-plugin zip file') {
-                agent {
-                  node {
-                    label jenkinsLabel95
-                  }
-                }
-                steps {
-                  script {
-                    def cxCLIsourceFileLocation = ""
-
-                    copyArtifacts(projectName: 'Plugin-CLI-ByTag2', flatten: true, filter: "com.cx.plugin/CxConsolePlugin/**/CxConsolePlugin-*.zip")
-
-                    bat ""
-                    "
-                    where * .zip > zipFilePath.txt ""
-                    "
-
-                    cxCLIsourceFileLocation = readFile("zipFilePath.txt").split("\\r?\\n")[0]
-                    def zipFileName = cxCLIsourceFileLocation.split("PluginCLI-ByTagWithAutomation")[1].substring(1)
-                    kit.Extract_Zip(zipFileName, "${extractPluginToPath}", '')
-
-                    bat ""
-                    "
-                    cd "${extractPluginToPath}"
-                    ren "*.jar"
-                    "cx_console.jar"
-                    ""
-                    "
-
-                    println("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
-                    println("The value of cxCLIsourceFileLocation is: " + "${cxCLIsourceFileLocation}")
-                    println("The value of extractPluginToPath is: " + "${extractPluginToPath}")
-                    println("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
-                  }
-                }
-                post {
-                  failure {
-                    error 'Error extracting zip file'
-                  }
-                  success {
-                    println("Extracting zip file completed successfully")
-                  }
-                }
-              }
-              stage('Run CLI sanity tests') {
-                agent {
-                  node {
-                    label jenkinsLabel95
-                  }
-                }
-                steps {
-                  script {
-                    git branch: automationBranch, credentialsId: '15f8e7b7-6ce7-44c0-b151-84f99ffa7aed', poll: false, url: 'http://tfs2013:8080/tfs/DefaultCollection/Automation/_git/Checkmarx-System-Test'
-                    bat "cd %cd% & mvn -Dtest=com.cx.automation.cli.sanity.test.* -Denv=external_env -Dtopology.xml.ref=${TOPOLOGY_FILE} -Dskiptest=false -Dcli_plugin_location=${extractPluginToPath}  -DfailIfNoTests=false -Dmaven.test.failure.ignore=true surefire-report:report -Ddriver.browser=CHROME -DJdkVersion=${JdkVersion}"
-                  }
-                }
-                post {
-                  failure {
-                    error 'FAILED: CLI sanity Sanity Tests'
-                  }
-                  success {
-                    echo 'SUCCESS: CLI sanity Sanity Tests'
-                  }
-                }
-              }
-              stage('Run CLI tests') {
-                agent {
-                  node {
-                    label jenkinsLabel95
-                  }
-                }
-                steps {
-                  script {
-
-                    bat ""
-                    "echo %cd%"
-                    ""
-                    git branch: automationBranch, credentialsId: '15f8e7b7-6ce7-44c0-b151-84f99ffa7aed', poll: false, url: 'http://tfs2013:8080/tfs/DefaultCollection/Automation/_git/Checkmarx-System-Test'
-                    bat "cd %cd% & mvn -Dtest=com.cx.automation.test.cli.**.* -Denv=external_env -Dtopology.xml.ref=${TOPOLOGY_FILE}  -Dcli_plugin_location=${extractPluginToPath}  -Dskiptest=false -DfailIfNoTests=false -Dmaven.test.failure.ignore=true surefire-report:report -Ddriver.browser=CHROME -DJdkVersion=${JdkVersion} -DskipTests=false"
-                  }
-                }
-                post {
-                  always {
-                    script {
-                      bat ""
-                      "dir"
-                      ""
-                      bat ""
-                      "echo %cd%"
-                      ""
+                    env.PIPELINE_STATUS = "Success"
+                    env.STAGE_NAME_FAILED = "None"
+                    workspace = pwd()
+                    if (env.automationBranch == null) {
+                        env.automationBranch = automationBranch
                     }
-                    logstashSend failBuild: false, maxLines: 1000
-                    junit 'CX-CLI-Test/target/surefire-reports/**/*.xml'
-                    archiveArtifacts 'CX-CLI-Test/target/**/*'
-                    bat 'mvn site -DgenerateReports=false'
-                    publishHTML(target: [
-                      allowMissing: false,
-                      alwaysLinkToLastBuild: false,
-                      keepAll: true,
-                      reportDir: 'CX-CLI-Test/target/site',
-                      reportFiles: 'surefire-report.html',
-                      reportName: "CLI - Test Results"
-                    ])
-                  }
-                  success {
-                    println("CLI tests were completed successfully")
-                  }
+                    sh 'printenv'
                 }
-              }
             }
-          }
         }
-      }
+
+        stage('Build and generate CLI artifact') {
+            steps {
+                echo 'Triggering the Plugin-CLI-ByTag2 pipeline...'
+                build job: 'Plugin-CLI-ByTag2', wait: true, parameters: [
+                        string(name: 'Tag', value: params.Tag),
+		                booleanParam(name: 'IsReleaseBuild', value: params.IsReleaseBuild)
+            }
+            post {
+                failure {
+                    script {
+                        env.PIPELINE_STATUS = "Failure"
+                        env.STAGE_NAME_FAILED="${STAGE_NAME}"
+                    }
+                }
+            }
+        }
+
+        stage('Run CLI Automation Tests') {
+            parallel {
+                stage('9.5') {
+                    when { expression { true }}
+                    stages {
+                        stage('Create VM') {
+                            steps {
+                                script {
+                                    kit.Create_Vm_Terraform(vmName + "-9.5", vmTemplate95, ram, cpu, provider, decommissionPeriod, "Auto", "Plugins-CI", vmwareNetwork)
+                                    ipAddress95 = kit.getIpAddress(vmName + "-9.5", provider)
+                                }
+                            }
+                        }
+                        stage('Create Jenkins Slave') {
+                            agent { node {label 'install01'}}
+                            steps {
+                                script {
+                                    kit.Create_Jenkins_Slave_On_Master(jenkinsLabel95)
+                                    kit.Start_Jenkins_Slave_On_Windows_Pstools(ipAddress95, jenkinsLabel95)
+                                }
+                            }
+                        }
+                        stage('Extract cli-cx-plugin zip file') {
+                            agent { node { label jenkinsLabel95 } }
+                            steps {
+                                script {
+                                    def cxCLIsourceFileLocation = ""
+                                        
+                                    copyArtifacts(projectName: 'Plugin-CLI-ByTag2', flatten: true, filter: "com.cx.plugin/CxConsolePlugin/**/CxConsolePlugin-*.zip")
+
+                                    bat """
+                                    where *.zip > zipFilePath.txt
+                                    """
+                                        
+                                    cxCLIsourceFileLocation = readFile( "zipFilePath.txt" ).split( "\\r?\\n" )[0]
+                                    def zipFileName = cxCLIsourceFileLocation.split( "PluginCLI-ByTagWithAutomation" )[1].substring(1)
+                                    kit.Extract_Zip(zipFileName, "${extractPluginToPath}", '')
+
+                                    bat """
+                                    cd "${extractPluginToPath}"
+                                    ren "*.jar" "cx_console.jar"
+                                    """
+
+                                    println("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+                                    println("The value of cxCLIsourceFileLocation is: " + "${cxCLIsourceFileLocation}")
+                                    println("The value of extractPluginToPath is: " + "${extractPluginToPath}")
+                                    println("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+                                }
+                            }
+                            post {
+                                failure {
+                                    error 'Error extracting zip file'
+                                }
+                                success {
+                                    println("Extracting zip file completed successfully")
+                                }
+                            }
+                        }
+                        stage('Run CLI sanity tests') {
+                            agent { node { label jenkinsLabel95 } }
+                            steps {
+                                script {
+                                    git branch: automationBranch, credentialsId: '15f8e7b7-6ce7-44c0-b151-84f99ffa7aed', poll: false, url: 'http://tfs2013:8080/tfs/DefaultCollection/Automation/_git/Checkmarx-System-Test'
+                                    bat "cd %cd% & mvn -Dtest=com.cx.automation.cli.sanity.test.* -Denv=external_env -Dtopology.xml.ref=${TOPOLOGY_FILE} -Dskiptest=false -Dcli_plugin_location=${extractPluginToPath}  -DfailIfNoTests=false -Dmaven.test.failure.ignore=true surefire-report:report -Ddriver.browser=CHROME -DJdkVersion=${JdkVersion}"
+                                }
+                            }
+                            post {
+                                failure {
+                                    error 'FAILED: CLI sanity Sanity Tests'
+                                }
+                                success {
+                                    echo 'SUCCESS: CLI sanity Sanity Tests'
+                                }
+                            }
+                        }
+                        stage('Run CLI tests') {
+                            agent { node {label jenkinsLabel95} }
+                            steps {
+                                script {
+                                    bat """echo %cd%"""
+                                    git branch: automationBranch, credentialsId: '15f8e7b7-6ce7-44c0-b151-84f99ffa7aed', poll: false, url: 'http://tfs2013:8080/tfs/DefaultCollection/Automation/_git/Checkmarx-System-Test'
+                                    bat "cd %cd% & mvn -Dtest=com.cx.automation.test.cli.**.* -Denv=external_env -Dtopology.xml.ref=${TOPOLOGY_FILE}  -Dcli_plugin_location=${extractPluginToPath}  -Dskiptest=false -DfailIfNoTests=false -Dmaven.test.failure.ignore=true surefire-report:report -Ddriver.browser=CHROME -DJdkVersion=${JdkVersion} -DskipTests=false"
+                                }
+                            }
+                            post {
+                                always {
+                                    script {
+                                        bat """dir"""
+                                        bat """echo %cd%"""
+                                    }
+                                    logstashSend failBuild: false, maxLines: 1000
+                                    junit 'CX-CLI-Test/target/surefire-reports/**/*.xml'
+                                    archiveArtifacts 'CX-CLI-Test/target/**/*'
+                                    bat 'mvn site -DgenerateReports=false'
+                                    publishHTML(target: [
+                                            allowMissing         : false,
+                                            alwaysLinkToLastBuild: false,
+                                            keepAll              : true,
+                                            reportDir            : 'CX-CLI-Test/target/site',
+                                            reportFiles          : 'surefire-report.html',
+                                            reportName           : "CLI - Test Results"
+                                    ])
+                                }
+                                success {
+                                    println("CLI tests were completed successfully")
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
-  }
+}
