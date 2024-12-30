@@ -35,6 +35,7 @@ pipeline {
         string(name: "decommissionPeriod",defaultValue: "${decommissionPeriod}", description: "Decommission period")
         string(name: "vmwareNetwork",defaultValue: "${vmwareNetwork}", description: "vmware network for new VMs")
         string(name: "automationBranch", defaultValue: "${automationBranch}", description: "automation branch")
+        string(name: 'TOPOLOGY_FILE', defaultValue: 'env/local_port80/topology.xml', trim: true, description: "env/installer_Rani/topology.xml <br> env/plugins_sdlc-sast-89/topology.xml <br>")
     }
 
     stages {
