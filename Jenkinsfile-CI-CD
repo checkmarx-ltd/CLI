@@ -93,6 +93,9 @@ pipeline {
                     }
                 }
 		stage('Create Jenkins Slave') {
+			agent {
+                	node { label 'install01' }
+            	   }
 			steps {
 				script {
                                     jenkinsLabel = vmName + "-9.5";
