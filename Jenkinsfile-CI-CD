@@ -51,7 +51,7 @@ pipeline {
                 echo 'Triggering the Plugin-CLI-ByTag2 pipeline...'
                 build job: 'Plugin-CLI-ByTag2', wait: true, parameters: [
                         string(name: 'Tag', value: params.Tag),
-		                booleanParam(name: 'IsReleaseBuild', value: params.IsReleaseBuild)
+		                booleanParam(name: 'IsReleaseBuild', value: params.IsReleaseBuild)]
             }
             post {
                 failure {
