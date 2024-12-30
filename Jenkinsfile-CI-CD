@@ -15,7 +15,7 @@ def cpu = "8"
 def provider = "VMWARE"
 def decommissionPeriod = "3 hour"
 def vmwareNetwork = "Lab"
-def automationBranch = "9.0.0"
+def automationBranch = "rahulCLI"
 String extractPluginToPath = "C:\\CI-slave\\cli-plugin"
 def jenkinsLabel = ""
 
