@@ -16,6 +16,7 @@ def provider = "VMWARE"
 def decommissionPeriod = "3 hour"
 def vmwareNetwork = "Lab"
 def automationBranch = "9.0.0"
+String extractPluginToPath = "C:\\CI-slave\\cli-plugin"
 
 pipeline {
     agent { node { label 'CxSDLC-Slave' } }
