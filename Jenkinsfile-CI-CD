@@ -370,7 +370,6 @@ pipeline {
                                         bat """dir"""
                                         bat """echo %cd%"""
                                     }
-				    logstashSend failBuild: false, maxLines: 1000
                                     junit 'CX-CLI-Test/target/surefire-reports/**/*.xml'
                                     archiveArtifacts 'CX-CLI-Test/target/**/*'
                                     bat 'mvn site -DgenerateReports=false'
@@ -478,7 +477,6 @@ pipeline {
                                         bat """dir"""
                                         bat """echo %cd%"""
                                     }
-				    logstashSend failBuild: false, maxLines: 1000
                                     junit 'CX-CLI-Test/target/surefire-reports/**/*.xml'
                                     archiveArtifacts 'CX-CLI-Test/target/**/*'
                                     bat 'mvn site -DgenerateReports=false'
