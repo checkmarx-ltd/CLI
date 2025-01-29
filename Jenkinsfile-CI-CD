@@ -454,6 +454,23 @@ pipeline {
                                 }
                             }
                             post {
+				always {
+                                    script {
+                                        bat """dir"""
+                                        bat """echo %cd%"""
+                                    }
+                                    junit 'CX-CLI-Test/target/surefire-reports/**/*.xml'
+                                    archiveArtifacts 'CX-CLI-Test/target/**/*'
+                                    bat 'mvn site -DgenerateReports=false'
+                                    publishHTML(target: [
+                                            allowMissing         : false,
+                                            alwaysLinkToLastBuild: false,
+                                            keepAll              : true,
+                                            reportDir            : 'CX-CLI-Test/target/site',
+                                            reportFiles          : 'surefire-report.html',
+                                            reportName           : "CLI - Test Results"
+                                    ])
+                                }
                                 failure {
                                     error 'FAILED: CLI sanity Sanity Tests'
                                 }
