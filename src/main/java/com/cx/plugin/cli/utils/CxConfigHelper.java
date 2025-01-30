@@ -1079,7 +1079,7 @@ public final class CxConfigHelper {
         log.info("--------------------");
 
         String pluginVersion = CxConfigHelper.class.getPackage()!=null ? CxConfigHelper.class.getPackage().getImplementationVersion() : "";
-        log.info("plugin version: {}", pluginVersion);
+        VersionChecker.checkForUpdates(pluginVersion);
         for (Option param : commandLine.getOptions()) {
             String name = param.getLongOpt() != null ? param.getLongOpt() : param.getOpt();
             String value;
