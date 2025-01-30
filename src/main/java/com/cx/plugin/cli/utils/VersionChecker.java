@@ -45,9 +45,11 @@ public class VersionChecker {
 
     private static String fetchLatestVersion() throws IOException {
         URL url = new URL(API_URL);
+        HttpURLConnection.setFollowRedirects(false);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("GET");
         conn.setRequestProperty("Accept", "application/vnd.github.v3+json");
+        conn.setConnectTimeout(5000);
 
         int responseCode = conn.getResponseCode();
         if (responseCode != 200) {
