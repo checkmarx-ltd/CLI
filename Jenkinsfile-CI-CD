@@ -236,10 +236,27 @@ pipeline {
                             steps {
                                 script {
                                     git branch: automationBranch, credentialsId: '15f8e7b7-6ce7-44c0-b151-84f99ffa7aed', poll: false, url: 'http://tfs2013:8080/tfs/DefaultCollection/Automation/_git/Checkmarx-System-Test'
-                                    bat "cd %cd% & mvn -Dtest=com.cx.automation.cli.sanity.test.* -Denv=external_env -Dtopology.xml.ref=${TOPOLOGY_FILE} -Dskiptest=false -Dcli_plugin_location=${extractPluginToPath}  -DfailIfNoTests=false -Dmaven.test.failure.ignore=true surefire-report:report -Ddriver.browser=CHROME -DJdkVersion=${JdkVersion}"
+                                    bat "cd %cd% & mvn -Dtest=com.cx.automation.cli.sanity.test.**.* -Denv=external_env -Dtopology.xml.ref=${TOPOLOGY_FILE} -Dskiptest=false -Dcli_plugin_location=${extractPluginToPath}  -DfailIfNoTests=false -Dmaven.test.failure.ignore=true surefire-report:report -Ddriver.browser=CHROME -DJdkVersion=${JdkVersion}"
                                 }
                             }
                             post {
+                                always {
+                                    script {
+                                        bat """dir"""
+                                        bat """echo %cd%"""
+                                    }
+                                    junit 'CX-CLI-Test/target/surefire-reports/**/*.xml'
+                                    archiveArtifacts 'CX-CLI-Test/target/**/*'
+                                    bat 'mvn site -DgenerateReports=false'
+                                    publishHTML(target: [
+                                            allowMissing         : false,
+                                            alwaysLinkToLastBuild: false,
+                                            keepAll              : true,
+                                            reportDir            : 'CX-CLI-Test/target/site',
+                                            reportFiles          : 'surefire-report.html',
+                                            reportName           : "CLI - Test Results"
+                                    ])
+                                }
                                 failure {
                                     error 'FAILED: CLI sanity Sanity Tests'
                                 }
@@ -343,10 +360,27 @@ pipeline {
                             steps {
                                 script {
                                     git branch: automationBranch, credentialsId: '15f8e7b7-6ce7-44c0-b151-84f99ffa7aed', poll: false, url: 'http://tfs2013:8080/tfs/DefaultCollection/Automation/_git/Checkmarx-System-Test'
-                                    bat "cd %cd% & mvn -Dtest=com.cx.automation.cli.sanity.test.* -Denv=external_env -Dtopology.xml.ref=${TOPOLOGY_FILE} -Dskiptest=false -Dcli_plugin_location=${extractPluginToPath}  -DfailIfNoTests=false -Dmaven.test.failure.ignore=true surefire-report:report -Ddriver.browser=CHROME -DJdkVersion=${JdkVersion}"
+                                    bat "cd %cd% & mvn -Dtest=com.cx.automation.cli.sanity.test.**.* -Denv=external_env -Dtopology.xml.ref=${TOPOLOGY_FILE} -Dskiptest=false -Dcli_plugin_location=${extractPluginToPath}  -DfailIfNoTests=false -Dmaven.test.failure.ignore=true surefire-report:report -Ddriver.browser=CHROME -DJdkVersion=${JdkVersion}"
                                 }
                             }
                             post {
+                                always {
+                                    script {
+                                        bat """dir"""
+                                        bat """echo %cd%"""
+                                    }
+                                    junit 'CX-CLI-Test/target/surefire-reports/**/*.xml'
+                                    archiveArtifacts 'CX-CLI-Test/target/**/*'
+                                    bat 'mvn site -DgenerateReports=false'
+                                    publishHTML(target: [
+                                            allowMissing         : false,
+                                            alwaysLinkToLastBuild: false,
+                                            keepAll              : true,
+                                            reportDir            : 'CX-CLI-Test/target/site',
+                                            reportFiles          : 'surefire-report.html',
+                                            reportName           : "CLI - Test Results"
+                                    ])
+                                }
                                 failure {
                                     error 'FAILED: CLI sanity Sanity Tests'
                                 }
