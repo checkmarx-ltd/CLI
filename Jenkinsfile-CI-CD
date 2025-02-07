@@ -514,7 +514,7 @@ pipeline {
                             }
                         }
                         stage('Run CLI tests') {
-			    when { expression { false }}
+			    when { expression { true }}
                             agent { node {label jenkinsLabel97} }
                             steps {
                                 script {
