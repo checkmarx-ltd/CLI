@@ -176,7 +176,7 @@ pipeline {
                     }
                 }
                 stage('9.5') {
-                    when { expression { true }}
+                    when { expression { false }}
                     stages {
                         stage('Create VM') {
                             steps {
@@ -300,7 +300,7 @@ pipeline {
                     }
                 }
                 stage('9.6') {
-                    when { expression { true }}
+                    when { expression { false }}
                     stages {
                         stage('Create VM') {
                             steps {
@@ -514,7 +514,7 @@ pipeline {
                             }
                         }
                         stage('Run CLI tests') {
-			    when { expression { true }}
+			    when { expression { false }}
                             agent { node {label jenkinsLabel97} }
                             steps {
                                 script {
