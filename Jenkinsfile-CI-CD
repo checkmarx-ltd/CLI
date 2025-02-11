@@ -15,7 +15,7 @@ def ipAddress97
 def ram = "12000"
 def cpu = "8"
 def provider = "VMWARE"
-def decommissionPeriod = "3 hour"
+def decommissionPeriod = "1 days"
 def vmwareNetwork = "Lab"
 def automationBranch = "rahulCLI"
 def TOPOLOGY_FILE = "env/local_port80/topology.xml"
