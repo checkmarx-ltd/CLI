@@ -148,7 +148,19 @@ public final class CxConfigHelper {
             return scanConfig;
         }
 
-        scanConfig.setEngineConfigurationName(cmd.getOptionValue(CONFIGURATION));
+        //default when not supplied
+        String suppliedEngineConfigurationName = cmd.getOptionValue(CONFIGURATION);
+        if(suppliedEngineConfigurationName != null && !suppliedEngineConfigurationName.isEmpty()) {
+        	scanConfig.setEngineConfigurationName(suppliedEngineConfigurationName.trim());
+        	scanConfig.setEngineConfigurationId(null);
+        }else {
+        	scanConfig.setEngineConfigurationName(null);
+        	scanConfig.setEngineConfigurationId(props.getIntProperty(KEY_DEFAULT_ENGINE_CONFIGURATIONID));
+        	log.info("Engine configuration (source encoding) default: " + scanConfig.getEngineConfigurationId());
+        }
+        
+        
+        
         if (cmd.hasOption(CUSTOM_FIELDS)) {
             scanConfig.setCustomFields(apiFormat(cmd.getOptionValue(CUSTOM_FIELDS)));
         }
@@ -179,7 +191,17 @@ public final class CxConfigHelper {
             }
         }
 
-        scanConfig.setPresetName(cmd.getOptionValue(PRESET) == null ? DEFAULT_PRESET_NAME : cmd.getOptionValue(PRESET));
+        //default when not supplied
+        String suppliedPresetName = cmd.getOptionValue(PRESET);
+        if(suppliedPresetName != null && !suppliedPresetName.isEmpty()) {
+        	scanConfig.setPresetName(suppliedPresetName.trim());
+        	scanConfig.setPresetId(null);
+        }else {
+        	scanConfig.setPresetName(null);
+        	scanConfig.setPresetId(props.getIntProperty(KEY_DEFAULT_PRESETID));
+         	log.info("Default Preset Id: " + scanConfig.getPresetId());
+        }
+        
 
         scanConfig.setSastFolderExclusions(getParamWithDefault(LOCATION_PATH_EXCLUDE, KEY_EXCLUDED_FOLDERS, true));
         String includeExcludeCommand = getRelevantCommand();
