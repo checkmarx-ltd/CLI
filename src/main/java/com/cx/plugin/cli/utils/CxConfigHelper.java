@@ -74,6 +74,7 @@ public final class CxConfigHelper {
 
     private static final String DEFAULT_PRESET_NAME = "Project Default";
     private static final String ENGINE_CONFIGURATION_DEFAULT = "Project Default";
+    private static final String ENGINE_CONFIGURATION_DEFAULT_ID = "0";
 
     private static PropertiesManager props;
 
@@ -160,6 +161,8 @@ public final class CxConfigHelper {
         log.info("Engine configuration (source encoding): " + suppliedEngineConfigurationName);    
     	if(!suppliedEngineConfigurationName.equalsIgnoreCase(ENGINE_CONFIGURATION_DEFAULT)) {
         	scanConfig.setEngineConfigurationName(suppliedEngineConfigurationName);    		
+    	}else {
+    		scanConfig.setEngineConfigurationId(Integer.parseInt(ENGINE_CONFIGURATION_DEFAULT_ID)); 
     	}
     	
         if (cmd.hasOption(CUSTOM_FIELDS)) {
