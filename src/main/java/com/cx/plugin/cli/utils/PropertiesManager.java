@@ -48,8 +48,9 @@ public class PropertiesManager {
     static final String KEY_CUSTOM_TRUSTSTORE = "trustStore";
     static final String KEY_CUSTOM_TRUSTSTORE_PASSWORD = "trustStorePassword";
     
-    public static final String KEY_DEFAULT_PRESETID = "scan.sast.project.presetId";
-    public static final String KEY_DEFAULT_ENGINE_CONFIGURATIONID = "scan.sast.project.engineConfigurationId";
+    public static final String KEY_DEFAULT_PRESETNAME = "scan.sast.preset.name";
+    public static final String KEY_DEFAULT_ENGINE_CONFIGURATIONNAME = "scan.sast.engineconfiguration.name";
+
     
     private final String SEPARATOR = FileSystems.getDefault().getSeparator();
     private String userDir = System.getProperty("user.dir");
