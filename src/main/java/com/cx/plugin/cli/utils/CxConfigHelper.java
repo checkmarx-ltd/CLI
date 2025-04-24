@@ -203,7 +203,7 @@ public final class CxConfigHelper {
         	
         }else {        	
         	scanConfig.setPresetName(props.getProperty(KEY_DEFAULT_PRESETNAME));
-         	log.info("Default Preset Id: " + scanConfig.getPresetName());
+         	log.info("Default Preset : " + scanConfig.getPresetName());
         }
         
 
