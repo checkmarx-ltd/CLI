@@ -73,6 +73,8 @@ public final class CxConfigHelper {
     private static Logger log = LogManager.getLogger(CxConfigHelper.class);
 
     private static final String DEFAULT_PRESET_NAME = "Project Default";
+    private static final String ENGINE_CONFIGURATION_DEFAULT = "Project Default";
+    private static final String ENGINE_CONFIGURATION_DEFAULT_ID = "0";
 
     private static PropertiesManager props;
 
@@ -148,7 +150,21 @@ public final class CxConfigHelper {
             return scanConfig;
         }
 
-        scanConfig.setEngineConfigurationName(cmd.getOptionValue(CONFIGURATION));
+        //default when not supplied
+    	scanConfig.setEngineConfigurationId(null); //cxcommon defaults to 0
+		scanConfig.setEngineConfigurationName(null); 
+	    String suppliedEngineConfigurationName = cmd.getOptionValue(CONFIGURATION);
+        if(suppliedEngineConfigurationName == null || suppliedEngineConfigurationName.isEmpty()) {        	
+        	suppliedEngineConfigurationName = props.getProperty(KEY_DEFAULT_ENGINE_CONFIGURATIONNAME);
+        }                
+        
+        log.info("Engine configuration (source encoding): " + suppliedEngineConfigurationName);    
+    	if(!suppliedEngineConfigurationName.equalsIgnoreCase(ENGINE_CONFIGURATION_DEFAULT)) {
+        	scanConfig.setEngineConfigurationName(suppliedEngineConfigurationName);    		
+    	}else {
+    		scanConfig.setEngineConfigurationId(Integer.parseInt(ENGINE_CONFIGURATION_DEFAULT_ID)); 
+    	}
+    	
         if (cmd.hasOption(CUSTOM_FIELDS)) {
             scanConfig.setCustomFields(apiFormat(cmd.getOptionValue(CUSTOM_FIELDS)));
         }
@@ -179,7 +195,17 @@ public final class CxConfigHelper {
             }
         }
 
-        scanConfig.setPresetName(cmd.getOptionValue(PRESET) == null ? DEFAULT_PRESET_NAME : cmd.getOptionValue(PRESET));
+        //default when not supplied. KEY_DEFAULT_PRESETNAME is known to cxcommon
+        String suppliedPresetName = cmd.getOptionValue(PRESET);
+        scanConfig.setPresetId(null);
+        if(suppliedPresetName != null && !suppliedPresetName.isEmpty()) {
+        	scanConfig.setPresetName(suppliedPresetName.trim());
+        	
+        }else {        	
+        	scanConfig.setPresetName(props.getProperty(KEY_DEFAULT_PRESETNAME));
+         	log.info("Default Preset : " + scanConfig.getPresetName());
+        }
+        
 
         scanConfig.setSastFolderExclusions(getParamWithDefault(LOCATION_PATH_EXCLUDE, KEY_EXCLUDED_FOLDERS, true));
         String includeExcludeCommand = getRelevantCommand();
@@ -1374,5 +1400,6 @@ public final class CxConfigHelper {
 
         if (format == null || !supportedFormats.contains(format.toLowerCase()))
             throw new ConfigurationException("Invalid SCA report format:" + format + ". Supported formats are:" + supportedFormats.toString());
-    }
+    } 
+    
 }

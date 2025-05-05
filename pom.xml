@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.cx.plugin</groupId>
     <artifactId>CxConsolePlugin</artifactId>
-    <version>1.1.36</version>
+    <version>1.1.38</version>
     <packaging>jar</packaging>
 
     <repositories>
@@ -183,7 +183,7 @@
          <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
-            <version>2.15.0-rc1</version>
+            <version>2.18.3</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.dataformat</groupId>
@@ -242,7 +242,7 @@
 		<dependency>
 			<groupId>io.netty</groupId>
 			<artifactId>netty-codec-http</artifactId>
-			<version>4.1.112.Final</version>
+			<version>4.1.118.Final</version>
 		</dependency>
 		<dependency>
 			<groupId>org.mozilla</groupId>
@@ -310,7 +310,7 @@
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-            <version>2.17.0</version>
+            <version>2.19.0</version>
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
@@ -331,42 +331,42 @@
         <dependency>
 			<groupId>io.netty</groupId>
 			<artifactId>netty-handler</artifactId>
-			<version>4.1.112.Final</version>
+			<version>4.1.118.Final</version>
 		</dependency>
 		<dependency>
 			<groupId>io.netty</groupId>
 			<artifactId>netty-buffer</artifactId>
-			<version>4.1.112.Final</version>
+			<version>4.1.118.Final</version>
 		</dependency>
 		<dependency>
 			<groupId>io.netty</groupId>
 			<artifactId>netty-transport</artifactId>
-			<version>4.1.112.Final</version>
+			<version>4.1.118.Final</version>
 		</dependency>
 		<dependency>
 			<groupId>io.netty</groupId>
 			<artifactId>netty-handler-proxy</artifactId>
-			<version>4.1.112.Final</version>
+			<version>4.1.118.Final</version>
 		</dependency>
 		<dependency>
 			<groupId>io.netty</groupId>
 			<artifactId>netty-codec-http2</artifactId>
-			<version>4.1.112.Final</version>
+			<version>4.1.118.Final</version>
 		</dependency>
 		<dependency>
 			<groupId>io.netty</groupId>
 			<artifactId>netty-resolver</artifactId>
-			<version>4.1.112.Final</version>
+			<version>4.1.118.Final</version>
 		</dependency>
 		<dependency>
 			<groupId>io.netty</groupId>
 			<artifactId>netty-resolver-dns</artifactId>
-			<version>4.1.115.Final</version>
+			<version>4.1.118.Final</version>
 		</dependency>
 		<dependency>
 			<groupId>io.netty</groupId>
 			<artifactId>netty-common</artifactId>
-			<version>4.1.115.Final</version>
+			<version>4.1.118.Final</version>
 		</dependency>
         <!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-to-slf4j -->
         <dependency>
