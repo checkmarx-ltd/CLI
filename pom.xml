@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.cx.plugin</groupId>
     <artifactId>CxConsolePlugin</artifactId>
-    <version>1.1.38</version>
+    <version>1.1.39</version>
     <packaging>jar</packaging>
 
     <repositories>
@@ -171,6 +171,14 @@
 				<exclusion>
 					<groupId>org.iq80.snappy</groupId>
 					<artifactId>snappy</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>commons-beanutils</groupId>
+					<artifactId>commons-beanutils</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.google.code.gson</groupId>
+					<artifactId>gson</artifactId>
 				</exclusion>
             </exclusions>
         </dependency>
@@ -389,7 +397,23 @@
         <dependency>
     		<groupId>org.eclipse.jgit</groupId>
     		<artifactId>org.eclipse.jgit</artifactId>
-    		<version>5.13.3.202401111512-r</version>
+    		<version>6.10.1.202505221210-r</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-beanutils</groupId>
+			<artifactId>commons-beanutils</artifactId>
+		<version>1.11.0</version>
+		<exclusions>
+                <exclusion>
+                    <groupId>commons-collections</groupId>
+                    <artifactId>commons-collections</artifactId>
+                </exclusion>
+            </exclusions>
+		</dependency>
+		<dependency>
+			<groupId>com.google.code.gson</groupId>
+			<artifactId>gson</artifactId>
+			<version>2.13.1</version>
 		</dependency>
     </dependencies>
 
