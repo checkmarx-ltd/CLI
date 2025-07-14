@@ -83,8 +83,8 @@ pipeline {
                             agent { node {label 'install01'}}
                             steps {
                                 script {
-                                    kit.Create_Jenkins_Slave_On_Master(jenkinsLabel94)
-                                    kit.Start_Jenkins_Slave_On_Windows_Pstools(ipAddress94, jenkinsLabel94)
+                                    kit.Create_Jenkins_Slave_On_Master_cx_operation(jenkinsLabel94)
+                                    kit.Start_Jenkins_Slave_On_Windows_Pstools_cx_operation(ipAddress94, jenkinsLabel94)
                                 }
                             }
                         }
@@ -190,8 +190,8 @@ pipeline {
                             agent { node {label 'install01'}}
                             steps {
                                 script {
-                                    kit.Create_Jenkins_Slave_On_Master(jenkinsLabel95)
-                                    kit.Start_Jenkins_Slave_On_Windows_Pstools(ipAddress95, jenkinsLabel95)
+                                    kit.Create_Jenkins_Slave_On_Master_cx_operation(jenkinsLabel95)
+                                    kit.Start_Jenkins_Slave_On_Windows_Pstools_cx_operation(ipAddress95, jenkinsLabel95)
                                 }
                             }
                         }
@@ -314,8 +314,8 @@ pipeline {
                             agent { node {label 'install01'}}
                             steps {
                                 script {
-                                    kit.Create_Jenkins_Slave_On_Master(jenkinsLabel96)
-                                    kit.Start_Jenkins_Slave_On_Windows_Pstools(ipAddress96, jenkinsLabel96)
+                                    kit.Create_Jenkins_Slave_On_Master_cx_operation(jenkinsLabel96)
+                                    kit.Start_Jenkins_Slave_On_Windows_Pstools_cx_operation(ipAddress96, jenkinsLabel96)
                                 }
                             }
                         }
@@ -438,8 +438,8 @@ pipeline {
                             agent { node {label 'install01'}}
                             steps {
                                 script {
-                                    kit.Create_Jenkins_Slave_On_Master(jenkinsLabel97)
-                                    kit.Start_Jenkins_Slave_On_Windows_Pstools(ipAddress97, jenkinsLabel97)
+                                    kit.Create_Jenkins_Slave_On_Master_cx_operation(jenkinsLabel97)
+                                    kit.Start_Jenkins_Slave_On_Windows_Pstools_cx_operation(ipAddress97, jenkinsLabel97)
                                 }
                             }
                         }
