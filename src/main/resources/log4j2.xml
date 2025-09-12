@@ -9,8 +9,8 @@
 		<Routing name="Routing">
 			<Routes pattern="$${sys:cliLogPath}">
 				<Route>
-					<File name="File" fileName="C:/Checkmarx/logs/cxconsole.log"
-						immediateFlush="true" append="true">
+					<File name="File" fileName="${sys:cliLogPath}"
+						immediateFlush="false" append="false">
 						<PatternLayout
 							pattern="%d{ISO8601} [%t] (%F:%L) %-5p - %m%n" />
 					</File>
@@ -27,13 +27,10 @@
 		<Logger name="org.springframework" level="ERROR" />
 		<Logger name="org.whitesource.agent" level="ERROR" />
 
-		<Logger name="com.cx.restclient" level="DEBUG" additivity="false">
-			<AppenderRef ref="CA" />
-		</Logger>
-
-		<Root level="DEBUG">
+		<Root level="TRACE">
 			<AppenderRef ref="Routing" level="${sys:logLevel}" />
-			<AppenderRef ref="CA" level="DEBUG" />
+			<AppenderRef ref="CA" level="${sys:logLevel:-INFO}" />
 		</Root>
+		
 	</Loggers>
 </Configuration>

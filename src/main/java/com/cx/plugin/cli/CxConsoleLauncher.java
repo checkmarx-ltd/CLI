@@ -45,16 +45,15 @@ import static com.cx.plugin.cli.utils.CxConfigHelper.EMPTY_JSON;
  */
 public class CxConsoleLauncher {
 
-	//// Disabled since it forces log4j2.xml from user.dir only.
-//    static {
-//        try {
-//            String log4jConfigFile = System.getProperty("user.dir") + File.separator + "log4j2.xml";
-//            ConfigurationSource source = new ConfigurationSource(new FileInputStream(log4jConfigFile));
-//            Configurator.initialize(null, source);
-//        } catch (Exception e) {
-//            System.out.println("Failed to use external log config file");
-//        }
-//    }
+    static {
+        try {
+            String log4jConfigFile = System.getProperty("user.dir") + File.separator + "log4j2.xml";
+            ConfigurationSource source = new ConfigurationSource(new FileInputStream(log4jConfigFile));
+            Configurator.initialize(null, source);
+        } catch (Exception e) {
+            System.out.println("Failed to use external log config file");
+        }
+    }
 
 	private static final String SCA_PROJECT_NAME_INVALID_CHARS = "[\"`,:;\\\\|/'<>\\[\\]{}~]";
 	private static Logger log = LogManager.getLogger(CxConsoleLauncher.class);
@@ -71,6 +70,11 @@ public class CxConsoleLauncher {
 			args = convertParamToLowerCase(args);
 			CommandLine commandLine = getCommandLine(args);
 			command = getCommand(commandLine);
+			System.setProperty("cliLogPath", commandLine.getOptionValue(LOG_PATH,
+			        "." + File.separator + "logs" + File.separator + "cx_console.log"));
+			System.setProperty("logLevel", commandLine.hasOption(Parameters.VERBOSE) ? "TRACE" : "INFO");
+			Configurator.reconfigure();
+
 			logLocation = commandLine.getOptionValue(LOG_PATH,
 					"." + File.separator + "logs" + File.separator + "cx_console.log");
 			logLevel = getLogLevel(commandLine);
