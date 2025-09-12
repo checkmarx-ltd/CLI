@@ -1,35 +1,39 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
 
 <Configuration>
-    <Appenders>
-        <Console name="CA" target="SYSTEM_OUT">
-            <PatternLayout pattern="[%d{ISO8601} %-5p] %m%n"/>
-        </Console>
+	<Appenders>
+		<Console name="CA" target="SYSTEM_OUT">
+			<PatternLayout pattern="[%d{ISO8601} %-5p] %m%n" />
+		</Console>
 
-        <Routing name="Routing">
-            <Routes pattern="$${sys:cliLogPath}">
-                <Route>
-                    <File name="File" fileName="${sys:cliLogPath}"
-                          immediateFlush="false" append="false">
-                        <PatternLayout
-                                pattern="%d{ISO8601} [%t] (%F:%L) %-5p - %m%n"/>
-                    </File>
-                </Route>
+		<Routing name="Routing">
+			<Routes pattern="$${sys:cliLogPath}">
+				<Route>
+					<File name="File" fileName="C:/Checkmarx/logs/cxconsole.log"
+						immediateFlush="true" append="true">
+						<PatternLayout
+							pattern="%d{ISO8601} [%t] (%F:%L) %-5p - %m%n" />
+					</File>
+				</Route>
 
-            </Routes>
-        </Routing>
+			</Routes>
+		</Routing>
 
-    </Appenders>
+	</Appenders>
 
-    <Loggers>
-        <Logger name="org.apache.http" level="WARN"/>
-        <Logger name="org.apache.cxf" level="ERROR"/>
-        <Logger name="org.springframework" level="ERROR"/>
-        <Logger name="org.whitesource.agent" level="ERROR"/>
+	<Loggers>
+		<Logger name="org.apache.http" level="WARN" />
+		<Logger name="org.apache.cxf" level="ERROR" />
+		<Logger name="org.springframework" level="ERROR" />
+		<Logger name="org.whitesource.agent" level="ERROR" />
 
-        <Root level="TRACE">
-            <AppenderRef ref="Routing" level="${sys:logLevel}"/>
-            <AppenderRef ref="CA" level="INFO"/>
-        </Root>
-    </Loggers>
+		<Logger name="com.cx.restclient" level="DEBUG" additivity="false">
+			<AppenderRef ref="CA" />
+		</Logger>
+
+		<Root level="DEBUG">
+			<AppenderRef ref="Routing" level="${sys:logLevel}" />
+			<AppenderRef ref="CA" level="DEBUG" />
+		</Root>
+	</Loggers>
 </Configuration>
