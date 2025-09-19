@@ -41,12 +41,12 @@ class ArgDescriptions {
     static final String CX_CLI_CONFIG = "Path to CLI configuration file";
 
     static final String WORKSPACE_MODE = "When -LocationType parameter is set to Perforce, add this parameter and add the workspace name into -locationPath. Optional";
-    static final String LOCATION_TYPE = "Source location type, one of: folder,shared (network location), SVN, TFS, Perforce, GIT. Mandatory";
+    static final String LOCATION_TYPE = "Source location type, one of: folder, zip, shared (network location), SVN, TFS, Perforce, GIT. Mandatory";
 
     static final String TOKEN_GEN = "\nThe \"GenerateToken\" command allows to generate login token, to be used instead of username and password.";
     static final String TOKEN_REVOKE = "\nThe \"RevokeToken\" command allows to discard existing token.";
 
-    static final String LOCATION_PATH = "Local or network path to sources or source repository branch. Mandatory if location type is folder, SVN, TFS, Perforce or shared.";
+    static final String LOCATION_PATH = "Local or network path to sources or source repository branch. Mandatory if location type is folder, zip, SVN, TFS, Perforce or shared.";
     static final String LOCATION_URL = "Source control URL. Madnatory if locationtype is any source control system.";
     static final String LOCATION_BRANCH = "Source GIT branch, Mandatory if location type is GIT";
     static final String LOCATION_PORT = "Source control system port. Default: 8080 (TFS), 80 (SVN), or 1666 (Perforce). Optional.";

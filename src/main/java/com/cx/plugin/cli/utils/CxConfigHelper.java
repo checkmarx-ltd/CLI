@@ -865,10 +865,14 @@ public final class CxConfigHelper {
         return partialParams;
     }
 
-    private void setSharedDependencyScanConfig(CxScanConfig scanConfig) {
+    private void setSharedDependencyScanConfig(CxScanConfig scanConfig) throws CLIParsingException {
         setDependencyScanThresholds(scanConfig);
 
         String location = getSharedDependencyScanOption(scanConfig, OSA_LOCATION_PATH, SCA_LOCATION_PATH);
+        if (scanConfig.isOsaEnabled() && location != null) {
+            validateOsaLocationPath(location);
+        }
+
         scanConfig.setOsaLocationPath(location);
 
         String folderExclusions = getSharedDependencyScanOption(scanConfig, OSA_FOLDER_EXCLUDE, SCA_FOLDER_EXCLUDE);
@@ -880,6 +884,32 @@ public final class CxConfigHelper {
         scanConfig.setOsaProgressInterval(props.getIntProperty(key));
 
         setDependencyScanFilterPattern(scanConfig);
+    }
+
+    private void validateOsaLocationPath(String location) throws CLIParsingException {
+        if (Strings.isNullOrEmpty(location)) {
+            throw new CLIParsingException("[CxConsole] OSA location path is required. Please specify -OsaLocationPath parameter with a valid directory path.");
+        }
+
+        File locationFile = new File(location);
+
+        if (!locationFile.exists()) {
+            throw new CLIParsingException("OSA location path does not exist: " + location);
+        }
+
+        if (locationFile.isDirectory()) {
+            return;
+        }
+
+        if (locationFile.isFile()) {
+            String fileName = locationFile.getName().toLowerCase();
+            if (fileName.endsWith(".zip")) {
+                throw new CLIParsingException("[CxConsole] ZIP files are not supported for OSA scanner type. " +
+                        "OSA location path must be a directory.");
+            } else {
+                throw new CLIParsingException("[CxConsole] OSA location path must be a directory, not a file: " + location);
+            }
+        }
     }
 
     private void setDependencyScanFilterPattern(CxScanConfig scanConfig) {
