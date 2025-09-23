@@ -57,6 +57,10 @@ class ScanSourceConfigurator {
                 setLocalSourceLocation(locationPath, props);
                 break;
             }
+            case "zip": {
+                setLocalZipSourceLocation(locationPath, props);
+                break;
+            }
             case "shared": {
                 setSharedSourceLocation(locationPath, locationUser, locationPass);
                 break;
@@ -88,6 +92,26 @@ class ScanSourceConfigurator {
                         "[folder, shared (network location), SVN, TFS, Perforce, GIT] but was %s", locationType));
             }
         }
+    }
+
+    private void setLocalZipSourceLocation(String locationPath, PropertiesManager props) throws CLIParsingException {
+        if (Strings.isNullOrEmpty(locationPath)) {
+            throw new CLIParsingException(String.format(LOCATION_PATH_EXCEPTION, "zip"));
+        }
+
+        File zipFile = new File(locationPath);
+        if (!zipFile.exists()) {
+            throw new CLIParsingException(String.format("[CxConsole] Zip file does not exist: %s", locationPath));
+        }
+        if (!zipFile.isFile()) {
+            throw new CLIParsingException(String.format("[CxConsole] Location path must be a file for zip type, not a directory: %s", locationPath));
+        }
+        if (!locationPath.toLowerCase().endsWith(".zip")) {
+            throw new CLIParsingException(String.format("[CxConsole] File must have .zip extension: %s", locationPath));
+        }
+
+        scanConfig.setZipFile(zipFile);
+        scanConfig.setMaxZipSize(props.getIntProperty(KEY_MAX_ZIP_SIZE));
     }
 
     private void setLocalSourceLocation(String locationPath, PropertiesManager props) throws CLIParsingException {
