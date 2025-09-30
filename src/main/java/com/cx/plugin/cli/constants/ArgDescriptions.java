@@ -41,12 +41,12 @@ class ArgDescriptions {
     static final String CX_CLI_CONFIG = "Path to CLI configuration file";
 
     static final String WORKSPACE_MODE = "When -LocationType parameter is set to Perforce, add this parameter and add the workspace name into -locationPath. Optional";
-    static final String LOCATION_TYPE = "Source location type, one of: folder,shared (network location), SVN, TFS, Perforce, GIT. Mandatory";
+    static final String LOCATION_TYPE = "Source location type, one of: folder, zip, shared (network location), SVN, TFS, Perforce, GIT. Mandatory";
 
     static final String TOKEN_GEN = "\nThe \"GenerateToken\" command allows to generate login token, to be used instead of username and password.";
     static final String TOKEN_REVOKE = "\nThe \"RevokeToken\" command allows to discard existing token.";
 
-    static final String LOCATION_PATH = "Local or network path to sources or source repository branch. Mandatory if location type is folder, SVN, TFS, Perforce or shared.";
+    static final String LOCATION_PATH = "Local or network path to sources or source repository branch. Mandatory if location type is folder, zip, SVN, TFS, Perforce or shared.";
     static final String LOCATION_URL = "Source control URL. Madnatory if locationtype is any source control system.";
     static final String LOCATION_BRANCH = "Source GIT branch, Mandatory if location type is GIT";
     static final String LOCATION_PORT = "Source control system port. Default: 8080 (TFS), 80 (SVN), or 1666 (Perforce). Optional.";
@@ -70,7 +70,7 @@ class ArgDescriptions {
             "For example: -OsaArchiveToExtract *.zip extracts only files with .zip extension. Optional.";
     static final String OSA_SCAN_DEPTH = "Extraction depth of files to include in the OSA scan. Optional.";
     static final String OSA_ENABLED = "Enable open source analysis (CxOSA). -osaLocationPath should be specified or the -LocationType parameter needs to be defined as 'folder' or 'shared' (if -osaLocationPath doesn't exist, use -locationPath). Optional.";
-    static final String SCA_ENABLED = String.format("Enable software composition analysis (SCA). SCA is the successor of CxOSA. Normally either -%1$s or -%2$s should be specified. If both are specified, -%2$s will be used. -osaLocationPath should be specified or the -LocationType parameter needs to be defined as 'folder' or 'shared' (if -osaLocationPath doesn't exist, use -locationPath). Optional.", Parameters.OSA_ENABLED, Parameters.SCA_ENABLED);
+    static final String SCA_ENABLED = String.format("Enable software composition analysis (SCA). SCA is the successor of CxOSA. Normally either -%1$s or -%2$s should be specified. If both are specified, -%2$s will be used. -osaLocationPath should be specified or the -LocationType parameter needs to be defined as 'folder' , 'zip' or 'shared' (if -osaLocationPath doesn't exist, use -locationPath). Optional.", Parameters.OSA_ENABLED, Parameters.SCA_ENABLED);
     static final String OSA_JSON_REPORT = "Generate CxOSA JSON report. Optional, not supported in AsyncScan mode";
     static final String OSA_FAIL_ON_ERROR = "Fails the execution in case of any error during the dependencies resolution process.";
     static final String OSA_FSA_CONF = "Comma separated list of FSA args, Example: 'npm.runPreStep,nuget.resolveDependencies' will override default values.";

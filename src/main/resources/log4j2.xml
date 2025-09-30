@@ -29,7 +29,7 @@
 
         <Root level="TRACE">
             <AppenderRef ref="Routing" level="${sys:logLevel}"/>
-            <AppenderRef ref="CA" level="INFO"/>
+            <AppenderRef ref="CA" level="${sys:logLevel:-INFO}"/>
         </Root>
     </Loggers>
 </Configuration>

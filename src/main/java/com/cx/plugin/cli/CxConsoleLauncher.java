@@ -71,6 +71,10 @@ public class CxConsoleLauncher {
             args = convertParamToLowerCase(args);
             CommandLine commandLine = getCommandLine(args);
             command = getCommand(commandLine);
+            System.setProperty("cliLogPath", commandLine.getOptionValue(LOG_PATH,
+			        "." + File.separator + "logs" + File.separator + "cx_console.log"));
+			System.setProperty("logLevel", commandLine.hasOption(Parameters.VERBOSE) ? "TRACE" : "INFO");
+			Configurator.reconfigure();
             logLocation = commandLine.getOptionValue(LOG_PATH, "." + File.separator + "logs" + File.separator + "cx_console.log");
             logLevel = getLogLevel(commandLine);
             initFileLogging(logLocation, logLevel);

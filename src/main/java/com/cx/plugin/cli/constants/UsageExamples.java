@@ -9,7 +9,8 @@ class UsageExamples {
     private static final String SCA_SCAN_TEMPLATE = "runCxConsole.cmd %s -projectname SP\\Cx\\Engine\\AST -scapathexclude .git -scalocationpath \\storage\\dir1\\subdir -scaUsername admin -scaPassword admin -scaAccount account -scacritical 1 -scahigh 2 -scamedium 3 -scalow 4";
 
     static final String SCAN = "\n\nCxConsole Scan -Projectname SP\\Cx\\Engine\\AST -CxServer http://localhost -cxuser admin@cx -cxpassword admin -locationtype folder -locationpath C:\\cx" +
-            " -preset All -incremental -reportpdf a.pdf\nCxConsole Scan -projectname SP\\Cx\\Engine\\AST -cxserver http://localhost -cxuser admin@cx -cxpassword admin -locationtype tfs" +
+            " -preset All -incremental -reportpdf a.pdf\nCxConsole Scan -projectname SP\\Cx\\Engine\\AST -CxServer http://localhost -cxuser admin@cx -cxpassword admin -locationtype zip -locationpath C:\\cx\\project.zip" +
+            " -preset All\nCxConsole Scan -projectname SP\\Cx\\Engine\\AST -cxserver http://localhost -cxuser admin@cx -cxpassword admin -locationtype tfs" +
             " -locationurl http://vsts2003:8080 -locationuser dm\\matys -locationpassword XYZ -preset default -reportxml a.xml -reportpdf b.pdf" +
             " -incremental -forcescan\nCxConsole Scan -projectname SP\\Cx\\Engine\\AST -cxserver http://localhost -cxuser admin@cx -cxpassword admin -locationtype share" +
             " -locationpath '\\\\storage\\path1;\\\\storage\\path2' -locationuser dm\\matys -locationpassword XYZ -preset \"Sans 25\" -reportxls a.xls -reportpdf b.pdf -private -verbose -log a.log\n" +

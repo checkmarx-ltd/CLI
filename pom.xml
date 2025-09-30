@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.cx.plugin</groupId>
     <artifactId>CxConsolePlugin</artifactId>
-    <version>1.1.39</version>
+    <version>1.1.40</version>
     <packaging>jar</packaging>
 
     <repositories>
@@ -235,12 +235,28 @@
 					<groupId>io.netty</groupId>
 					<artifactId>netty-common</artifactId>
 				</exclusion>
+                <exclusion>
+                    <groupId>io.netty</groupId>
+                    <artifactId>netty-codec-http</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>io.netty</groupId>
+                    <artifactId>netty-codec-http2</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>io.netty</groupId>
+                    <artifactId>netty-codec-compression</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>io.netty</groupId>
+                    <artifactId>netty-codec</artifactId>
+                </exclusion>
 			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.bouncycastle</groupId>
 			<artifactId>bcprov-jdk18on</artifactId>
-			<version>1.78.1</version>
+			<version>1.79</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
@@ -250,7 +266,7 @@
 		<dependency>
 			<groupId>io.netty</groupId>
 			<artifactId>netty-codec-http</artifactId>
-			<version>4.1.118.Final</version>
+			<version>4.2.5.Final</version>
 		</dependency>
 		<dependency>
 			<groupId>org.mozilla</groupId>
@@ -359,7 +375,7 @@
 		<dependency>
 			<groupId>io.netty</groupId>
 			<artifactId>netty-codec-http2</artifactId>
-			<version>4.1.118.Final</version>
+			<version>4.2.5.Final</version>
 		</dependency>
 		<dependency>
 			<groupId>io.netty</groupId>
@@ -415,6 +431,11 @@
 			<artifactId>gson</artifactId>
 			<version>2.13.1</version>
 		</dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.18.0</version>
+        </dependency>
     </dependencies>
 
 </project>
