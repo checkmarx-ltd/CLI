@@ -24,3 +24,8 @@ mvn clean install
 ## Contributing
 Please read through our [contributing guidelines](CONTRIBUTING.md).
 
+## Current Time
+```python
+import datetime
+print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+```
