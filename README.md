@@ -24,3 +24,5 @@ mvn clean install
 ## Contributing
 Please read through our [contributing guidelines](CONTRIBUTING.md).
 
+## Current Branch
+The current branch is `$(git rev-parse --abbrev-ref HEAD)`.
