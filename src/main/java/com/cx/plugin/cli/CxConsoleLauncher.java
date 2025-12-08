@@ -57,6 +57,8 @@ public class CxConsoleLauncher {
 
     private static final String SCA_PROJECT_NAME_INVALID_CHARS = "[\"`,:;\\\\|/'<>\\[\\]{}~]";
     private static Logger log = LogManager.getLogger(CxConsoleLauncher.class);
+    private static String USER_NAME = "cxuser";
+    private static String USER_PASSWORD = "cxpassword";
 
 
     public static void main(String[] args) {
