@@ -96,33 +96,33 @@ jobs:
               });
             }
 
-  vorpal-baseline:
-    name: Vorpal Baseline Scan
-    runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request' && github.base_ref == 'feature/vorpal'
+  # vorpal-baseline:
+  #   name: Vorpal Baseline Scan
+  #   runs-on: ubuntu-latest
+  #   if: github.event_name == 'pull_request' && github.base_ref == 'feature/vorpal'
     
-    permissions:
-      contents: read
-      pull-requests: write
+  #   permissions:
+  #     contents: read
+  #     pull-requests: write
     
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
       
-      - name: Set up JDK 8
-        uses: actions/setup-java@v4
-        with:
-          java-version: '8'
-          distribution: 'temurin'
+  #     - name: Set up JDK 8
+  #       uses: actions/setup-java@v4
+  #       with:
+  #         java-version: '8'
+  #         distribution: 'temurin'
       
-      - name: Vorpal Baseline Analysis
-        uses: checkmarx/vorpal-reviewdog-github-action@v1.2.0
-        with:
-          source_path: 'src/main/java'
-          folders_to_ignore: 'target,logs,.git,.github,src/test'
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          reporter: github-pr-check
-          level: info
-          filter_mode: nofilter
-          fail_on_error: false
-          reviewdog_flags: '-name="Vorpal Baseline"'
+  #     - name: Vorpal Baseline Analysis
+  #       uses: checkmarx/vorpal-reviewdog-github-action@v1.2.0
+  #       with:
+  #         source_path: 'src/main/java'
+  #         folders_to_ignore: 'target,logs,.git,.github,src/test'
+  #         github_token: ${{ secrets.GITHUB_TOKEN }}
+  #         reporter: github-pr-check
+  #         level: info
+  #         filter_mode: nofilter
+  #         fail_on_error: false
+  #         reviewdog_flags: '-name="Vorpal Baseline"'
