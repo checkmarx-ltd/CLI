@@ -16,7 +16,7 @@ on:
 
 jobs:
   vorpal-scan:
-    name: Vorpal Security Analysis
+    name: Vorpal Security Analysis - Single File
     runs-on: ubuntu-latest
     
     permissions:
