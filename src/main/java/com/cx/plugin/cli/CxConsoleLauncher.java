@@ -310,8 +310,6 @@ public class CxConsoleLauncher {
     private static void initFileLogging(String logLocation, String logLevel) {
         System.setProperty("cliLogPath", logLocation);
         System.setProperty("logLevel", logLevel);
-        log.debug("cliLogPath :"+logLocation);
-        log.debug("logLevel :"+logLevel);  
         Configurator.reconfigure();        
     }
 
