@@ -22,14 +22,41 @@
     </Appenders>
 
     <Loggers>
-        <Logger name="org.apache.http" level="WARN"/>
-        <Logger name="org.apache.cxf" level="ERROR"/>
-        <Logger name="org.springframework" level="ERROR"/>
-        <Logger name="org.whitesource.agent" level="ERROR"/>
-
-        <Root level="TRACE">
-            <AppenderRef ref="Routing" level="${sys:logLevel}"/>
-            <AppenderRef ref="CA" level="${sys:logLevel:-INFO}"/>
+        <Logger name="org.apache.http" level="WARN" additivity="false">
+            <AppenderRef ref="Routing"/>
+            <AppenderRef ref="CA"/>
+        </Logger>
+        <Logger name="org.apache.http.wire" level="WARN" additivity="false">
+            <AppenderRef ref="Routing"/>
+            <AppenderRef ref="CA"/>
+        </Logger>
+        <Logger name="org.apache.http.headers" level="WARN" additivity="false">
+            <AppenderRef ref="Routing"/>
+            <AppenderRef ref="CA"/>
+        </Logger>
+        <Logger name="org.apache.cxf" level="ERROR" additivity="false">
+            <AppenderRef ref="Routing"/>
+            <AppenderRef ref="CA"/>
+        </Logger>
+        <Logger name="org.springframework" level="ERROR" additivity="false">
+            <AppenderRef ref="Routing"/>
+            <AppenderRef ref="CA"/>
+        </Logger>
+        <Logger name="org.whitesource.agent" level="ERROR" additivity="false">
+            <AppenderRef ref="Routing"/>
+            <AppenderRef ref="CA"/>
+        </Logger>
+        <Logger name="com.cx" level="${sys:logLevel:-INFO}" additivity="false">
+            <AppenderRef ref="Routing"/>
+            <AppenderRef ref="CA"/>
+        </Logger>
+        <Logger name="com.checkmarx.configprovider" level="${sys:logLevel:-INFO}" additivity="false">
+            <AppenderRef ref="Routing"/>
+            <AppenderRef ref="CA"/>
+        </Logger>
+        <Root level="INFO">
+            <AppenderRef ref="Routing"/>
+            <AppenderRef ref="CA"/>
         </Root>
     </Loggers>
 </Configuration>

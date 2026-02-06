@@ -392,6 +392,12 @@
 			<artifactId>netty-common</artifactId>
 			<version>4.1.118.Final</version>
 		</dependency>
+        <!-- SLF4J API - Required for external libraries that use SLF4J -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.36</version>
+        </dependency>
         <!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-to-slf4j -->
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
@@ -409,6 +415,12 @@
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-api</artifactId>
             <version>2.17.1</version>
+        </dependency>
+        <!-- JCL to SLF4J bridge for Apache Commons Logging -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl-over-slf4j</artifactId>
+            <version>1.7.36</version>
         </dependency>
         <dependency>
     		<groupId>org.eclipse.jgit</groupId>
