@@ -134,7 +134,7 @@ public class CxConsoleLauncher {
 
         validateScanParameters(cxScanConfig);
 
-        org.slf4j.Logger logger = new Log4jLoggerFactory().getLogger(log.getName());
+        org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(log.getName());
 
         CxSastConnectionProvider connectionProvider = new CxSastConnectionProvider(cxScanConfig, logger);
 
