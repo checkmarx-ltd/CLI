@@ -171,6 +171,11 @@ public final class CxConfigHelper {
         scanConfig.setUseSSOLogin(cmd.hasOption(IS_SSO));
         scanConfig.setDisableCertificateValidation(cmd.hasOption(TRUSTED_CERTIFICATES));
 
+        String allowedHostname = props.getProperty(KEY_SSL_ALLOWED_HOSTS);
+        if (allowedHostname != null && !allowedHostname.trim().isEmpty()) {
+            scanConfig.setAllowedHostname(allowedHostname.trim());
+        }
+
         scanConfig.setPublic(!cmd.hasOption(IS_PRIVATE));
         if (cmd.hasOption(SCA_ENABLED) || command.equals(Command.SCA_SCAN)) {
             scanConfig.setEnablePolicyViolationsSCA(cmd.hasOption(IS_CHECKED_POLICY));
