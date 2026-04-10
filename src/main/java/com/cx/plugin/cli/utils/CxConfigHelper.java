@@ -176,6 +176,11 @@ public final class CxConfigHelper {
             scanConfig.setAllowedHostname(allowedHostname.trim());
         }
 
+        String hostnameVerificationEnabled = props.getProperty(KEY_SSL_HOSTNAME_VERIFICATION_ENABLED);
+        if (hostnameVerificationEnabled != null && !hostnameVerificationEnabled.trim().isEmpty()) {
+            scanConfig.setHostnameVerificationEnabled(Boolean.parseBoolean(hostnameVerificationEnabled.trim()));
+        }
+
         scanConfig.setPublic(!cmd.hasOption(IS_PRIVATE));
         if (cmd.hasOption(SCA_ENABLED) || command.equals(Command.SCA_SCAN)) {
             scanConfig.setEnablePolicyViolationsSCA(cmd.hasOption(IS_CHECKED_POLICY));

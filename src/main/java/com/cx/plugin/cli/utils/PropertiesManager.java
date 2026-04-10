@@ -51,6 +51,7 @@ public class PropertiesManager {
     public static final String KEY_DEFAULT_PRESETNAME = "scan.sast.preset.name";
     public static final String KEY_DEFAULT_ENGINE_CONFIGURATIONNAME = "scan.sast.engineconfiguration.name";
     public static final String KEY_SSL_ALLOWED_HOSTS = "ssl.allowed.hosts";
+    public static final String KEY_SSL_HOSTNAME_VERIFICATION_ENABLED = "ssl.hostname.verification.enabled";
 
     
     private final String SEPARATOR = FileSystems.getDefault().getSeparator();
