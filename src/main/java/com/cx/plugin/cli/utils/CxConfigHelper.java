@@ -158,11 +158,11 @@ public final class CxConfigHelper {
         	suppliedEngineConfigurationName = props.getProperty(KEY_DEFAULT_ENGINE_CONFIGURATIONNAME);
         }                
         
-        log.info("Engine configuration (source encoding): " + suppliedEngineConfigurationName);    
-    	if(!suppliedEngineConfigurationName.equalsIgnoreCase(ENGINE_CONFIGURATION_DEFAULT)) {
-        	scanConfig.setEngineConfigurationName(suppliedEngineConfigurationName);    		
+    	log.info("Engine configuration (source encoding): " + suppliedEngineConfigurationName);
+    	if(StringUtils.isBlank(suppliedEngineConfigurationName) || suppliedEngineConfigurationName.equalsIgnoreCase(ENGINE_CONFIGURATION_DEFAULT)) {
+    		scanConfig.setEngineConfigurationId(Integer.parseInt(ENGINE_CONFIGURATION_DEFAULT_ID));
     	}else {
-    		scanConfig.setEngineConfigurationId(Integer.parseInt(ENGINE_CONFIGURATION_DEFAULT_ID)); 
+        	scanConfig.setEngineConfigurationName(suppliedEngineConfigurationName);
     	}
     	
         if (cmd.hasOption(CUSTOM_FIELDS)) {
