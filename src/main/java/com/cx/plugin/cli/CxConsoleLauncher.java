@@ -22,7 +22,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.config.ConfigurationSource;
 import org.apache.logging.log4j.core.config.Configurator;
-import org.apache.logging.slf4j.Log4jLoggerFactory;
+import org.slf4j.LoggerFactory;
 import org.awaitility.core.ConditionTimeoutException;
 
 import javax.naming.ConfigurationException;
@@ -145,7 +145,7 @@ public class CxConsoleLauncher {
 
         validateScanParameters(cxScanConfig);
 
-        org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(log.getName());
+        org.slf4j.Logger logger = LoggerFactory.getLogger(log.getName());
 
         CxSastConnectionProvider connectionProvider = new CxSastConnectionProvider(cxScanConfig, logger);
 
