@@ -133,7 +133,7 @@
         <dependency>
             <groupId>com.checkmarx</groupId>
             <artifactId>cx-client-common</artifactId>
-            <version>2025.4.35</version>
+            <version>2026_Q1_Integration_Branch</version>
             <!-- Remove these excludes once latest FSA is used -->
             <exclusions>
 				<exclusion>
@@ -463,11 +463,6 @@
             <groupId>com.github.junrar</groupId>
             <artifactId>junrar</artifactId>
             <version>7.5.10</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-lang</groupId>
-            <artifactId>commons-lang</artifactId>
-            <version>2.6</version>
         </dependency>
         <dependency>
             <groupId>io.netty</groupId>
