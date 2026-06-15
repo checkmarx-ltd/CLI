@@ -22,7 +22,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.config.ConfigurationSource;
 import org.apache.logging.log4j.core.config.Configurator;
-import org.apache.logging.slf4j.Log4jLoggerFactory;
+import org.slf4j.LoggerFactory;
 import org.awaitility.core.ConditionTimeoutException;
 
 import javax.naming.ConfigurationException;
@@ -48,8 +48,19 @@ public class CxConsoleLauncher {
     static {
         try {
             String log4jConfigFile = System.getProperty("user.dir") + File.separator + "log4j2.xml";
-            ConfigurationSource source = new ConfigurationSource(new FileInputStream(log4jConfigFile));
-            Configurator.initialize(null, source);
+            File configFile = new File(log4jConfigFile);
+            if (configFile.exists() && configFile.length() > 0) {
+                try {
+                    javax.xml.parsers.DocumentBuilderFactory factory = javax.xml.parsers.DocumentBuilderFactory.newInstance();
+                    javax.xml.parsers.DocumentBuilder builder = factory.newDocumentBuilder();
+                    builder.parse(configFile);
+                    Configurator.reconfigure(configFile.toURI());
+                } catch (Exception validationException) {
+                    System.out.println("Failed to use external log config file");
+                }
+            } else {
+                System.out.println("Failed to use external log config file");
+            }
         } catch (Exception e) {
             System.out.println("Failed to use external log config file");
         }
@@ -134,7 +145,7 @@ public class CxConsoleLauncher {
 
         validateScanParameters(cxScanConfig);
 
-        org.slf4j.Logger logger = new Log4jLoggerFactory().getLogger(log.getName());
+        org.slf4j.Logger logger = LoggerFactory.getLogger(log.getName());
 
         CxSastConnectionProvider connectionProvider = new CxSastConnectionProvider(cxScanConfig, logger);
 
@@ -310,8 +321,6 @@ public class CxConsoleLauncher {
     private static void initFileLogging(String logLocation, String logLevel) {
         System.setProperty("cliLogPath", logLocation);
         System.setProperty("logLevel", logLevel);
-        log.debug("cliLogPath :"+logLocation);
-        log.debug("logLevel :"+logLevel);  
         Configurator.reconfigure();        
     }
 

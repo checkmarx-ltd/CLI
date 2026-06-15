@@ -158,11 +158,11 @@ public final class CxConfigHelper {
         	suppliedEngineConfigurationName = props.getProperty(KEY_DEFAULT_ENGINE_CONFIGURATIONNAME);
         }                
         
-        log.info("Engine configuration (source encoding): " + suppliedEngineConfigurationName);    
-    	if(!suppliedEngineConfigurationName.equalsIgnoreCase(ENGINE_CONFIGURATION_DEFAULT)) {
-        	scanConfig.setEngineConfigurationName(suppliedEngineConfigurationName);    		
+    	log.info("Engine configuration (source encoding): " + suppliedEngineConfigurationName);
+    	if(StringUtils.isBlank(suppliedEngineConfigurationName) || suppliedEngineConfigurationName.equalsIgnoreCase(ENGINE_CONFIGURATION_DEFAULT)) {
+    		scanConfig.setEngineConfigurationId(Integer.parseInt(ENGINE_CONFIGURATION_DEFAULT_ID));
     	}else {
-    		scanConfig.setEngineConfigurationId(Integer.parseInt(ENGINE_CONFIGURATION_DEFAULT_ID)); 
+        	scanConfig.setEngineConfigurationName(suppliedEngineConfigurationName);
     	}
     	
         if (cmd.hasOption(CUSTOM_FIELDS)) {
@@ -170,6 +170,16 @@ public final class CxConfigHelper {
         }
         scanConfig.setUseSSOLogin(cmd.hasOption(IS_SSO));
         scanConfig.setDisableCertificateValidation(cmd.hasOption(TRUSTED_CERTIFICATES));
+
+        String allowedHostname = props.getProperty(KEY_SSL_ALLOWED_HOSTS);
+        if (allowedHostname != null && !allowedHostname.trim().isEmpty()) {
+            scanConfig.setAllowedHostname(allowedHostname.trim());
+        }
+
+        String hostnameVerificationEnabled = props.getProperty(KEY_SSL_HOSTNAME_VERIFICATION_ENABLED);
+        if (hostnameVerificationEnabled != null && !hostnameVerificationEnabled.trim().isEmpty()) {
+            scanConfig.setHostnameVerificationEnabled(Boolean.parseBoolean(hostnameVerificationEnabled.trim()));
+        }
 
         scanConfig.setPublic(!cmd.hasOption(IS_PRIVATE));
         if (cmd.hasOption(SCA_ENABLED) || command.equals(Command.SCA_SCAN)) {
